@@ -1,0 +1,221 @@
+from unittest import skip
+
+import responses
+
+from .base import OscTest, CallbackFactory
+
+
+class TestPackage(OscTest):
+    @responses.activate
+    def test_get_files(self):
+        def callback(headers, params, request):
+            status = 200
+            body = """
+                <directory name="python.8549" rev="1" vrev="28.17" 
+                    srcmd5="9498d242f91b858372705d1bb4e26e1a">
+                  <entry name="CVE-2017-18207.patch" 
+                    md5="d1e5e39cfdf5087933cabf7d7b541158" size="900" 
+                    mtime="1528391213" />
+                  <entry name="Python-2.7.13.tar.xz" 
+                    md5="53b43534153bb2a0363f08bae8b9d990" size="12495628"
+                    mtime="1484132166" />
+                  <entry name="Python-2.7.13.tar.xz.asc" 
+                    md5="115f2de1793fa46a382f2a9f4e11b285" size="801" 
+                    mtime="1484132166" />
+                  <entry name="README.SUSE" 
+                    md5="4a5a6c13a5b163d2e763b0d45f64c051" size="735" 
+                    mtime="1216853740" />
+                  <entry name="python-2.7.13-docs-pdf-a4.tar.bz2" 
+                    md5="ccc87ad010f28d926ca09b1d5a55f4b0" size="10712181" 
+                    mtime="1484132167" />
+                  <entry name="python-base.spec" 
+                    md5="af86457b494a667420e971e2e0febfcf" size="18454" 
+                    mtime="1537948380" />
+                  <entry name="python-doc.changes" 
+                    md5="d5b75815a9455e231cc12d0aac045f9c" size="7290" 
+                    mtime="1537948380" />
+                  <entry name="python-doc.spec" 
+                    md5="832b21401d9951d3b6e717e80944bd2b" size="6522" 
+                    mtime="1537948381" />
+                  <entry name="python.changes" 
+                    md5="d479c6cd83559b1eed7d909087cf4785" size="54144" 
+                    mtime="1537948381" />
+                  <entry name="python.spec" 
+                    md5="812c70b56ffd92d060bcf8b02ba479ff" size="20189" 
+                    mtime="1537948382" />
+                </directory>
+            """
+            headers['request-id'] = '728d329e-0e86-11e4-a748-0c84dc037c13'
+            return status, headers, body
+
+        self.mock_request(
+            method=responses.GET,
+            url=self.osc.url + '/source/SUSE:SLE-12-SP1:Update/python.8549',
+            callback=CallbackFactory(callback)
+        )
+
+        response = self.osc.packages.get_files(
+            "SUSE:SLE-12-SP1:Update", "python.8549"
+        )
+        self.assertEqual(response.tag, "directory")
+        self.assertEqual(response.countchildren(), 10)
+
+    @responses.activate
+    def test_get_list(self):
+        def callback(headers, params, request):
+            status = 200
+            body = """
+                <directory count="14">
+                  <entry name="SAPHanaSR"/>
+                  <entry name="SAPHanaSR.4926"/>
+                  <entry name="SAPHanaSR.7820"/>
+                  <entry name="SUSEConnect"/>
+                  <entry name="SUSEConnect.1732"/>
+                  <entry name="SUSEConnect.1892"/>
+                  <entry name="SUSEConnect.2196"/>
+                  <entry name="SUSEConnect.2374"/>
+                  <entry name="SUSEConnect.4293"/>
+                  <entry name="SUSEConnect.4515"/>
+                  <entry name="SUSEConnect.4773"/>
+                  <entry name="SUSEConnect.7260"/>
+                  <entry name="SUSEConnect.8868"/>
+                  <entry name="SUSEConnect.9195"/>
+                </directory>
+            """
+            headers['request-id'] = '728d329e-0e86-11e4-a748-0c84dc037c13'
+            return status, headers, body
+
+        self.mock_request(
+            method=responses.GET,
+            url=self.osc.url + '/source/SUSE:SLE-12-SP1:Update/python.8549',
+            callback=CallbackFactory(callback)
+        )
+
+        response = self.osc.packages.get_files(
+            "SUSE:SLE-12-SP1:Update", "python.8549"
+        )
+        self.assertEqual(response.tag, "directory")
+        self.assertEqual(response.countchildren(), 14)
+
+    @responses.activate
+    def test_get_meta(self):
+        self.mock_request(
+            method=responses.GET,
+            url=self.osc.url + '/source/SUSE:SLE-12-SP1:Update/python.8549/'
+                               '_meta',
+            body="""
+            <package name="python.8549" project="SUSE:SLE-12-SP1:Update">
+              <title>Python Interpreter</title>
+              <description>Python is an interpreted, object-oriented programming
+              language, and is often compared to Tcl, Perl, Scheme, or Java. You
+              can find an overview of Python in the documentation and tutorials
+              included in the python-doc (HTML) or python-doc-pdf (PDF) 
+              packages.
+            
+              If you want to install third party modules using distutils, you 
+              need to install python-devel package.</description>
+              <releasename>python</releasename>
+            </package>
+            """
+        )
+
+        response = self.osc.packages.get_meta(
+            "SUSE:SLE-12-SP1:Update", "python.8549"
+        )
+        self.assertEqual(response.tag, "package")
+        self.assertEqual(
+            response.xpath("./title")[0].text,
+            "Python Interpreter"
+        )
+
+    @skip("No test data available")
+    @responses.activate
+    def test_get_attribute(self):
+        def callback(headers, params, request):
+            status = 200
+            body = """</attributes>"""
+            headers['request-id'] = '728d329e-0e86-11e4-a748-0c84dc037c13'
+            return status, headers, body
+
+        self.mock_request(
+            method=responses.GET,
+            url=self.osc.url + '/source/SUSE:SLE-12-SP1:Update/python.8549/'
+                               '_attribute',
+            callback=CallbackFactory(callback)
+        )
+
+    @responses.activate
+    def test_get_history(self):
+        self.mock_request(
+            method=responses.GET,
+            url=self.osc.url + '/source/SUSE:SLE-12-SP1:Update/python.8549/'
+                               '_history',
+            body="""
+                <revisionlist>
+                  <revision rev="1" vrev="1">
+                    <srcmd5>b9b258599bb67a2a3d396b1515cabeab</srcmd5>
+                    <version>unknown</version>
+                    <time>1514367595</time>
+                    <user>Fȱȱ Bar</user>
+                    <comment>
+                      Set link tȱ grub2.5745 via maintenance_release request
+                    </comment>
+                    <requestid>148865</requestid>
+                  </revision>
+                  <revision rev="2" vrev="2">
+                    <srcmd5>9f5e43584f67e2a301b71b63bdf8e2e1</srcmd5>
+                    <version>unknown</version>
+                    <time>1520336862</time>
+                    <user>HȨllȱ Wȱrld</user>
+                    <comment>
+                      Set link tȱ grub2.6584 via maintenance_release request
+                    </comment>
+                    <requestid>154349</requestid>
+                  </revision>
+                </revisionlist>
+            """
+        )
+
+        response = self.osc.packages.get_history(
+            "SUSE:SLE-12-SP1:Update", "python.8549"
+        )
+        self.assertEqual(response.tag, "revisionlist")
+        self.assertEqual(
+            len(response.xpath("./revision")), 2
+        )
+
+    @responses.activate
+    def test_cmd(self):
+        self.mock_request(
+            method=responses.POST,
+            url=self.osc.url + '/source/SUSE:SLE-12-SP1:Update/python.8549',
+            body="""
+                +==== //tools/python/2.6.2/src/base/Modules/_ctypes/libffi/src/sparc/ffi.c#1 - /home/build/clifford/gpdb/tools/python/2.6.2/src/base/Modules/_ctypes/libffi/src/sparc/ffi.c ====
+                +---
+                + Modules/_ctypes/libffi/src/sparc/ffi.c |    5 +++++
+                + 1 file changed, 5 insertions(+)
+                +
+                +--- a/Modules/_ctypes/libffi/src/sparc/ffi.c
+                ++++ b/Modules/_ctypes/libffi/src/sparc/ffi.c
+                +@@ -652,6 +652,11 @@
+                + 	}
+                +       else
+                + 	{
+                ++#if FFI_TYPE_LONGDOUBLE != FFI_TYPE_DOUBLE
+                ++         /* SparcV9 long double is 16-byte aligned; skip arg if necessary */
+                ++         if (arg_types[i]->type == FFI_TYPE_LONGDOUBLE && (argn & 1))
+                ++           argn++;
+                ++#endif
+                + 	  /* Right-justify.  */
+                + 	  argn += ALIGN(arg_types[i]->size, FFI_SIZEOF_ARG) / FFI_SIZEOF_ARG;
+                + 
+            """
+        )
+
+        response = self.osc.packages.cmd(
+            "SUSE:SLE-12-SP1:Update", "python.8549", "diff"
+        )
+        self.assertTrue(isinstance(response, str))
+        self.assertIn(
+            "++#if FFI_TYPE_LONGDOUBLE != FFI_TYPE_DOUBLE", response
+        )

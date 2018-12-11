@@ -1,0 +1,2 @@
+class OscError(Exception):
+    pass
