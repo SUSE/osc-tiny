@@ -57,7 +57,7 @@ class Request(ExtensionBase):
 
         return self.osc.get_objectified_xml(response)
 
-    def cmd(self, request_id, cmd="diff"):
+    def cmd(self, request_id, cmd="diff", **kwargs):
         """
         Get the result of the specified command
 
@@ -67,6 +67,12 @@ class Request(ExtensionBase):
 
         :param request_id: ID of the request
         :param cmd: Name of the command
+        :param view: ???
+        :param unified: ???
+        :param missingok: ???
+        :param filelimit: ???
+        :param expand: ???
+        :param withissues: ???
         :return: plain text
         :rtype: str
         """
@@ -76,13 +82,12 @@ class Request(ExtensionBase):
                 cmd, ", ".join(allowed)
             ))
 
+        kwargs["cmd"] = cmd
         request_id = self._validate_id(request_id)
         response = self.osc.request(
             url=urljoin(self.osc.url, self.base_path + request_id),
             method="POST",
-            data={
-                'cmd': cmd,
-            }
+            data=kwargs
         )
 
         return response.text
