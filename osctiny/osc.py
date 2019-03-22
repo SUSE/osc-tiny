@@ -1,4 +1,5 @@
 import gc
+from ssl import get_default_verify_paths
 
 from lxml.objectify import fromstring
 from requests import Session, Request
@@ -20,13 +21,13 @@ class Osc:
     session = None
     _registered = {}
 
-    def __init__(self, url=None, username=None, password=None, verify=True):
+    def __init__(self, url=None, username=None, password=None, verify=None):
         # Basic URL and authentication settings
         self.url = url or self.url
         self.username = username or self.username
         self.password = password or self.password
         self.session = Session()
-        self.session.verify = verify
+        self.session.verify = verify or get_default_verify_paths().capath
         self.auth = HTTPBasicAuth(self.username, self.password)
 
         # API endpoints
