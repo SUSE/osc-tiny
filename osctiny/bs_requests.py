@@ -34,6 +34,7 @@ class Request(ExtensionBase):
     def get(self, request_id, withhistory=False, withfullhistory=False):
         """
         Get one request object
+
         :param request_id: ID of the request
         :param withhistory: includes the request history in result
         :type withhistory: bool
@@ -91,3 +92,19 @@ class Request(ExtensionBase):
         )
 
         return response.text
+
+    def get_comments(self, request_id):
+        """
+        Get a list of comments for request
+
+        :param request_id: ID of the request
+        :return: Objectified XML element
+        :rtype: lxml.objectify.ObjectifiedElement
+        """
+        request_id = self._validate_id(request_id)
+        response = self.osc.request(
+            url=urljoin(self.osc.url,
+                        '/comments' + self.base_path + request_id),
+            method="GET",
+        )
+        return self.osc.get_objectified_xml(response)
