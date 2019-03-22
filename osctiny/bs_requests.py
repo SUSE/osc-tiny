@@ -68,7 +68,7 @@ class Request(ExtensionBase):
 
         :param request_id: ID of the request
         :param cmd: Name of the command
-        :param view: ???
+        :param view: One of: ``xml`` or nothing
         :param unified: ???
         :param missingok: ???
         :param filelimit: ???
@@ -91,6 +91,8 @@ class Request(ExtensionBase):
             data=kwargs
         )
 
+        if kwargs.get("view", "plain") == "xml":
+            return self.osc.get_objectified_xml(response)
         return response.text
 
     def get_comments(self, request_id):
