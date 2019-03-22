@@ -46,6 +46,7 @@ class CallbackFactory:
 class OscTest(TestCase):
     @classmethod
     def setUpClass(cls):
+        super().setUpClass()
         cls.osc = Osc(
             url="http://api.example.com",
             username="foobar",
