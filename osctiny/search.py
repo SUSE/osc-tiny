@@ -6,7 +6,7 @@ from .base import ExtensionBase
 class Search(ExtensionBase):
     base_path = "/search/"
 
-    def search(self, path, xpath):
+    def search(self, path, xpath, **kwargs):
         """
         Search for objects in buildservice
 
@@ -22,12 +22,14 @@ class Search(ExtensionBase):
 
         :param path: object type / relative URL
         :param xpath: XPath expression to filter results
+        :param kwargs: Additional parameters to be passed to the underlying API
         :return: Objectified XML element
         :rtype: lxml.objectify.ObjectifiedElement
         """
+        kwargs["match"] = xpath
         response = self.osc.request(
             url=urljoin(self.osc.url, self.base_path + path.lstrip("/")),
-            data={'match': xpath},
+            data=kwargs,
             method='GET'
         )
         return self.osc.get_objectified_xml(response)
@@ -41,4 +43,4 @@ class Search(ExtensionBase):
                 )
             )
 
-        return lambda x: self.search(name, x)
+        return lambda x, **kwargs: self.search(name, x, **kwargs)
