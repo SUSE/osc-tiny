@@ -1,3 +1,7 @@
+"""
+Main API access
+---------------
+"""
 import gc
 from ssl import get_default_verify_paths
 
@@ -14,6 +18,28 @@ from .search import Search
 class Osc:
     """
     Build service API client
+
+    An instance of :py:class:`Osc` provides all the extensions and access to the
+    API.
+
+    .. list-table:: Extensions
+        :header-rows: 1
+
+        * - Extension
+          - Accessible through attribute
+        * - :py:class:`osctiny.packages.Package`
+          - :py:attr:`packages`
+        * - :py:class:`osctiny.projects.Project`
+          - :py:attr:`projects`
+        * - :py:class:`osctiny.bs_requests.Request`
+          - :py:attr:`requests`
+        * - :py:class:`osctiny.search.Search`
+          - :py:attr:`search`
+
+    :param url: API URL of a BuildService instance
+    :param username: Credential for login
+    :param password: Password for login
+    :param verify: See `SSL Cert Verification <http://docs.python-requests.org/en/master/user/advanced/#ssl-cert-verification>`_ for more details
     """
     url = 'https://api.opensuse.org'
     username = ''
@@ -41,6 +67,15 @@ class Osc:
         gc.collect()
 
     def request(self, url, data=None, method="GET", stream=False):
+        """
+        Perform HTTP(S) request
+
+        :param url: Full URL
+        :param data: Data to be included as GET or POST parameters in request
+        :param method: HTTP method
+        :param stream: Delayed access, see `Body Content Workflow <http://docs.python-requests.org/en/master/user/advanced/#body-content-workflow>`_
+        :return: :py:class:`requests.Response`
+        """
         data = data or {}
         req = Request(method, url, auth=self.auth, data=data)
         prepped_req = self.session.prepare_request(req)
@@ -54,6 +89,13 @@ class Osc:
 
     @staticmethod
     def get_objectified_xml(response):
+        """
+        Return API response as an XML object
+
+        :param response: An API response
+        :rtype response: :py:class:`requests.Response`
+        :return: :py:class:`lxml.objectify.ObjectifiedElement`
+        """
         return fromstring(response.text)
 
 

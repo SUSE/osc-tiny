@@ -1,9 +1,16 @@
+"""
+Requests extension
+------------------
+"""
 from urllib.parse import urljoin
 
 from .base import ExtensionBase
 
 
 class Request(ExtensionBase):
+    """
+    The BuildService request API is accessible through this object.
+    """
     base_path = "/request/"
 
     @staticmethod
@@ -19,7 +26,7 @@ class Request(ExtensionBase):
         """
         Get a list or request objects
 
-        :param params: see  https://build.opensuse.org/apidocs/index#73
+        :param params: see https://build.opensuse.org/apidocs/index#73
         :return: Objectified XML element
         :rtype: lxml.objectify.ObjectifiedElement
         """
@@ -64,7 +71,7 @@ class Request(ExtensionBase):
 
         Available commands:
 
-        * diff: Shows the diff of all affected packages.
+        * `diff`: Shows the diff of all affected packages.
 
         :param request_id: ID of the request
         :param cmd: Name of the command

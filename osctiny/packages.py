@@ -1,3 +1,7 @@
+"""
+Packages extension
+------------------
+"""
 import errno
 import os
 from urllib.parse import urljoin

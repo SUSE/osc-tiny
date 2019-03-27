@@ -1,3 +1,7 @@
+"""
+Search extension
+----------------
+"""
 from urllib.parse import urljoin
 
 from .base import ExtensionBase
