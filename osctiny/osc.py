@@ -13,6 +13,7 @@ from .packages import Package
 from .projects import Project
 from .bs_requests import Request as BsRequest
 from .search import Search
+from .users import Group, Person
 
 
 class Osc:
@@ -20,7 +21,12 @@ class Osc:
     Build service API client
 
     An instance of :py:class:`Osc` provides all the extensions and access to the
-    API.
+    API as attributes, e.g. to get a list of groups use:
+
+    .. code-block:: python
+
+        instance = Osc(*args, **kwargs)
+        instance.groups.get_list()
 
     .. list-table:: Extensions
         :header-rows: 1
@@ -35,6 +41,10 @@ class Osc:
           - :py:attr:`requests`
         * - :py:class:`osctiny.search.Search`
           - :py:attr:`search`
+        * - :py:class:`osctiny.users.Group`
+          - :py:attr:`groups`
+        * - :py:class:`osctiny.users.Person`
+          - :py:attr:`users`
 
     :param url: API URL of a BuildService instance
     :param username: Credential for login
@@ -57,10 +67,12 @@ class Osc:
         self.auth = HTTPBasicAuth(self.username, self.password)
 
         # API endpoints
+        self.groups = Group(osc_obj=self)
         self.packages = Package(osc_obj=self)
         self.projects = Project(osc_obj=self)
         self.requests = BsRequest(osc_obj=self)
         self.search = Search(osc_obj=self)
+        self.users = Person(osc_obj=self)
 
     def __del__(self):
         # Just in case ;-)
