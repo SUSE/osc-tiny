@@ -46,11 +46,12 @@ class Project(ExtensionBase):
 
         return self.osc.get_objectified_xml(response)
 
-    def get_files(self, project, meta=False, rev=None):
+    def get_files(self, project, directory="", meta=False, rev=None):
         """
         List project files
 
         :param project: name of project
+        :param directory: directory in project
         :param meta: switch for _meta files
         :type meta: bool
         :param rev: revision
@@ -66,7 +67,7 @@ class Project(ExtensionBase):
         response = self.osc.request(
             url=urljoin(
                 self.osc.url,
-                "{}/{}/_project".format(self.base_path, project)
+                "{}/{}/{}".format(self.base_path, project, directory)
             ),
             method="GET",
             data=data
@@ -94,5 +95,46 @@ class Project(ExtensionBase):
             url = "{}/{}".format(url, attribute)
 
         response = self.osc.request(url=url, method="GET")
+
+        return self.osc.get_objectified_xml(response)
+
+    def get_comments(self, project):
+        """
+        Get a list of comments for project
+
+        :param project: name of project
+        :return: Objectified XML element
+        :rtype: lxml.objectify.ObjectifiedElement
+        """
+        response = self.osc.request(
+            url=urljoin(self.osc.url,
+                        '/comments/project/' + project),
+            method="GET",
+        )
+        return self.osc.get_objectified_xml(response)
+
+    def get_history(self, project, meta=True, rev=None, **kwargs):
+        """
+        Get history of project
+
+        To get just a particular revision, use the ``rev`` argument.
+
+        :param project: name of package
+        :param meta: Switch between meta and non-meta (normally empty) revision
+                     history
+        :type meta: bool
+        :param rev: History revision ID
+        :return: Objectified XML element
+        :rtype: lxml.objectify.ObjectifiedElement
+        """
+        if rev:
+            kwargs["rev"] = rev
+        kwargs["meta"] = "1" if meta else "0"
+
+        response = self.osc.request(
+            url=urljoin(self.osc.url, "/{}/_project/_history".format(project)),
+            method="GET",
+            data=kwargs
+        )
 
         return self.osc.get_objectified_xml(response)
