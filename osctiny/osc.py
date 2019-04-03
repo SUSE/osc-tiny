@@ -3,6 +3,7 @@ Main API access
 ---------------
 """
 import gc
+import re
 from ssl import get_default_verify_paths
 
 from lxml.objectify import fromstring
@@ -108,8 +109,15 @@ class Osc:
         :rtype response: :py:class:`requests.Response`
         :return: :py:class:`lxml.objectify.ObjectifiedElement`
         """
-        return fromstring(response.text)
+        try:
+            return fromstring(response.text)
+        except ValueError:
+            # Just in case OBS returns a Unicode string with encoding
+            # declaration
+            if isinstance(response.text, str) and "encoding=" in response.text:
+                return fromstring(
+                    re.sub(r'encoding="[^"]+"', "", response.text)
+                )
 
-
-
-
+            # This might be something else
+            raise

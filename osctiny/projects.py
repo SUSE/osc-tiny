@@ -46,7 +46,7 @@ class Project(ExtensionBase):
 
         return self.osc.get_objectified_xml(response)
 
-    def get_files(self, project, directory="", meta=False, rev=None):
+    def get_files(self, project, directory="", meta=False, rev=None, **kwargs):
         """
         List project files
 
@@ -56,21 +56,21 @@ class Project(ExtensionBase):
         :type meta: bool
         :param rev: revision
         :type rev: int
+        :param kwargs: More keyword arguments for API call
         :return: Objectified XML element
         :rtype: lxml.objectify.ObjectifiedElement
         """
-        data = {}
         if meta:
-            data["meta"] = '1'
+            kwargs["meta"] = '1'
         if rev:
-            data["rev"] = str(rev)
+            kwargs["rev"] = str(rev)
         response = self.osc.request(
             url=urljoin(
                 self.osc.url,
                 "{}/{}/{}".format(self.base_path, project, directory)
             ),
             method="GET",
-            data=data
+            data=kwargs
         )
 
         return self.osc.get_objectified_xml(response)
