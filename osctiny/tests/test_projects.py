@@ -142,13 +142,14 @@ class TestProject(OscTest):
         )
 
         with self.subTest("Non-meta files"):
-            response = self.osc.projects.get_files("SUSE:SLE-15-SP1:GA")
+            response = self.osc.projects.get_files("SUSE:SLE-15-SP1:GA",
+                                                   "_project")
             self.assertEqual(response.tag, "directory")
             self.assertEqual(len(response.xpath("./entry")), 1)
 
         with self.subTest("Meta files"):
             response = self.osc.projects.get_files(
-                "SUSE:SLE-15-SP1:GA", meta=True
+                "SUSE:SLE-15-SP1:GA", "_project", meta=True
             )
             self.assertEqual(response.tag, "directory")
             self.assertEqual(len(response.xpath("./entry")), 2)
