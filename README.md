@@ -1,6 +1,8 @@
 OSC Tiny
 ========
 
+[![Build Status](https://travis-ci.com/crazyscientist/osc-tiny.svg?branch=master)](https://travis-ci.com/crazyscientist/osc-tiny)
+
 This project aims to provide a minimalistic and transparent client for accessing
 the [OpenBuildService](https://openbuildservice.org/) 
 [API](https://build.opensuse.org/apidocs/index).
