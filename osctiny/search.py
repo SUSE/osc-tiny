@@ -47,4 +47,4 @@ class Search(ExtensionBase):
                 )
             )
 
-        return lambda x, **kwargs: self.search(name, x, **kwargs)
+        return lambda *args, **kwargs: self.search(name, *args, **kwargs)
