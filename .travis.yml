@@ -13,3 +13,12 @@ install:
 script:
   - python -m unittest
   - pylint --rcfile=pylint.rc osctiny
+deploy:
+  provider: pypi
+  skip_existing: true
+  user: crazyphd
+  password:
+    secure: "2dXvvL6ccqBAt5HFe6rbuip2nHYcu44JkdCKouYS1YTwDBdqR2ot1AIDPNUs48Q4wXZ0PDzaoMSMbiWpLX/4e/Tjl4rDEB1GpVtKstVMa4P8qV++4J2028BNbvygabkgy5SeqYpwlgHF1szzSpIdZd5HH0JNLqPOfL6gBcbPFqHSWZH6tdwieTOUPY6t+/LxWTMzgcYqUCmIIoP0F5CArELXGPanU+ldcJLenffMXgppzXFUUnUFMXAOpzqQNrdv+iBqABBaVvhXHKtF4xPAOPkaIwd0uffuIWfvfc+V0/pNvj8krS0tV/kLDGi0CFhLhdE3qk8W+f305eqZzvdl/S/fwJkpY8WQfQfx0bMb+Q8wwlAzgX30Fzl1/UAjVBx2wQWJ1pGUMC6OeTekqYKhgHsXwZnklMIA3unEkw+IUBJ8ZfYk+BU/gdQs9gTv3TwiMem4Ellrw4ZVe1SdrjgA/gwtBXR4HHo1UICWeTZKlRW4DreYLa8zOMUl2eGXdQmCehJLCs6tAAkMulAeyi3G0BmpUzUDZ89koN2A7dPIZPmyI6YohWcwto2wRP8zixY8RSZ5PnD2QK+Yg1lnGbkdXSSBFxN8ItpKInBrNsP6W3oAGwr4XJgQ+fOTykS8M/mzEP/FtT5y1TyHXtcn+I+Gg+94kiKB5L1ADb2E2P+0XDY="
+  on:
+    tags: true
+    branch: master
