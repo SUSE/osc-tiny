@@ -1,3 +1,5 @@
+# pylint: disable=missing-docstring,too-few-public-methods
+
 class ExtensionBase:
     """
     Base class for extensions of the :py:class:`Ocs` entry point.

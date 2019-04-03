@@ -9,6 +9,7 @@ matrix:
       dist: xenial
       sudo: true
 install:
-  - pip install -r requirements.txt
+  - pip install -r requirements.txt pylint
 script:
   - python -m unittest
+  - pylint --rcfile=pylint.rc osctiny

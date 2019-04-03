@@ -2,8 +2,6 @@
 Persons and groups extension
 ----------------------------
 """
-import errno
-import os
 from urllib.parse import urljoin
 
 from .base import ExtensionBase
@@ -49,6 +47,7 @@ class Group(ExtensionBase):
         return self.osc.get_objectified_xml(response)
 
 
+# pylint: disable=too-few-public-methods
 class Person(ExtensionBase):
     """
     The BuildService person API is accessible through this object.

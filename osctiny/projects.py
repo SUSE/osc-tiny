@@ -8,6 +8,9 @@ from .base import ExtensionBase
 
 
 class Project(ExtensionBase):
+    """
+    Osc extension to interact with projects
+    """
     base_path = "/source"
 
     def get_list(self, deleted=False):

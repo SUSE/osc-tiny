@@ -10,6 +10,9 @@ from .base import ExtensionBase
 
 
 class Package(ExtensionBase):
+    """
+    Osc extension to interact with packages
+    """
     base_path = "/source"
 
     def get_list(self, project):
@@ -95,6 +98,7 @@ class Package(ExtensionBase):
 
         return response
 
+    # pylint: disable=too-many-arguments
     def download_file(self, project, package, filename, destdir, meta=False,
                       overwrite=False):
         """

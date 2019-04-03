@@ -6,6 +6,7 @@ import gc
 import re
 from ssl import get_default_verify_paths
 
+# pylint: disable=no-name-in-module
 from lxml.objectify import fromstring
 from requests import Session, Request
 from requests.auth import HTTPBasicAuth
@@ -17,6 +18,7 @@ from .search import Search
 from .users import Group, Person
 
 
+# pylint: disable=too-many-instance-attributes
 class Osc:
     """
     Build service API client
@@ -50,7 +52,11 @@ class Osc:
     :param url: API URL of a BuildService instance
     :param username: Credential for login
     :param password: Password for login
-    :param verify: See `SSL Cert Verification <http://docs.python-requests.org/en/master/user/advanced/#ssl-cert-verification>`_ for more details
+    :param verify: See `SSL Cert Verification`_ for more details
+
+    .. _SSL Cert Verification:
+        http://docs.python-requests.org/en/master/user/advanced/
+        #ssl-cert-verification
     """
     url = 'https://api.opensuse.org'
     username = ''
@@ -86,8 +92,12 @@ class Osc:
         :param url: Full URL
         :param data: Data to be included as GET or POST parameters in request
         :param method: HTTP method
-        :param stream: Delayed access, see `Body Content Workflow <http://docs.python-requests.org/en/master/user/advanced/#body-content-workflow>`_
+        :param stream: Delayed access, see `Body Content Workflow`_
         :return: :py:class:`requests.Response`
+
+        .. _Body Content Workflow:
+            http://docs.python-requests.org/en/master/user/advanced/
+            #body-content-workflow
         """
         data = data or {}
         req = Request(method, url, auth=self.auth, data=data)

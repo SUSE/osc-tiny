@@ -8,6 +8,9 @@ from .base import ExtensionBase
 
 
 class Search(ExtensionBase):
+    """
+    Osc extension providing methods for searching
+    """
     base_path = "/search/"
 
     def search(self, path, xpath, **kwargs):
