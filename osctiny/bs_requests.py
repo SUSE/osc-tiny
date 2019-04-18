@@ -102,6 +102,32 @@ class Request(ExtensionBase):
             return self.osc.get_objectified_xml(response)
         return response.text
 
+    def add_comment(self, request_id, comment, parent_id=None):
+        """
+        Add a comment to a request
+
+        .. versionadded: 0.1.1
+
+        :param request_id: ID of the request
+        :param comment: Comment to be added
+        :param parent_id: ID of parent comment. Default: ``None``
+        :return: ``True``, if successful. Otherwise API response
+        :rtype: bool or lxml.objectify.ObjectifiedElement
+        """
+        request_id = self._validate_id(request_id)
+
+        response = self.osc.request(
+            url=urljoin(self.osc.url,
+                        '/comments' + self.base_path + request_id),
+            method="POST",
+            data=comment
+        )
+        parsed = self.osc.get_objectified_xml(response)
+        if response.status_code == 200 and parsed.get("code") == "ok":
+            return True
+
+        return parsed
+
     def get_comments(self, request_id):
         """
         Get a list of comments for request

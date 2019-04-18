@@ -16,6 +16,7 @@ the `OpenBuildService <https://openbuildservice.org/>`_
 
    quickstart
    api
+   releasenotes
 
 Links
 =====

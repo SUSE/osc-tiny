@@ -10,7 +10,7 @@ with open("README.md") as fh:
 
 setup(
     name='osc-tiny',
-    version='0.1.0',
+    version='0.1.1',
     description='Library for read-only access to the openSUSE BuildService',
     long_description=long_description,
     long_description_content_type="text/markdown",

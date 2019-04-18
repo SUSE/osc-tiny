@@ -5,6 +5,7 @@ Main API access
 import gc
 import re
 from ssl import get_default_verify_paths
+import warnings
 
 # pylint: disable=no-name-in-module
 from lxml.objectify import fromstring
@@ -16,6 +17,11 @@ from .projects import Project
 from .bs_requests import Request as BsRequest
 from .search import Search
 from .users import Group, Person
+
+try:
+    from cachecontrol import CacheControl
+except ImportError:
+    CacheControl = None
 
 
 # pylint: disable=too-many-instance-attributes
@@ -53,6 +59,10 @@ class Osc:
     :param username: Credential for login
     :param password: Password for login
     :param verify: See `SSL Cert Verification`_ for more details
+    :param cache: Store API responses in a cache
+
+    .. versionadded:: 0.1.1
+        The ``cache`` parameter
 
     .. _SSL Cert Verification:
         http://docs.python-requests.org/en/master/user/advanced/
@@ -64,7 +74,8 @@ class Osc:
     session = None
     _registered = {}
 
-    def __init__(self, url=None, username=None, password=None, verify=None):
+    def __init__(self, url=None, username=None, password=None, verify=None,
+                 cache=False):
         # Basic URL and authentication settings
         self.url = url or self.url
         self.username = username or self.username
@@ -80,6 +91,14 @@ class Osc:
         self.requests = BsRequest(osc_obj=self)
         self.search = Search(osc_obj=self)
         self.users = Person(osc_obj=self)
+
+        # Cache
+        if cache:
+            try:
+                self.session = CacheControl(self.session)
+            except Exception as error:
+                warnings.warn("Cannot use the cache: {}".format(error),
+                              RuntimeWarning)
 
     def __del__(self):
         # Just in case ;-)
