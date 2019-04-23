@@ -4,6 +4,9 @@ API description
 .. automodule:: osctiny.osc
     :members:
 
+.. automodule:: osctiny.buildresults
+    :members:
+
 .. automodule:: osctiny.bs_requests
     :members:
 

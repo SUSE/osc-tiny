@@ -6,7 +6,7 @@ import errno
 import os
 from urllib.parse import urljoin
 
-from .base import ExtensionBase
+from .base import ExtensionBase, DataDir
 
 
 class Package(ExtensionBase):
@@ -51,7 +51,7 @@ class Package(ExtensionBase):
 
     def get_files(self, project, package, **params):
         """
-        List project files
+        List package files
 
         :param project: name of project
         :param package: name of package
@@ -71,7 +71,7 @@ class Package(ExtensionBase):
 
         return self.osc.get_objectified_xml(response)
 
-    def get_file(self, project, package, filename, meta=False):
+    def get_file(self, project, package, filename, meta=False, rev=None):
         """
         Get a source file
 
@@ -82,10 +82,13 @@ class Package(ExtensionBase):
         :param package: name of package
         :param filename: name of file
         :param meta: switch to meta files
+        :param rev: Get file from this specific package revision
         :return: response
         :rtype: requests.Response
+
+        .. versionadded:: 0.1.1
+            Parameter rev
         """
-        meta = '1' if meta else '0'
         response = self.osc.request(
             url=urljoin(
                 self.osc.url,
@@ -93,14 +96,14 @@ class Package(ExtensionBase):
             ),
             method="GET",
             stream=True,
-            data={'meta': meta}
+            data={'meta': meta, 'rev': rev}
         )
 
         return response
 
     # pylint: disable=too-many-arguments
     def download_file(self, project, package, filename, destdir, meta=False,
-                      overwrite=False):
+                      overwrite=False, rev=None):
         """
         Download a file to directory
 
@@ -110,8 +113,12 @@ class Package(ExtensionBase):
         :param destdir: path of directory
         :param meta: switch to meta files
         :param overwrite: switch to overwrite existing downloaded file
+        :param rev: Download file from this specific package revision
         :return: absolute path to file or ``None``
-        :raises OSError: if
+        :raises OSError: if something goes wrong
+
+        .. versionadded:: 0.1.1
+            Parameter rev
         """
         abspath_filename = os.path.abspath(os.path.join(destdir, filename))
         if os.path.isfile(destdir):
@@ -125,7 +132,7 @@ class Package(ExtensionBase):
         if not os.path.exists(destdir):
             os.makedirs(destdir)
 
-        response = self.get_file(project, package, filename, meta)
+        response = self.get_file(project, package, filename, meta=meta, rev=rev)
 
         with open(abspath_filename, "wb") as handle:
             for chunk in response.iter_content(1024):
@@ -230,7 +237,53 @@ class Package(ExtensionBase):
             data=params
         )
 
-        if cmd != "diff":
+        if cmd != "diff" or params.get("view", None) == "xml":
             return self.osc.get_objectified_xml(response)
 
         return response.text
+
+    def checkout(self, project, package, destdir, rev=None, meta=False,
+                 expand_link=False):
+        """
+        Checkout all files and directories of package
+
+        .. note:: Only by using :py:meth:`checkout` the directory structure is
+                  compatible with the ``osc`` command line tool!
+
+        :param project: name of project
+        :param package: name of package
+        :param destdir: target local directory
+        :param rev: Package revision to check out
+        :param meta: Checkout meta files instead
+        :param expand_link: If ``True``, replace ``linkinfo`` files with linked
+                            files.
+        :return: nothing
+
+        .. versionadded:: 0.1.1
+        """
+        if not os.path.exists(destdir):
+            if not os.path.isdir(destdir):
+                os.makedirs(destdir)
+            else:
+                raise TypeError("Destination {} is a file!".format(destdir))
+
+        oscdir = DataDir(osc=self.osc, path=destdir, project=project,
+                         package=package)
+
+        dirlist = self.get_files(project, package, rev=rev, meta=meta)
+        for entry in dirlist.findall("entry"):
+            self.download_file(
+                project=project,
+                package=package,
+                filename=entry.get("name"),
+                destdir=destdir,
+                meta=meta,
+                overwrite=True,
+                rev=rev
+            )
+            os.link(
+                os.path.join(destdir, entry.get("name")),
+                os.path.join(oscdir.path, entry.get("name"))
+            )
+
+        # TODO: Honor `expand_link` parameter

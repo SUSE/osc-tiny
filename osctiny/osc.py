@@ -12,6 +12,7 @@ from lxml.objectify import fromstring
 from requests import Session, Request
 from requests.auth import HTTPBasicAuth
 
+from .buildresults import Build
 from .packages import Package
 from .projects import Project
 from .bs_requests import Request as BsRequest
@@ -24,7 +25,7 @@ except ImportError:
     CacheControl = None
 
 
-# pylint: disable=too-many-instance-attributes
+# pylint: disable=too-many-instance-attributes,too-many-arguments
 class Osc:
     """
     Build service API client
@@ -54,6 +55,8 @@ class Osc:
           - :py:attr:`groups`
         * - :py:class:`osctiny.users.Person`
           - :py:attr:`users`
+        * - :py:class:`osctiny.build.Build`
+          - :py:attr:`build`
 
     :param url: API URL of a BuildService instance
     :param username: Credential for login
@@ -62,7 +65,7 @@ class Osc:
     :param cache: Store API responses in a cache
 
     .. versionadded:: 0.1.1
-        The ``cache`` parameter
+        The ``cache`` parameter and the ``build`` extension
 
     .. _SSL Cert Verification:
         http://docs.python-requests.org/en/master/user/advanced/
@@ -85,6 +88,7 @@ class Osc:
         self.auth = HTTPBasicAuth(self.username, self.password)
 
         # API endpoints
+        self.build = Build(osc_obj=self)
         self.groups = Group(osc_obj=self)
         self.packages = Package(osc_obj=self)
         self.projects = Project(osc_obj=self)
@@ -94,6 +98,7 @@ class Osc:
 
         # Cache
         if cache:
+            # pylint: disable=broad-except
             try:
                 self.session = CacheControl(self.session)
             except Exception as error:
@@ -118,8 +123,12 @@ class Osc:
             http://docs.python-requests.org/en/master/user/advanced/
             #body-content-workflow
         """
-        data = data or {}
-        req = Request(method, url, auth=self.auth, data=data)
+        req = Request(
+            method,
+            url,
+            auth=self.auth,
+            data=self.handle_params(data)
+        )
         prepped_req = self.session.prepare_request(req)
         settings = self.session.merge_environment_settings(
             prepped_req.url, None, None, None, None
@@ -128,6 +137,24 @@ class Osc:
         response = self.session.send(prepped_req, **settings)
         response.raise_for_status()
         return response
+
+    @staticmethod
+    def handle_params(params):
+        """
+        Translate request parameters to API conform format
+
+        :param params: Request parameter dictionary
+        :return: Dictionary ready to be used in HTTP request
+        """
+        if not isinstance(params, dict):
+            return {}
+
+        for key in params:
+            if isinstance(params[key], bool):
+                params[key] = '1' if params[key] else '0'
+
+        return {key: str(value) for key, value in params.items()
+                if value is not None}
 
     @staticmethod
     def get_objectified_xml(response):
