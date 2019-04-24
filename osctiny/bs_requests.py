@@ -84,7 +84,7 @@ class Request(ExtensionBase):
         :return: plain text
         :rtype: str
         """
-        allowed = ['diff']
+        allowed = ['diff', 'changereviewstate']
         if cmd not in allowed:
             raise ValueError("Invalid command: '{}'. Use one of: {}".format(
                 cmd, ", ".join(allowed)

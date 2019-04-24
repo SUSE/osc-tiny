@@ -83,8 +83,8 @@ class Osc:
         self.url = url or self.url
         self.username = username or self.username
         self.password = password or self.password
-        self.session = Session()
-        self.session.verify = verify or get_default_verify_paths().capath
+        self._session = Session()
+        self._session.verify = verify or get_default_verify_paths().capath
         self.auth = HTTPBasicAuth(self.username, self.password)
 
         # API endpoints
@@ -100,10 +100,13 @@ class Osc:
         if cache:
             # pylint: disable=broad-except
             try:
-                self.session = CacheControl(self.session)
+                self.session = CacheControl(self._session)
             except Exception as error:
+                self.session = self._session
                 warnings.warn("Cannot use the cache: {}".format(error),
                               RuntimeWarning)
+        else:
+            self.session = self._session
 
     def __del__(self):
         # Just in case ;-)
@@ -112,6 +115,9 @@ class Osc:
     def request(self, url, data=None, method="GET", stream=False):
         """
         Perform HTTP(S) request
+
+        If ``stream`` is True, the server response does not get cached because
+        the returned file might be large or huge.
 
         :param url: Full URL
         :param data: Data to be included as GET or POST parameters in request
@@ -123,18 +129,23 @@ class Osc:
             http://docs.python-requests.org/en/master/user/advanced/
             #body-content-workflow
         """
+        if stream:
+            session = self._session
+        else:
+            session = self.session
+
         req = Request(
             method,
             url,
             auth=self.auth,
             data=self.handle_params(data)
         )
-        prepped_req = self.session.prepare_request(req)
-        settings = self.session.merge_environment_settings(
+        prepped_req = session.prepare_request(req)
+        settings = session.merge_environment_settings(
             prepped_req.url, None, None, None, None
         )
         settings["stream"] = stream
-        response = self.session.send(prepped_req, **settings)
+        response = session.send(prepped_req, **settings)
         response.raise_for_status()
         return response
 
