@@ -8,7 +8,7 @@ from .base import OscTest
 class DataDirTest(OscTest):
 
     @mock.patch("os.path.isdir", return_value=True)
-    @mock.patch("osctiny.base.open", new_callable=mock.mock_open)
+    @mock.patch("osctiny.base.open", create=True, new_callable=mock.mock_open)
     def test_datadir_for_project_1(self, open_mock, isdir_mock):
         # Data dir exists and overwrite=False
         oscdir = DataDir(self.osc, "/some/path", "Some:Project")
