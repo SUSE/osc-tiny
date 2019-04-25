@@ -28,7 +28,10 @@ class CallbackFactory:
         self.callback = callback
 
     def __call__(self, request):
-        params = parse_qs(request.body)
+        body = request.body
+        if hasattr(body, "decode"):
+            body = body.decode()
+        params = parse_qs(body)
         headers = {
             "Cache-Control": "max-age=0, private, must-revalidate",
             "Connection": "Keep-Alive",

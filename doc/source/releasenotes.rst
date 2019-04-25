@@ -10,6 +10,8 @@ Release Notes
 * Added extension for build results
 * Added :py:meth:`osctiny.packages.Package.checkout` to properly check-out an
   entire package
+* Request parameters get encoded prior to submission to avoid decoding issues in
+  the build service
 * On initialization :py:class:`osctiny.Osc` accepts a ``cache`` keyword argument
   to save API responses in a cache dictionary. But requests with ``stream=True``
   are excluded from caching!

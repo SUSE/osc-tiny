@@ -115,10 +115,12 @@ class Request(ExtensionBase):
         :rtype: bool or lxml.objectify.ObjectifiedElement
         """
         request_id = self._validate_id(request_id)
+        url = urljoin(self.osc.url, '/comments' + self.base_path + request_id)
+        if parent_id and str(parent_id).isnumeric():
+            url += "?parent_id={}".format(parent_id)
 
         response = self.osc.request(
-            url=urljoin(self.osc.url,
-                        '/comments' + self.base_path + request_id),
+            url=url,
             method="POST",
             data=comment
         )

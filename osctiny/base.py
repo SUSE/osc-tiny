@@ -12,6 +12,7 @@ class ExtensionBase:
         self.osc = osc_obj
 
 
+# pylint: disable=too-many-instance-attributes
 class DataDir:
     """
     Compatibility layer for the ``.osc`` data directory used by the ``osc`` CLI
@@ -19,7 +20,7 @@ class DataDir:
     data_dir = ".osc"
     osclib_version_string = "1.0"
 
-    # pylint: disable=too-many-instance-attributes,too-many-arguments
+    # pylint: disable=too-many-arguments
     def __init__(self, osc, path, project, package=None, overwrite=False):
         self.osc = osc
         self.path = os.path.join(path, self.data_dir)

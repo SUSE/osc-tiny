@@ -71,6 +71,7 @@ class Package(ExtensionBase):
 
         return self.osc.get_objectified_xml(response)
 
+    # pylint: disable=too-many-arguments
     def get_file(self, project, package, filename, meta=False, rev=None):
         """
         Get a source file
@@ -242,8 +243,7 @@ class Package(ExtensionBase):
 
         return response.text
 
-    def checkout(self, project, package, destdir, rev=None, meta=False,
-                 expand_link=False):
+    def checkout(self, project, package, destdir, rev=None, meta=False):
         """
         Checkout all files and directories of package
 
@@ -255,8 +255,6 @@ class Package(ExtensionBase):
         :param destdir: target local directory
         :param rev: Package revision to check out
         :param meta: Checkout meta files instead
-        :param expand_link: If ``True``, replace ``linkinfo`` files with linked
-                            files.
         :return: nothing
 
         .. versionadded:: 0.1.1
@@ -285,5 +283,3 @@ class Package(ExtensionBase):
                 os.path.join(destdir, entry.get("name")),
                 os.path.join(oscdir.path, entry.get("name"))
             )
-
-        # TODO: Honor `expand_link` parameter

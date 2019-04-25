@@ -154,9 +154,17 @@ class Osc:
         """
         Translate request parameters to API conform format
 
-        :param params: Request parameter dictionary
-        :return: Dictionary ready to be used in HTTP request
+        .. note:: The build service does not handle URL-encoded Unicode well.
+                  Therefore parameters are encoded as ``bytes``.
+
+        :param params: Request parameter
+        :type params: dict or str
+        :return: converted data ready to be used in HTTP request
+        :rtype: dict or bytes
         """
+        if isinstance(params, str):
+            return params.encode()
+
         if not isinstance(params, dict):
             return {}
 
@@ -164,7 +172,8 @@ class Osc:
             if isinstance(params[key], bool):
                 params[key] = '1' if params[key] else '0'
 
-        return {key: str(value) for key, value in params.items()
+        return {key.encode(): str(value).encode()
+                for key, value in params.items()
                 if value is not None}
 
     @staticmethod
