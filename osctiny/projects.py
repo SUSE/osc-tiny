@@ -11,8 +11,8 @@ from lxml.objectify import fromstring
 from .base import ExtensionBase
 
 
-new_attribute_templ = "<attributes><attribute namespace='' name=''>" \
-                      "<value></value></attribute></attributes>"
+TEMPLATE_CREATE_ATTR = "<attributes><attribute namespace='' name=''>" \
+                       "<value></value></attribute></attributes>"
 
 
 class Project(ExtensionBase):
@@ -137,9 +137,10 @@ class Project(ExtensionBase):
         if match is None:
             raise ValueError("Invalid attribute format: {}".format(attribute))
 
-        attr_xml = fromstring(new_attribute_templ)
+        attr_xml = fromstring(TEMPLATE_CREATE_ATTR)
         attr_xml.attribute.set('namespace', match.group("prefix"))
         attr_xml.attribute.set('name', match.group("name"))
+        # pylint: disable=protected-access
         attr_xml.attribute.value._setText(str(value))
 
         response = self.osc.request(

@@ -4,14 +4,15 @@ Release Notes
 0.1.2
 -----
 
-* Added capability to add attributes
+* Added capability to add and remove attributes
+* Added capability to add comments to requests
 
 0.1.1
 -----
 
 * Added ``changereviewstate`` to list of allowed commands on
   :py:meth:`osctiny.bs_requests.Request.cmd`
-* Added capability to add comments
+* Added capability to add comments to requests
 * Added extension for build results
 * Added :py:meth:`osctiny.packages.Package.checkout` to properly check-out an
   entire package
