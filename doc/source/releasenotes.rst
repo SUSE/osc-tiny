@@ -1,6 +1,11 @@
 Release Notes
 =============
 
+0.1.2
+-----
+
+* Added capability to add attributes
+
 0.1.1
 -----
 

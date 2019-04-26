@@ -2,9 +2,17 @@
 Projects extension
 ------------------
 """
+import re
 from urllib.parse import urljoin
 
+from lxml.etree import tounicode
+from lxml.objectify import fromstring
+
 from .base import ExtensionBase
+
+
+new_attribute_templ = "<attributes><attribute namespace='' name=''>" \
+                      "<value></value></attribute></attributes>"
 
 
 class Project(ExtensionBase):
@@ -12,6 +20,7 @@ class Project(ExtensionBase):
     Osc extension to interact with projects
     """
     base_path = "/source"
+    attribute_pattern = re.compile(r"^((?P<prefix>[^:]+):)?(?P<name>.+)$")
 
     def get_list(self, deleted=False):
         """
@@ -22,7 +31,6 @@ class Project(ExtensionBase):
         :return: Objectified XML element
         :rtype: lxml.objectify.ObjectifiedElement
         """
-        deleted = '1' if deleted else '0'
         response = self.osc.request(
             url=urljoin(self.osc.url, self.base_path),
             method="GET",
@@ -82,6 +90,14 @@ class Project(ExtensionBase):
         """
         Get one attribute of a project
 
+        .. note::
+
+            Be aware of namespace prefixes.
+
+            When specifying the ``attribute`` argument make sure to include the
+            namespace prefix and separate both by a colon, e.g.
+            ``OBS:IncidentPriority``.
+
         :param project: name of project
         :param attribute: name of attribute
         :return: Objectified XML element
@@ -101,6 +117,69 @@ class Project(ExtensionBase):
 
         return self.osc.get_objectified_xml(response)
 
+    def set_attribute(self, project, attribute, value):
+        """
+        Set or update an attribute of a project
+
+        :param project: project name
+        :param attribute: attribute name (can include prefix separated by colon)
+        :param value: attribute value
+        :return: ``True``, if successful. Otherwise API response
+        :rtype: bool or lxml.objectify.ObjectifiedElement
+        """
+        url = urljoin(
+            self.osc.url,
+            "{}/{}/_attribute".format(
+                self.base_path, project
+            )
+        )
+        match = self.attribute_pattern.match(attribute)
+        if match is None:
+            raise ValueError("Invalid attribute format: {}".format(attribute))
+
+        attr_xml = fromstring(new_attribute_templ)
+        attr_xml.attribute.set('namespace', match.group("prefix"))
+        attr_xml.attribute.set('name', match.group("name"))
+        attr_xml.attribute.value._setText(str(value))
+
+        response = self.osc.request(
+            url=url,
+            method="POST",
+            data=tounicode(attr_xml)
+        )
+
+        parsed = self.osc.get_objectified_xml(response)
+        if response.status_code == 200 and parsed.get("code") == "ok":
+            return True
+
+        return parsed
+
+    def delete_attribute(self, project, attribute):
+        """
+        Delete an attribute of a project
+
+        :param project: name of project
+        :param attribute: name of attribute
+        :return: ``True``, if successful. Otherwise API response
+        :rtype: bool or lxml.objectify.ObjectifiedElement
+        """
+        url = urljoin(
+            self.osc.url,
+            "{}/{}/_attribute/{}".format(
+                self.base_path, project, attribute
+            )
+        )
+
+        response = self.osc.request(
+            url=url,
+            method="DELETE",
+        )
+        parsed = self.osc.get_objectified_xml(response)
+        if response.status_code == 200 and parsed.get("code") == "ok":
+            return True
+
+        return parsed
+
     def get_comments(self, project):
         """
         Get a list of comments for project
@@ -116,13 +195,40 @@ class Project(ExtensionBase):
         )
         return self.osc.get_objectified_xml(response)
 
+    def add_comment(self, project, comment, parent_id=None):
+        """
+        Add a comment to a project
+
+        .. versionadded: 0.1.2
+
+        :param project: name of project
+        :param comment: Comment to be added
+        :param parent_id: ID of parent comment. Default: ``None``
+        :return: ``True``, if successful. Otherwise API response
+        :rtype: bool or lxml.objectify.ObjectifiedElement
+        """
+        url = urljoin(self.osc.url, '/comments' + self.base_path + project)
+        if parent_id and str(parent_id).isnumeric():
+            url += "?parent_id={}".format(parent_id)
+
+        response = self.osc.request(
+            url=url,
+            method="POST",
+            data=comment
+        )
+        parsed = self.osc.get_objectified_xml(response)
+        if response.status_code == 200 and parsed.get("code") == "ok":
+            return True
+
+        return parsed
+
     def get_history(self, project, meta=True, rev=None, **kwargs):
         """
         Get history of project
 
         To get just a particular revision, use the ``rev`` argument.
 
-        :param project: name of package
+        :param project: name of project
         :param meta: Switch between meta and non-meta (normally empty) revision
                      history
         :type meta: bool

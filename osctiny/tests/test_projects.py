@@ -214,3 +214,61 @@ class TestProject(OscTest):
                 HTTPError, self.osc.projects.get_attribute,
                 "SUSE:SLE-15-SP1:GA", "FOO:Bar"
             )
+
+    @responses.activate
+    def test_set_attribute(self):
+        def callback(headers, params, request):
+            status, body = 200, "<status code='ok'></status>"
+            return status, headers, body
+
+        self.mock_request(
+            method="POST",
+            url=re.compile(
+                self.osc.url + '/source/(?P<project>)[^/]+/_attribute/?'
+            ),
+            callback=CallbackFactory(callback)
+        )
+
+        self.assertTrue(
+            self.osc.projects.set_attribute(
+                project="test:project",
+                attribute="namespace:attr",
+                value="value"
+            )
+        )
+
+    @responses.activate
+    def test_delete_attribute(self):
+        error = False
+
+        def callback(headers, params, request):
+            if error:
+                status, body = 404, ""
+            else:
+                status, body = 200, "<status code='ok'></status>"
+            return status, headers, body
+
+        self.mock_request(
+            method="DELETE",
+            url=re.compile(
+                self.osc.url + '/source/(?P<project>)[^/]+/_attribute/?'
+            ),
+            callback=CallbackFactory(callback)
+        )
+
+        with self.subTest("existing attr"):
+            self.assertTrue(
+                self.osc.projects.delete_attribute(
+                    project="test:project",
+                    attribute="namespace:attr"
+                )
+            )
+
+        with self.subTest("non-existent attr"):
+            error = True
+            self.assertRaises(
+                HTTPError,
+                self.osc.projects.delete_attribute,
+                project="test:project",
+                attribute="namespace:attr"
+            )

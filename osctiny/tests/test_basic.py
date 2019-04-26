@@ -1,3 +1,4 @@
+from .. import projects
 from .base import OscTest
 
 
@@ -37,3 +38,19 @@ class BasicTest(OscTest):
         for params, expected in data:
             with self.subTest(params):
                 _run(params, expected)
+
+    def test_attrib_regexp(self):
+        def _run(attr, expcted):
+            match = projects.Project.attribute_pattern.match(attr)
+            self.assertIsNotNone(match)
+            self.assertEqual(match.groupdict(), expected)
+
+        data = (
+            ('foo', {'name': 'foo', 'prefix': None}),
+            ('foo:bar', {'name': 'bar', 'prefix': 'foo'}),
+            ('foo:bar:wørld', {'name': 'bar:wørld', 'prefix': 'foo'}),
+        )
+
+        for attr, expected in data:
+            with self.subTest(attr):
+                _run(attr, expected)
