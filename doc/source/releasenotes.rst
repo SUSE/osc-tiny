@@ -6,6 +6,19 @@ Release Notes
 
 * Added capability to add and remove attributes
 * Added capability to add comments to requests
+* Added capability to delete packages and projects
+* Added method to check whether package, file in package or project exists
+* Added support for package `aggregation`_
+* Added support for revision annotations in package metadata
+* Added support to upload package meta and other files
+* Changed request behavior:
+
+	* Allow suppression of HTTP errors
+	* Support reading of data from file handle
+
+.. _aggregation:
+    https://en.opensuse.org/openSUSE:Build_Service_Tips_and_Tricks
+    #link_and_aggregate
 
 0.1.1
 -----

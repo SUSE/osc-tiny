@@ -2,6 +2,7 @@
 Main API access
 ---------------
 """
+from io import BufferedReader, BytesIO, StringIO
 import gc
 import re
 from ssl import get_default_verify_paths
@@ -112,22 +113,34 @@ class Osc:
         # Just in case ;-)
         gc.collect()
 
-    def request(self, url, data=None, method="GET", stream=False):
+    def request(self, url, data=None, method="GET", stream=False,
+                raise_for_status=True):
         """
         Perform HTTP(S) request
 
         If ``stream`` is True, the server response does not get cached because
         the returned file might be large or huge.
 
+        if ``raise_for_status`` is True, the used ``requests`` framework will
+        raise an exception for occured errors.
+
+        .. versionchanged:: 0.1.2
+            Added parameters `raise_for_status`
+
         :param url: Full URL
         :param data: Data to be included as GET or POST parameters in request
         :param method: HTTP method
         :param stream: Delayed access, see `Body Content Workflow`_
+        :param raise_for_status: See `requests.Response.raise_for_status`_
         :return: :py:class:`requests.Response`
 
         .. _Body Content Workflow:
             http://docs.python-requests.org/en/master/user/advanced/
             #body-content-workflow
+
+        .. _requests.Response.raise_for_status:
+            https://2.python-requests.org/en/master/api/
+            #requests.Response.raise_for_status
         """
         if stream:
             session = self._session
@@ -146,7 +159,8 @@ class Osc:
         )
         settings["stream"] = stream
         response = session.send(prepped_req, **settings)
-        response.raise_for_status()
+        if raise_for_status:
+            response.raise_for_status()
         return response
 
     @staticmethod
@@ -158,12 +172,23 @@ class Osc:
                   Therefore parameters are encoded as ``bytes``.
 
         :param params: Request parameter
-        :type params: dict or str
+        :type params: dict or str or io.BufferedReader
         :return: converted data ready to be used in HTTP request
         :rtype: dict or bytes
         """
+        if isinstance(params, bytes):
+            return params
+
         if isinstance(params, str):
             return params.encode()
+
+        if isinstance(params, StringIO):
+            params.seek(0)
+            return params.read().encode()
+
+        if isinstance(params, (BufferedReader, BytesIO)):
+            params.seek(0)
+            return params
 
         if not isinstance(params, dict):
             return {}

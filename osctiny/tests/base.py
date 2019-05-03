@@ -1,3 +1,4 @@
+from io import IOBase
 from unittest import TestCase
 from urllib.parse import parse_qs
 
@@ -29,6 +30,9 @@ class CallbackFactory:
 
     def __call__(self, request):
         body = request.body
+        if isinstance(body, IOBase):
+            body.seek(0)
+            body = body.read()
         if hasattr(body, "decode"):
             body = body.decode()
         params = parse_qs(body)

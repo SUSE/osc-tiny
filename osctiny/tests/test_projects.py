@@ -272,3 +272,62 @@ class TestProject(OscTest):
                 project="test:project",
                 attribute="namespace:attr"
             )
+
+    @responses.activate
+    def test_delete(self):
+        def callback(headers, params, request):
+            if "existing" in request.url:
+                status, body = 200, """
+                <status code="ok">
+                  <summary>Ok</summary>
+                </status>
+                """
+            else:
+                status, body = 400, """
+                    <status code="invalid_project_name">
+                      <summary>
+                        invalid project name 'home:apritschet:__'
+                      </summary>
+                    </status>"""
+            return status, headers, body
+
+        self.mock_request(
+            method="DELETE",
+            url=re.compile(
+                self.osc.url + '/source/(?P<project>)[^/]+'
+            ),
+            callback=CallbackFactory(callback)
+        )
+
+        with self.subTest("existing"):
+            self.assertTrue(self.osc.projects.delete("test_project:existing"))
+
+        with self.subTest("non-existent"):
+            self.assertRaises(
+                HTTPError,
+                self.osc.projects.delete,
+                "test:project:non-found"
+            )
+
+    @responses.activate
+    def test_exists(self):
+        def callback(headers, params, request):
+            if "existing" in request.url:
+                status, body = 200, ""
+            else:
+                status, body = 404, ""
+            return status, headers, body
+
+        self.mock_request(
+            method="HEAD",
+            url=re.compile(
+                self.osc.url + '/source/(?P<project>)[^/]+'
+            ),
+            callback=CallbackFactory(callback)
+        )
+
+        with self.subTest("existing"):
+            self.assertTrue(self.osc.projects.exists("home:user:existing"))
+
+        with self.subTest("non-existent"):
+            self.assertFalse(self.osc.projects.exists("no:such:project"))

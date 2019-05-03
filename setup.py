@@ -11,7 +11,7 @@ with open("README.md") as fh:
 setup(
     name='osc-tiny',
     version='0.1.2',
-    description='Library for read-only access to the openSUSE BuildService',
+    description='Client API for openSUSE BuildService',
     long_description=long_description,
     long_description_content_type="text/markdown",
     author='Andreas Hasenkopf',

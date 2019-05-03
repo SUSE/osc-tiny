@@ -6,7 +6,11 @@ import errno
 import os
 from urllib.parse import urljoin
 
+from lxml.etree import tounicode, SubElement, Element
+from lxml.objectify import fromstring
+
 from .base import ExtensionBase, DataDir
+from .errors import OscError
 
 
 class Package(ExtensionBase):
@@ -14,6 +18,7 @@ class Package(ExtensionBase):
     Osc extension to interact with packages
     """
     base_path = "/source"
+    new_package_meta_templ = "<package><title/><description/></package>"
 
     def get_list(self, project):
         """
@@ -24,30 +29,92 @@ class Package(ExtensionBase):
         :rtype: lxml.objectify.ObjectifiedElement
         """
         response = self.osc.request(
-            url=urljoin(self.osc.url, self.base_path + project),
+            url=urljoin(self.osc.url, "{}/{}".format(self.base_path, project)),
             method="GET"
         )
 
         return self.osc.get_objectified_xml(response)
 
-    def get_meta(self, project, package):
+    def get_meta(self, project, package, blame=False):
         """
         Get package metadata
 
+        .. note:: When ``blame`` annotations are requested no XML object can be
+                  returned!
+
+        .. versionchanged:: 0.1.2
+            Added parameter blame
+
         :param project: name of project
         :param package: name of package
-        :return: Objectified XML element
-        :rtype: lxml.objectify.ObjectifiedElement
+        :param blame: Show metadata with change annotations
+        :return: Objectified XML element or str
+        :rtype: lxml.objectify.ObjectifiedElement or str
         """
+        params = {}
+        if blame:
+            params["view"] = "blame"
+
         response = self.osc.request(
             url=urljoin(
                 self.osc.url,
                 "{}/{}/{}/_meta".format(self.base_path, project, package)
             ),
-            method="GET"
+            method="GET",
+            data=params
         )
 
+        if blame:
+            return response.text
+
         return self.osc.get_objectified_xml(response)
+
+    # pylint: disable=too-many-arguments,protected-access
+    def set_meta(self, project, package, title=None, description=None,
+                 meta=None):
+        """
+        Set package metadata
+
+        .. note:: By setting the meta data ``package`` is created, if it does
+                  not exist.
+
+        Specify ``title`` and ``description`` to create an XML file with minimum
+        content or provide a complete XML string via ``meta``.
+
+        .. note:: If ``title`` or ``description`` is given in combination with
+                  ``meta``, the existing values in ``meta`` will be overwritten.
+
+        .. versionadded:: 0.1.2
+
+        :param project: Project name
+        :param package: New package name
+        :param title: Title for meta
+        :param description: Description for meta
+        :param meta: New content for meta
+        :type meta: str or lxml.objectify.ObjectifiedElement
+        :return:
+        """
+        if isinstance(meta, str):
+            meta = fromstring(meta)
+
+        if meta is not None:
+            meta_xml = meta
+        else:
+            meta_xml = fromstring(self.new_package_meta_templ)
+
+        if title:
+            meta_xml.title._setText(title)
+        if description:
+            meta_xml.description._setText(description)
+
+        self.osc.request(
+            url=urljoin(
+                self.osc.url,
+                "/".join((self.base_path, project, package, "_meta"))
+            ),
+            data=tounicode(meta_xml),
+            method="PUT"
+        )
 
     def get_files(self, project, package, **params):
         """
@@ -140,6 +207,24 @@ class Package(ExtensionBase):
                 handle.write(chunk)
 
         return abspath_filename
+
+    def push_file(self, project, package, filename, data):
+        """
+        Upload a file to package
+
+        :param project: Name of project
+        :param package: Name of package
+        :param filename: Name of file
+        :param data: content of file
+        :type data: str or open file handle
+        """
+        path = [self.base_path, project, package, filename]
+
+        self.osc.request(
+            url=urljoin(self.osc.url, "/".join(path)),
+            method="PUT",
+            data=data
+        )
 
     def get_attribute(self, project, package, attribute=None):
         """
@@ -283,3 +368,130 @@ class Package(ExtensionBase):
                 os.path.join(destdir, entry.get("name")),
                 os.path.join(oscdir.path, entry.get("name"))
             )
+
+    def delete(self, project, package, force=False, comment=None):
+        """
+        Delete package
+
+        .. versionadded:: 0.1.2
+
+        :param project: Project name
+        :param package: Package name
+        :param force: Delete package even if pending requests exist
+        :param comment: Optional comment
+        :return: ``True``, if successful. Otherwise API response
+        :rtype: bool or lxml.objectify.ObjectifiedElement
+        """
+        params = {'force': force, 'comment': comment}
+
+        response = self.osc.request(
+            url=urljoin(
+                self.osc.url,
+                "/".join((self.base_path, project, package))
+            ),
+            method="DELETE",
+            data=params
+        )
+
+        parsed = self.osc.get_objectified_xml(response)
+        if response.status_code == 200 and parsed.get("code") == "ok":
+            return True
+
+        return parsed
+
+    def exists(self, project, package, filename=None):
+        """
+        Check whether package or file in package exists
+
+        .. versionadded:: 0.1.2
+
+        :param project: Project name
+        :param package: Package name
+        :param filename: Name of file
+        :return: ``True``, if package exists, otherwise ``False``
+        """
+        path = [self.base_path, project, package]
+        if filename:
+            path.append(filename)
+        response = self.osc.request(
+            url=urljoin(
+                self.osc.url,
+                "/".join(path)
+            ),
+            method="HEAD",
+            raise_for_status=False
+        )
+
+        return response.status_code == 200
+
+    # pylint: disable=too-many-locals
+    def aggregate(self, src_project, src_package, tgt_project, tgt_package,
+                  publish=True, repo_map=None, no_sources=False):
+        """
+        Aggregate a package to another package
+
+        .. versionadded:: 0.1.2
+
+        :param src_project: Name of source project
+        :param src_package: Name of source package
+        :param tgt_project: Name of target project
+        :param tgt_package: Name of target package
+        :param publish: En-/Disable publishing of aggregated package
+        :param repo_map: Optional repository mapping
+        :type repo_map: None or dict
+        :param no_sources: If ``True``, ignore source packages when copying
+                           build results to destination project
+        :return:
+        """
+        # Verify no-op
+        if src_project == tgt_project and src_package == tgt_package:
+            raise OscError("Source and Target are identical!")
+
+        if not self.exists(src_project, src_package):
+            raise OscError("Source package does not exist")
+
+        # Check whether target package exists
+        if not self.exists(tgt_project, tgt_package):
+            meta_xml = self.get_meta(
+                project=src_project,
+                package=src_package
+            )
+            meta_xml.set("name", tgt_package)
+            meta_xml.set("project", tgt_project)
+
+            if not publish:
+                pub_elem = meta_xml.find("publish")
+                if not pub_elem:
+                    pub_elem = SubElement(meta_xml, "publish")
+                pub_elem.clear()
+                SubElement(pub_elem, "disable")
+            self.set_meta(
+                project=tgt_project,
+                package=tgt_package,
+                meta=meta_xml
+            )
+
+        # We do not overwrite an existing aggregate
+        if self.exists(tgt_project, tgt_package, "_aggregate"):
+            raise OscError("Aggregate already exists.")
+
+        repo_map = repo_map or {}
+
+        # Generate aggregate
+        agg_xml = Element("aggregatelist")
+        agg = SubElement(agg_xml, "aggregate", project=src_project)
+        pkg = SubElement(agg, "package")
+        pkg.text = src_package
+
+        if no_sources:
+            SubElement(agg, "nosources")
+
+        for src, tgt in repo_map.items():
+            SubElement(agg, "repository", target=tgt, source=src)
+
+        self.push_file(
+            project=tgt_project,
+            package=tgt_package,
+            data=tounicode(agg_xml),
+            filename="_aggregate"
+        )

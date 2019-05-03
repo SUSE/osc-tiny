@@ -106,7 +106,7 @@ class Request(ExtensionBase):
         """
         Add a comment to a request
 
-        .. versionadded: 0.1.1
+        .. versionadded:: 0.1.1
 
         :param request_id: ID of the request
         :param comment: Comment to be added

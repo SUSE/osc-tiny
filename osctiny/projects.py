@@ -248,3 +248,53 @@ class Project(ExtensionBase):
         )
 
         return self.osc.get_objectified_xml(response)
+
+    def delete(self, project, force=False, comment=None):
+        """
+        Delete project
+
+        .. versionadded:: 0.1.2
+
+        :param project: Project name
+        :param force: Delete project even if subprojects, packages or pending
+                      requests for those packages exist
+        :param comment: Optional comment
+        :return: ``True``, if successful. Otherwise API response
+        :rtype: bool or lxml.objectify.ObjectifiedElement
+        """
+        params = {'force': force, 'comment': comment}
+
+        response = self.osc.request(
+            url=urljoin(
+                self.osc.url,
+                "/".join((self.base_path, project))
+            ),
+            method="DELETE",
+            data=params
+        )
+
+        parsed = self.osc.get_objectified_xml(response)
+        if response.status_code == 200 and parsed.get("code") == "ok":
+            return True
+
+        return parsed
+
+    def exists(self, project):
+        """
+        Check whether project exists
+
+        .. versionadded:: 0.1.2
+
+        :param project: Project name
+        :return: ``True``, if package exists, otherwise ``False``
+        """
+        response = self.osc.request(
+            url=urljoin(
+                self.osc.url,
+                "/".join((self.base_path, project))
+            ),
+            method="HEAD",
+            raise_for_status=False
+        )
+
+        return response.status_code == 200
