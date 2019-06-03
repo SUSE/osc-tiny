@@ -242,7 +242,9 @@ class Project(ExtensionBase):
         kwargs["meta"] = "1" if meta else "0"
 
         response = self.osc.request(
-            url=urljoin(self.osc.url, "/{}/_project/_history".format(project)),
+            url=urljoin(self.osc.url, "{}/{}/_project/_history".format(
+                self.base_path, project
+            )),
             method="GET",
             data=kwargs
         )

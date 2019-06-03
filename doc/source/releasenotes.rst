@@ -11,6 +11,7 @@ Release Notes
 * Added support for package `aggregation`_
 * Added support for revision annotations in package metadata
 * Added support to upload package meta and other files
+* Fixed URL for project history
 * Changed request behavior:
 
 	* Allow suppression of HTTP errors
