@@ -114,7 +114,7 @@ class Osc:
         gc.collect()
 
     def request(self, url, data=None, method="GET", stream=False,
-                raise_for_status=True):
+                raise_for_status=True, timeout=(5, 30)):
         """
         Perform HTTP(S) request
 
@@ -127,11 +127,15 @@ class Osc:
         .. versionchanged:: 0.1.2
             Added parameters `raise_for_status`
 
+        .. versionchanged:: 0.1.3
+            Added parameter `timeout`
+
         :param url: Full URL
         :param data: Data to be included as GET or POST parameters in request
         :param method: HTTP method
         :param stream: Delayed access, see `Body Content Workflow`_
         :param raise_for_status: See `requests.Response.raise_for_status`_
+        :param timeout: Request timeout. See `Timeouts`_
         :return: :py:class:`requests.Response`
 
         .. _Body Content Workflow:
@@ -141,6 +145,9 @@ class Osc:
         .. _requests.Response.raise_for_status:
             https://2.python-requests.org/en/master/api/
             #requests.Response.raise_for_status
+
+        .. _Timeouts:
+            https://2.python-requests.org/en/master/user/advanced/#timeouts
         """
         if stream:
             session = self._session
@@ -158,6 +165,9 @@ class Osc:
             prepped_req.url, None, None, None, None
         )
         settings["stream"] = stream
+        if timeout:
+            settings["timeout"] = timeout
+
         response = session.send(prepped_req, **settings)
         if raise_for_status:
             response.raise_for_status()

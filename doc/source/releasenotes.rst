@@ -1,6 +1,11 @@
 Release Notes
 =============
 
+0.1.3
+-----
+
+* Added ``timeout`` parameter to :py:meth:`osctiny.osc.Osc.request`
+
 0.1.2
 -----
 
