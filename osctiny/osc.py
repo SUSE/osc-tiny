@@ -176,7 +176,7 @@ class Osc:
         )
         prepped_req = session.prepare_request(req)
         settings = session.merge_environment_settings(
-            prepped_req.url, None, None, None, None
+            prepped_req.url, {}, None, None, None
         )
         settings["stream"] = stream
         if timeout:
