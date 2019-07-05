@@ -5,6 +5,11 @@ Release Notes
 -----
 
 * Added ``timeout`` parameter to :py:meth:`osctiny.osc.Osc.request`
+* Added capability to get list of build RPM binaries
+* Transfer all parameters as GET parameters except comments/texts, which are
+  still transferred as POST parameters without values
+* Added validation for arguments of command ``changereviewstate`` in
+  :py:meth:`osctiny.bs_requests.Request.cmd`
 
 0.1.2
 -----

@@ -43,3 +43,27 @@ class Build(ExtensionBase):
         )
 
         return self.osc.get_objectified_xml(response)
+
+    def get_binary_list(self, project, repo, arch, package, **params):
+        """
+        Get a list of built RPMs
+
+        :param project: Project name
+        :param repo: Repository name
+        :param arch: Architecture name
+        :param package: Package name
+        :param params: Additional parameters
+        :return: Objectified XML element
+        :rtype: lxml.objectify.ObjectifiedElement
+
+        .. versionadded:: 0.1.3
+        """
+        response = self.osc.request(
+            method="GET",
+            url=urljoin(self.osc.url, "{}/{}/{}/{}/{}".format(
+                self.base_path, project, repo, arch, package
+            )),
+            data=params
+        )
+
+        return self.osc.get_objectified_xml(response)

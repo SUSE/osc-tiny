@@ -6,6 +6,7 @@ from io import BufferedReader, BytesIO, StringIO
 import gc
 import re
 from ssl import get_default_verify_paths
+from urllib.parse import urlencode
 import warnings
 
 # pylint: disable=no-name-in-module
@@ -77,6 +78,7 @@ class Osc:
     password = ''
     session = None
     _registered = {}
+    default_timeout = (60, 300)
 
     def __init__(self, url=None, username=None, password=None, verify=None,
                  cache=False):
@@ -114,9 +116,13 @@ class Osc:
         gc.collect()
 
     def request(self, url, data=None, method="GET", stream=False,
-                raise_for_status=True, timeout=(5, 30)):
+                raise_for_status=True, timeout=None):
         """
         Perform HTTP(S) request
+
+        ``data`` is URL-encoded and passed on as GET parameters. If ``data`` is
+        a dictionary and contains a key ``comment``, this value is passed on as
+        a POST parameter.
 
         If ``stream`` is True, the server response does not get cached because
         the returned file might be large or huge.
@@ -128,7 +134,9 @@ class Osc:
             Added parameters `raise_for_status`
 
         .. versionchanged:: 0.1.3
-            Added parameter `timeout`
+
+            * Added parameter `timeout`
+            * Transfer data as GET parameters (except for comments and texts)
 
         :param url: Full URL
         :param data: Data to be included as GET or POST parameters in request
@@ -149,10 +157,16 @@ class Osc:
         .. _Timeouts:
             https://2.python-requests.org/en/master/user/advanced/#timeouts
         """
+        timeout = timeout or self.default_timeout
         if stream:
             session = self._session
         else:
             session = self.session
+
+        if isinstance(data, dict):
+            comment = data.pop("comment", {})
+            url += "?" + urlencode(self.handle_params(data))
+            data = comment
 
         req = Request(
             method,

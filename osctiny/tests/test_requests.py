@@ -1,4 +1,5 @@
 import re
+from urllib.parse import urlparse, parse_qs
 
 from lxml.objectify import ObjectifiedElement
 from requests.exceptions import HTTPError
@@ -10,6 +11,9 @@ from .base import OscTest, CallbackFactory
 def callback(headers, params, request):
     status = 500
     body = ""
+    parsed = urlparse(request.url)
+    params.update(parse_qs(parsed.query))
+
     if re.search("comments/request/30902", request.url):
         status = 200
         if request.method == "GET":
@@ -27,7 +31,7 @@ def callback(headers, params, request):
               <details>Operation successfull.</details>
             </status>
             """
-    elif request.method == "GET" and re.search("/request/30902/?$", request.url):
+    elif request.method == "GET" and re.search("/request/30902/?", request.url):
         status = 200
         body = """
             <request id="30902" creator="nemo">
@@ -329,12 +333,12 @@ class TestRequest(OscTest):
         )
         self.mock_request(
             method=responses.GET,
-            url=re.compile(self.osc.url + r'/comments/request/\d+'),
+            url=re.compile(self.osc.url + r'/comments/request/\d+.*'),
             callback=CallbackFactory(callback)
         )
         self.mock_request(
             method=responses.POST,
-            url=re.compile(self.osc.url + r'/comments/request/\d+'),
+            url=re.compile(self.osc.url + r'/comments/request/\d+.*'),
             callback=CallbackFactory(callback)
         )
 
@@ -379,7 +383,7 @@ class TestRequest(OscTest):
             self.assertTrue(isinstance(response, ObjectifiedElement))
         with self.subTest("changereviewstate"):
             self.assertRaises(
-                HTTPError,
+                ValueError,
                 self.osc.requests.cmd, 30902, "changereviewstate"
             )
 

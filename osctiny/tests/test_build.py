@@ -1,4 +1,5 @@
 import re
+from urllib.parse import urlparse, parse_qs
 
 from requests.exceptions import HTTPError
 import responses
@@ -13,6 +14,8 @@ class BuildTest(OscTest):
         def callback(headers, params, request):
             status = 500
             body = ""
+            parsed = urlparse(request.url)
+            params.update(parse_qs(parsed.query))
 
             if not params:
                 status = 200

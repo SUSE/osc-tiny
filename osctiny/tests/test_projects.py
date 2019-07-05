@@ -1,4 +1,5 @@
 import re
+from urllib.parse import urlparse, parse_qs
 
 from requests.exceptions import HTTPError
 import responses
@@ -20,6 +21,8 @@ class TestProject(OscTest):
                 <entry name="Devel:ARM:Factory:ILP32"/>
             </directory>
             """
+            parsed = urlparse(request.url)
+            params.update(parse_qs(parsed.query))
             if params.get("deleted", ["0"]) == ["1"]:
                 status = 403
                 body = """<status code="no_permission_for_deleted">
@@ -118,6 +121,9 @@ class TestProject(OscTest):
                     size="1818" mtime="1542617696" />
                 </directory>
             """
+            parsed = urlparse(request.url)
+            params.update(parse_qs(parsed.query))
+
             if params.get("meta", ['0']) == ['1']:
                 status = 200
                 body = """

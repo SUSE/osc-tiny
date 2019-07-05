@@ -1,4 +1,5 @@
 import re
+from urllib.parse import urlparse, parse_qs
 
 import responses
 
@@ -8,7 +9,10 @@ from .base import OscTest, CallbackFactory
 def callback(headers, params, request):
     status = 500
     body = ""
-    if "project" in request.url:
+    parsed = urlparse(request.url)
+    params.update(parse_qs(parsed.query))
+
+    if "project" in parsed.path:
         status = 200
         body = """
 <collection matches="2">
@@ -184,7 +188,7 @@ def callback(headers, params, request):
     </project>
 </collection>
         """
-    elif "package" in request.url:
+    elif "package" in parsed.path:
         status = 200
         body = """
 <collection matches="6">
@@ -231,7 +235,7 @@ principle.</description>
 </package>
 </collection>
         """
-    elif "request" in request.url:
+    elif "request" in parsed.path:
         status = 200
         body = """
 <collection matches="">

@@ -72,6 +72,8 @@ class Request(ExtensionBase):
         Available commands:
 
         * `diff`: Shows the diff of all affected packages.
+        * `addreview`: Assign a user or group to review
+        * `changereviewstate`: Accept/Decline a review
 
         :param request_id: ID of the request
         :param cmd: Name of the command
@@ -83,12 +85,27 @@ class Request(ExtensionBase):
         :param withissues: ???
         :return: plain text
         :rtype: str
+
+        .. versionchanged:: 0.1.3
+
+            * Added ``addreview`` to list of allowed commands
+            * Added validation for arguments of command ``changereviewstate``
         """
-        allowed = ['diff', 'changereviewstate']
-        if cmd not in allowed:
+        allowed_cmds = ['diff', 'changereviewstate', 'addreview']
+        allowed_review_states = ['new', 'accepted', 'declined', 'deleted',
+                                 'revoked', 'superseded']
+        if cmd not in allowed_cmds:
             raise ValueError("Invalid command: '{}'. Use one of: {}".format(
-                cmd, ", ".join(allowed)
+                cmd, ", ".join(allowed_cmds)
             ))
+
+        if cmd == "changereviewstate"\
+                and kwargs.get("newstate", None) not in allowed_review_states:
+            raise ValueError(
+                "Invalid review state: '{}'. Use one of: {}".format(
+                    kwargs.get("newstate", None), allowed_review_states
+                )
+            )
 
         kwargs["cmd"] = cmd
         request_id = self._validate_id(request_id)
