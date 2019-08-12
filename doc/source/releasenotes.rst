@@ -1,6 +1,11 @@
 Release Notes
 =============
 
+0.1.4
+-----
+
+* Fixed incorrect URL in :py:meth:`osctiny.projects.add_comment`
+
 0.1.3
 -----
 

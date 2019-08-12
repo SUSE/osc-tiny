@@ -208,7 +208,7 @@ class Project(ExtensionBase):
         :return: ``True``, if successful. Otherwise API response
         :rtype: bool or lxml.objectify.ObjectifiedElement
         """
-        url = urljoin(self.osc.url, '/comments' + self.base_path + project)
+        url = urljoin(self.osc.url, '/comments/project/' + project)
         if parent_id and str(parent_id).isnumeric():
             url += "?parent_id={}".format(parent_id)
 
