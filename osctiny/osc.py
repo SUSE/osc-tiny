@@ -13,7 +13,7 @@ import warnings
 from lxml.objectify import fromstring
 from requests import Session, Request
 from requests.auth import HTTPBasicAuth
-from requests.exceptions import ConnectionError
+from requests.exceptions import ConnectionError as _ConnectionError
 
 from .buildresults import Build
 from .packages import Package
@@ -29,6 +29,7 @@ except ImportError:
 
 
 # pylint: disable=too-many-instance-attributes,too-many-arguments
+# pylint: disable=too-many-locals
 class Osc:
     """
     Build service API client
@@ -187,10 +188,10 @@ class Osc:
         if timeout:
             settings["timeout"] = timeout
 
-        for i in range(self.default_connection_retries):
+        for _ in range(self.default_connection_retries):
             try:
                 response = session.send(prepped_req, **settings)
-            except ConnectionError as error:
+            except ConnectionError:
                 pass
             else:
                 if raise_for_status:
