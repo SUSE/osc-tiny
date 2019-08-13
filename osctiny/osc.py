@@ -13,6 +13,7 @@ import warnings
 from lxml.objectify import fromstring
 from requests import Session, Request
 from requests.auth import HTTPBasicAuth
+from requests.exceptions import ConnectionError
 
 from .buildresults import Build
 from .packages import Package
@@ -79,6 +80,7 @@ class Osc:
     session = None
     _registered = {}
     default_timeout = (60, 300)
+    default_connection_retries = 5
 
     def __init__(self, url=None, username=None, password=None, verify=None,
                  cache=False):
@@ -138,6 +140,9 @@ class Osc:
             * Added parameter `timeout`
             * Transfer data as GET parameters (except for comments and texts)
 
+        .. versionchanged:: 0.1.5
+            Retry sending the request, if the remote host disconnects
+
         :param url: Full URL
         :param data: Data to be included as GET or POST parameters in request
         :param method: HTTP method
@@ -182,10 +187,15 @@ class Osc:
         if timeout:
             settings["timeout"] = timeout
 
-        response = session.send(prepped_req, **settings)
-        if raise_for_status:
-            response.raise_for_status()
-        return response
+        for i in range(self.default_connection_retries):
+            try:
+                response = session.send(prepped_req, **settings)
+            except ConnectionError as error:
+                pass
+            else:
+                if raise_for_status:
+                    response.raise_for_status()
+                return response
 
     @staticmethod
     def handle_params(params):
