@@ -191,7 +191,7 @@ class Osc:
         for _ in range(self.default_connection_retries):
             try:
                 response = session.send(prepped_req, **settings)
-            except ConnectionError:
+            except _ConnectionError:
                 pass
             else:
                 if raise_for_status:
