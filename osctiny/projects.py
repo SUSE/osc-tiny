@@ -13,6 +13,11 @@ from .base import ExtensionBase
 
 TEMPLATE_CREATE_ATTR = "<attributes><attribute namespace='' name=''>" \
                        "<value></value></attribute></attributes>"
+TEMPLATE_META = "<project name=''><title></title><description></description>" \
+                "<person userid='' role='bugowner'/>" \
+                "<person userid='' role='maintainer'/>" \
+                "<build><enable/></build><publish><disable/></publish>" \
+                "<debuginfo><enable/></debuginfo></project>"
 
 
 class Project(ExtensionBase):
@@ -56,6 +61,61 @@ class Project(ExtensionBase):
         )
 
         return self.osc.get_objectified_xml(response)
+
+    # pylint: disable=too-many-arguments
+    def put_meta(self, project, metafile=None, title=None, description=None,
+                 bugowner=None, maintainer=None):
+        """
+        Edit project meta data or create a new project
+
+        If no ``metafile`` is provided, a default template is used.
+
+        .. versionadded:: 0.1.5
+
+        :param project: name of project
+        :param metafile: Complete metafile
+        :type metafile: str or ElementTree
+        :param title: Title for meta file
+        :param description: Description for meta file
+        :param bugowner: Bugowner for meta file
+        :param maintainer: Maintainer for meta file
+        :return: ``True``, if successful. Otherwise API response
+        :rtype: bool or lxml.objectify.ObjectifiedElement
+        """
+        if metafile is None:
+            metafile = TEMPLATE_META
+
+        if isinstance(metafile, str):
+            metafile = fromstring(metafile)
+
+        metafile.set("name", project)
+
+        # pylint: disable=protected-access
+        if title:
+            metafile.title._setText(title)
+        if description:
+            metafile.description._setText(description)
+        if bugowner:
+            person = metafile.xpath("person[@role='bugowner']")
+            if person:
+                person[0].set("userid", bugowner)
+        if maintainer:
+            person = metafile.xpath("person[@role='maintainer']")
+            if person:
+                person[0].set("userid", maintainer)
+
+        response = self.osc.request(
+            url=urljoin(self.osc.url,
+                        "/".join((self.base_path, project, "_meta"))),
+            method="PUT",
+            data=tounicode(metafile)
+        )
+
+        parsed = self.osc.get_objectified_xml(response)
+        if response.status_code == 200 and parsed.get("code") == "ok":
+            return True
+
+        return parsed
 
     def get_files(self, project, directory="", meta=False, rev=None, **kwargs):
         """
@@ -300,3 +360,5 @@ class Project(ExtensionBase):
         )
 
         return response.status_code == 200
+
+    create = put_meta

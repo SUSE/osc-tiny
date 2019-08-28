@@ -6,6 +6,8 @@ Release Notes
 
 * Retry sending requests in case the API server disconnects before returning a
   response.
+* Added method :py:meth:`osctiny.projects.Project.put_meta` and alias
+  :py:meth:`osctiny.projects.Project.create`
 
 0.1.4
 -----
