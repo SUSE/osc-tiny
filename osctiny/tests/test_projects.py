@@ -1,10 +1,12 @@
 import re
 from urllib.parse import urlparse, parse_qs
 
+from lxml.objectify import fromstring
 from requests.exceptions import HTTPError
 import responses
 
 from .base import OscTest, CallbackFactory
+from ..projects import TEMPLATE_META
 
 
 class TestProject(OscTest):
@@ -108,6 +110,47 @@ class TestProject(OscTest):
         with self.subTest("non-existing project"):
             self.assertRaises(
                 HTTPError, self.osc.projects.get_meta, "Devel:ARM:Fbctory"
+            )
+
+    @responses.activate
+    def test_put_meta(self):
+        def callback(headers, params, request):
+            status = 500
+            body = "<status code='error'></status>"
+            try:
+                meta = fromstring(request.body)
+            except Exception:
+                pass
+            else:
+                match = re.search("source/(?P<project>[^/]+)/_meta",
+                                  request.url)
+                if match and meta.get("name") == match.group("project"):
+                    status = 200
+                    body = """<status code='ok'></status>"""
+
+            headers['request-id'] = '728d329e-0e86-11e4-a748-0c84dc037c13'
+            return status, headers, body
+
+        self.mock_request(
+            method=responses.PUT,
+            url=re.compile(self.osc.url + '/source/[^/]+/_meta'),
+            callback=CallbackFactory(callback)
+        )
+
+        with self.subTest("Valid request"):
+            self.assertTrue(self.osc.projects.put_meta(
+                project="test",
+                title="foo bar",
+                description="lorem ipsum dolor sit amet ..."
+            ))
+
+        with self.subTest("Invalid request"):
+            self.assertRaises(
+                HTTPError,
+                self.osc.request,
+                url=self.osc.url + '/source/foobar/_meta',
+                method="PUT",
+                data=TEMPLATE_META
             )
 
     @responses.activate
