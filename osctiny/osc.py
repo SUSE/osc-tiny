@@ -6,6 +6,7 @@ from io import BufferedReader, BytesIO, StringIO
 import gc
 import re
 from ssl import get_default_verify_paths
+import time
 from urllib.parse import urlencode
 import warnings
 
@@ -82,6 +83,7 @@ class Osc:
     _registered = {}
     default_timeout = (60, 300)
     default_connection_retries = 5
+    default_retry_timeout = 5
 
     def __init__(self, url=None, username=None, password=None, verify=None,
                  cache=False):
@@ -188,11 +190,14 @@ class Osc:
         if timeout:
             settings["timeout"] = timeout
 
-        for _ in range(self.default_connection_retries):
+        for i in range(self.default_connection_retries, -1, -1):
             try:
                 response = session.send(prepped_req, **settings)
-            except _ConnectionError:
-                pass
+            except _ConnectionError as error:
+                warnings.warn("Problem connecting to server: {}".format(error))
+                if i < 1:
+                    raise
+                time.sleep(self.default_retry_timeout)
             else:
                 if raise_for_status:
                     response.raise_for_status()
