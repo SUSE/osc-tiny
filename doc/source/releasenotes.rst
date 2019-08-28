@@ -1,6 +1,12 @@
 Release Notes
 =============
 
+0.1.5
+-----
+
+* Retry sending requests in case the API server disconnects before returning a
+  response.
+
 0.1.4
 -----
 
