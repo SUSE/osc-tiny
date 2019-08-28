@@ -6,6 +6,7 @@ from io import BufferedReader, BytesIO, StringIO
 import gc
 import re
 from ssl import get_default_verify_paths
+import time
 from urllib.parse import urlencode
 import warnings
 
@@ -13,6 +14,7 @@ import warnings
 from lxml.objectify import fromstring
 from requests import Session, Request
 from requests.auth import HTTPBasicAuth
+from requests.exceptions import ConnectionError as _ConnectionError
 
 from .buildresults import Build
 from .packages import Package
@@ -28,6 +30,7 @@ except ImportError:
 
 
 # pylint: disable=too-many-instance-attributes,too-many-arguments
+# pylint: disable=too-many-locals
 class Osc:
     """
     Build service API client
@@ -79,6 +82,8 @@ class Osc:
     session = None
     _registered = {}
     default_timeout = (60, 300)
+    default_connection_retries = 5
+    default_retry_timeout = 5
 
     def __init__(self, url=None, username=None, password=None, verify=None,
                  cache=False):
@@ -138,6 +143,9 @@ class Osc:
             * Added parameter `timeout`
             * Transfer data as GET parameters (except for comments and texts)
 
+        .. versionchanged:: 0.1.5
+            Retry sending the request, if the remote host disconnects
+
         :param url: Full URL
         :param data: Data to be included as GET or POST parameters in request
         :param method: HTTP method
@@ -182,10 +190,18 @@ class Osc:
         if timeout:
             settings["timeout"] = timeout
 
-        response = session.send(prepped_req, **settings)
-        if raise_for_status:
-            response.raise_for_status()
-        return response
+        for i in range(self.default_connection_retries, -1, -1):
+            try:
+                response = session.send(prepped_req, **settings)
+            except _ConnectionError as error:
+                warnings.warn("Problem connecting to server: {}".format(error))
+                if i < 1:
+                    raise
+                time.sleep(self.default_retry_timeout)
+            else:
+                if raise_for_status:
+                    response.raise_for_status()
+                return response
 
     @staticmethod
     def handle_params(params):
