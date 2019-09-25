@@ -3,4 +3,4 @@ from .osc import Osc
 
 
 __all__ = ['Osc']
-__version__ = "0.1.4"
+__version__ = "0.1.6"

@@ -1,6 +1,12 @@
 Release Notes
 =============
 
+0.1.6
+-----
+
+* Allow huge XML files to be parsed in
+  :py:meth:`osctiny.osc.Osc.get_objectified_xml`
+
 0.1.5
 -----
 

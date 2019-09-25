@@ -11,7 +11,7 @@ from urllib.parse import urlencode
 import warnings
 
 # pylint: disable=no-name-in-module
-from lxml.objectify import fromstring
+from lxml.objectify import fromstring, makeparser
 from requests import Session, Request
 from requests.auth import HTTPBasicAuth
 from requests.exceptions import ConnectionError as _ConnectionError
@@ -94,6 +94,7 @@ class Osc:
         self._session = Session()
         self._session.verify = verify or get_default_verify_paths().capath
         self.auth = HTTPBasicAuth(self.username, self.password)
+        self.parser = makeparser(huge_tree=True)
 
         # API endpoints
         self.build = Build(osc_obj=self)
@@ -241,17 +242,19 @@ class Osc:
                 for key, value in params.items()
                 if value is not None}
 
-    @staticmethod
-    def get_objectified_xml(response):
+    def get_objectified_xml(self, response):
         """
         Return API response as an XML object
+
+        .. versionchanged:: 0.1.6
+            Allow parsing of "huge" XML inputs
 
         :param response: An API response
         :rtype response: :py:class:`requests.Response`
         :return: :py:class:`lxml.objectify.ObjectifiedElement`
         """
         try:
-            return fromstring(response.text)
+            return fromstring(response.text, self.parser)
         except ValueError:
             # Just in case OBS returns a Unicode string with encoding
             # declaration
