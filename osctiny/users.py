@@ -26,7 +26,7 @@ class Group(ExtensionBase):
         response = self.osc.request(
             url=urljoin(self.osc.url, self.base_path),
             method="GET",
-            data=data
+            params=data
         )
 
         return self.osc.get_objectified_xml(response)

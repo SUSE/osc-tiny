@@ -39,7 +39,7 @@ class Build(ExtensionBase):
             method="GET",
             url=urljoin(self.osc.url, "{}/{}/_result".format(self.base_path,
                                                              project)),
-            data=params
+            params=params
         )
 
         return self.osc.get_objectified_xml(response)
@@ -63,7 +63,7 @@ class Build(ExtensionBase):
             url=urljoin(self.osc.url, "{}/{}/{}/{}/{}".format(
                 self.base_path, project, repo, arch, package
             )),
-            data=params
+            params=params
         )
 
         return self.osc.get_objectified_xml(response)

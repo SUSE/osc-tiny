@@ -33,7 +33,7 @@ class Request(ExtensionBase):
         response = self.osc.request(
             url=urljoin(self.osc.url, self.base_path),
             method="GET",
-            data=params
+            params=params
         )
 
         return self.osc.get_objectified_xml(response)
@@ -52,12 +52,10 @@ class Request(ExtensionBase):
         :rtype: lxml.objectify.ObjectifiedElement
         """
         request_id = self._validate_id(request_id)
-        withhistory = '1' if withhistory else '0'
-        withfullhistory = '1' if withfullhistory else '0'
         response = self.osc.request(
             url=urljoin(self.osc.url, self.base_path + request_id),
             method="GET",
-            data={
+            params={
                 'withhistory': withhistory,
                 'withfullhistory': withfullhistory
             }
@@ -112,7 +110,7 @@ class Request(ExtensionBase):
         response = self.osc.request(
             url=urljoin(self.osc.url, self.base_path + request_id),
             method="POST",
-            data=kwargs
+            params=kwargs
         )
 
         if kwargs.get("view", "plain") == "xml":
@@ -133,13 +131,15 @@ class Request(ExtensionBase):
         """
         request_id = self._validate_id(request_id)
         url = urljoin(self.osc.url, '/comments' + self.base_path + request_id)
+        params = {}
         if parent_id and str(parent_id).isnumeric():
-            url += "?parent_id={}".format(parent_id)
+            params["parent_id"] = parent_id
 
         response = self.osc.request(
             url=url,
             method="POST",
-            data=comment
+            data=comment,
+            params=params
         )
         parsed = self.osc.get_objectified_xml(response)
         if response.status_code == 200 and parsed.get("code") == "ok":

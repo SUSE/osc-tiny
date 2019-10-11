@@ -39,7 +39,7 @@ class Project(ExtensionBase):
         response = self.osc.request(
             url=urljoin(self.osc.url, self.base_path),
             method="GET",
-            data={'deleted': deleted}
+            params={'deleted': deleted}
         )
 
         return self.osc.get_objectified_xml(response)
@@ -141,7 +141,7 @@ class Project(ExtensionBase):
                 "{}/{}/{}".format(self.base_path, project, directory)
             ),
             method="GET",
-            data=kwargs
+            params=kwargs
         )
 
         return self.osc.get_objectified_xml(response)
@@ -269,13 +269,15 @@ class Project(ExtensionBase):
         :rtype: bool or lxml.objectify.ObjectifiedElement
         """
         url = urljoin(self.osc.url, '/comments/project/' + project)
+        params = {}
         if parent_id and str(parent_id).isnumeric():
-            url += "?parent_id={}".format(parent_id)
+            params["parent_id"] = parent_id
 
         response = self.osc.request(
             url=url,
             method="POST",
-            data=comment
+            data=comment,
+            params=params
         )
         parsed = self.osc.get_objectified_xml(response)
         if response.status_code == 200 and parsed.get("code") == "ok":
@@ -306,7 +308,7 @@ class Project(ExtensionBase):
                 self.base_path, project
             )),
             method="GET",
-            data=kwargs
+            params=kwargs
         )
 
         return self.osc.get_objectified_xml(response)
@@ -324,7 +326,7 @@ class Project(ExtensionBase):
         :return: ``True``, if successful. Otherwise API response
         :rtype: bool or lxml.objectify.ObjectifiedElement
         """
-        params = {'force': force, 'comment': comment}
+        params = {'force': force}
 
         response = self.osc.request(
             url=urljoin(
@@ -332,7 +334,8 @@ class Project(ExtensionBase):
                 "/".join((self.base_path, project))
             ),
             method="DELETE",
-            data=params
+            params=params,
+            data=comment
         )
 
         parsed = self.osc.get_objectified_xml(response)
