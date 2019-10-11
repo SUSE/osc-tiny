@@ -7,7 +7,6 @@ import gc
 import re
 from ssl import get_default_verify_paths
 import time
-from urllib.parse import urlencode
 import warnings
 
 # pylint: disable=no-name-in-module
@@ -121,7 +120,7 @@ class Osc:
         # Just in case ;-)
         gc.collect()
 
-    def request(self, url, data=None, method="GET", stream=False,
+    def request(self, url, method="GET", stream=False, data=None, params=None,
                 raise_for_status=True, timeout=None):
         """
         Perform HTTP(S) request
@@ -146,6 +145,10 @@ class Osc:
 
         .. versionchanged:: 0.1.5
             Retry sending the request, if the remote host disconnects
+
+        .. versionadded:: 0.1.7
+
+            * Added parameter `params`
 
         :param url: Full URL
         :param data: Data to be included as GET or POST parameters in request
@@ -172,18 +175,15 @@ class Osc:
         else:
             session = self.session
 
-        if isinstance(data, dict):
-            comment = data.pop("comment", {})
-            url += "?" + urlencode(self.handle_params(data))
-            data = comment
-
         req = Request(
             method,
             url,
             auth=self.auth,
-            data=self.handle_params(data)
+            data=self.handle_params(data),
+            params=self.handle_params(params)
         )
         prepped_req = session.prepare_request(req)
+        prepped_req.headers['Content-Type'] = "application/octet-stream"
         settings = session.merge_environment_settings(
             prepped_req.url, {}, None, None, None
         )

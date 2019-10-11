@@ -20,17 +20,23 @@ class Package(ExtensionBase):
     base_path = "/source"
     new_package_meta_templ = "<package><title/><description/></package>"
 
-    def get_list(self, project):
+    def get_list(self, project, deleted=False):
         """
         Get packages from project
 
+        .. versionadded:: 0.1.7
+            Parameter ``deleted``
+
         :param project: name of project
+        :param deleted: Show deleted packages instead
         :return: Objectified XML element
         :rtype: lxml.objectify.ObjectifiedElement
         """
+        params = {"deleted": deleted}
         response = self.osc.request(
             url=urljoin(self.osc.url, "{}/{}".format(self.base_path, project)),
-            method="GET"
+            method="GET",
+            params=params
         )
 
         return self.osc.get_objectified_xml(response)
@@ -61,7 +67,7 @@ class Package(ExtensionBase):
                 "{}/{}/{}/_meta".format(self.base_path, project, package)
             ),
             method="GET",
-            data=params
+            params=params
         )
 
         if blame:
@@ -133,7 +139,7 @@ class Package(ExtensionBase):
                 "{}/{}/{}".format(self.base_path, project, package)
             ),
             method="GET",
-            data=params
+            params=params
         )
 
         return self.osc.get_objectified_xml(response)
@@ -164,7 +170,7 @@ class Package(ExtensionBase):
             ),
             method="GET",
             stream=True,
-            data={'meta': meta, 'rev': rev}
+            params={'meta': meta, 'rev': rev}
         )
 
         return response
@@ -320,7 +326,7 @@ class Package(ExtensionBase):
                 "{}/{}/{}".format(self.base_path, project, package)
             ),
             method="POST",
-            data=params
+            params=params
         )
 
         if cmd != "diff" or params.get("view", None) == "xml":
@@ -382,7 +388,7 @@ class Package(ExtensionBase):
         :return: ``True``, if successful. Otherwise API response
         :rtype: bool or lxml.objectify.ObjectifiedElement
         """
-        params = {'force': force, 'comment': comment}
+        params = {'force': force}
 
         response = self.osc.request(
             url=urljoin(
@@ -390,7 +396,8 @@ class Package(ExtensionBase):
                 "/".join((self.base_path, project, package))
             ),
             method="DELETE",
-            data=params
+            params=params,
+            data=comment
         )
 
         parsed = self.osc.get_objectified_xml(response)

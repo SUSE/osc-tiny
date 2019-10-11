@@ -1,6 +1,14 @@
 Release Notes
 =============
 
+0.1.7
+-----
+
+* Define ``Content-Type`` header in requests in
+  :py:meth:`osctiny.osc.Osc.request`
+* Use new parameter ``params`` in calls of :py:meth:`osctiny.osc.Osc.request`
+* Added parameter ``deleted`` to :py:math:`osctiny.packages.get_list`
+
 0.1.6
 -----
 

@@ -36,7 +36,7 @@ class Search(ExtensionBase):
         kwargs["match"] = xpath
         response = self.osc.request(
             url=urljoin(self.osc.url, self.base_path + path.lstrip("/")),
-            data=kwargs,
+            params=kwargs,
             method='GET'
         )
         return self.osc.get_objectified_xml(response)
