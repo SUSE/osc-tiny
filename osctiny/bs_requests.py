@@ -123,42 +123,34 @@ class Request(ExtensionBase):
 
         .. versionadded:: 0.1.1
 
+        .. versionchanged:: 0.1.8
+            Use internally :py:class:`osctiny.comments.Comment.add`
+
         :param request_id: ID of the request
         :param comment: Comment to be added
         :param parent_id: ID of parent comment. Default: ``None``
         :return: ``True``, if successful. Otherwise API response
         :rtype: bool or lxml.objectify.ObjectifiedElement
         """
-        request_id = self._validate_id(request_id)
-        url = urljoin(self.osc.url, '/comments' + self.base_path + request_id)
-        params = {}
-        if parent_id and str(parent_id).isnumeric():
-            params["parent_id"] = parent_id
-
-        response = self.osc.request(
-            url=url,
-            method="POST",
-            data=comment,
-            params=params
+        return self.osc.comments.add(
+            obj_type="request",
+            ids=(request_id,),
+            comment=comment,
+            parent_id=parent_id
         )
-        parsed = self.osc.get_objectified_xml(response)
-        if response.status_code == 200 and parsed.get("code") == "ok":
-            return True
-
-        return parsed
 
     def get_comments(self, request_id):
         """
         Get a list of comments for request
 
+        .. versionchanged:: 0.1.8
+            Use internally :py:class:`osctiny.comments.Comment.get`
+
         :param request_id: ID of the request
         :return: Objectified XML element
         :rtype: lxml.objectify.ObjectifiedElement
         """
-        request_id = self._validate_id(request_id)
-        response = self.osc.request(
-            url=urljoin(self.osc.url,
-                        '/comments' + self.base_path + request_id),
-            method="GET",
+        return self.osc.comments.get(
+            obj_type="request",
+            ids=(request_id,)
         )
-        return self.osc.get_objectified_xml(response)

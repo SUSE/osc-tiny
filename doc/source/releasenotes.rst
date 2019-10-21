@@ -1,13 +1,20 @@
 Release Notes
 =============
 
+0.1.8
+-----
+
+* Collected methods to get/add in new :py:class:`osctiny.comments.Comment`
+  extension
+* Added method to delete comments :py:meth:`osctiny.comments.Comment.delete`
+
 0.1.7
 -----
 
 * Define ``Content-Type`` header in requests in
   :py:meth:`osctiny.osc.Osc.request`
 * Use new parameter ``params`` in calls of :py:meth:`osctiny.osc.Osc.request`
-* Added parameter ``deleted`` to :py:math:`osctiny.packages.get_list`
+* Added parameter ``deleted`` to :py:meth:`osctiny.packages.Package.get_list`
 
 0.1.6
 -----

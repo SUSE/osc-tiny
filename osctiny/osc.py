@@ -16,6 +16,7 @@ from requests.auth import HTTPBasicAuth
 from requests.exceptions import ConnectionError as _ConnectionError
 
 from .buildresults import Build
+from .comments import Comment
 from .packages import Package
 from .projects import Project
 from .bs_requests import Request as BsRequest
@@ -61,6 +62,8 @@ class Osc:
           - :py:attr:`users`
         * - :py:class:`osctiny.build.Build`
           - :py:attr:`build`
+        * - :py:class:`osctiny.comments.Comment`
+          - :py:attr:`comments`
 
     :param url: API URL of a BuildService instance
     :param username: Credential for login
@@ -70,6 +73,9 @@ class Osc:
 
     .. versionadded:: 0.1.1
         The ``cache`` parameter and the ``build`` extension
+
+    .. versionadded:: 0.1.8
+        The ``comments`` extension
 
     .. _SSL Cert Verification:
         http://docs.python-requests.org/en/master/user/advanced/
@@ -97,6 +103,7 @@ class Osc:
 
         # API endpoints
         self.build = Build(osc_obj=self)
+        self.comments = Comment(osc_obj=self)
         self.groups = Group(osc_obj=self)
         self.packages = Package(osc_obj=self)
         self.projects = Project(osc_obj=self)

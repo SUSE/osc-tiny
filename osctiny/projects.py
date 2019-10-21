@@ -245,16 +245,17 @@ class Project(ExtensionBase):
         """
         Get a list of comments for project
 
+        .. versionchanged:: 0.1.8
+            Use internally :py:class:`osctiny.comments.Comment.get`
+
         :param project: name of project
         :return: Objectified XML element
         :rtype: lxml.objectify.ObjectifiedElement
         """
-        response = self.osc.request(
-            url=urljoin(self.osc.url,
-                        '/comments/project/' + project),
-            method="GET",
+        return self.osc.comments.get(
+            obj_type="project",
+            ids=(project,)
         )
-        return self.osc.get_objectified_xml(response)
 
     def add_comment(self, project, comment, parent_id=None):
         """
@@ -262,28 +263,21 @@ class Project(ExtensionBase):
 
         .. versionadded: 0.1.2
 
+        .. versionchanged:: 0.1.8
+            Use internally :py:class:`osctiny.comments.Comment.add`
+
         :param project: name of project
         :param comment: Comment to be added
         :param parent_id: ID of parent comment. Default: ``None``
         :return: ``True``, if successful. Otherwise API response
         :rtype: bool or lxml.objectify.ObjectifiedElement
         """
-        url = urljoin(self.osc.url, '/comments/project/' + project)
-        params = {}
-        if parent_id and str(parent_id).isnumeric():
-            params["parent_id"] = parent_id
-
-        response = self.osc.request(
-            url=url,
-            method="POST",
-            data=comment,
-            params=params
+        return self.osc.comments.add(
+            obj_type="project",
+            ids=(project,),
+            comment=comment,
+            parent_id=parent_id
         )
-        parsed = self.osc.get_objectified_xml(response)
-        if response.status_code == 200 and parsed.get("code") == "ok":
-            return True
-
-        return parsed
 
     def get_history(self, project, meta=True, rev=None, **kwargs):
         """

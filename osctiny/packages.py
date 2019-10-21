@@ -502,3 +502,41 @@ class Package(ExtensionBase):
             data=tounicode(agg_xml),
             filename="_aggregate"
         )
+
+    def get_comments(self, project, package):
+        """
+        Get a list of comments for package
+
+        .. versionadded:: 0.1.8
+            Use internally :py:class:`osctiny.comments.Comment.get`
+
+        :param project: name of project
+        :param package: name of package
+        :return: Objectified XML element
+        :rtype: lxml.objectify.ObjectifiedElement
+        """
+        return self.osc.comments.get(
+            obj_type="package",
+            ids=(project, package)
+        )
+
+    def add_comment(self, project, package, comment, parent_id=None):
+        """
+        Add a comment to a package
+
+        .. versionchanged:: 0.1.8
+            Use internally :py:class:`osctiny.comments.Comment.add`
+
+        :param project: name of project
+        :param package: name of package
+        :param comment: Comment to be added
+        :param parent_id: ID of parent comment. Default: ``None``
+        :return: ``True``, if successful. Otherwise API response
+        :rtype: bool or lxml.objectify.ObjectifiedElement
+        """
+        return self.osc.comments.add(
+            obj_type="package",
+            ids=(project, package),
+            comment=comment,
+            parent_id=parent_id
+        )
