@@ -7,6 +7,9 @@ API description
 .. automodule:: osctiny.buildresults
     :members:
 
+.. automodule:: osctiny.comments
+    :members:
+
 .. automodule:: osctiny.bs_requests
     :members:
 
