@@ -12,10 +12,11 @@ jobs:
     - name: "Python: 3.4 (with old dep. versions)"
       python: "3.4"
       install: pip install -r requirements34.txt
-  allow_failures:
     - name: "Python: 2.7"
       python: "2.7"
       install: pip install -r requirements.txt
+  allow_failures:
+    - python: "2.7"
 install: pip install -r requirements.txt pylint
 script: python -m unittest || python3 -m unittest
 deploy:
