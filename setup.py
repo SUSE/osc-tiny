@@ -10,7 +10,7 @@ with open("README.md") as fh:
 
 setup(
     name='osc-tiny',
-    version='0.1.8',
+    version='0.1.9',
     description='Client API for openSUSE BuildService',
     long_description=long_description,
     long_description_content_type="text/markdown",
@@ -20,6 +20,7 @@ setup(
     download_url='http://github.com/crazyscientist/osc-tiny/tarball/master',
     packages=find_packages(),
     license='MIT',
+    data_files=[(".", ["LICENSE"])],
     install_requires=[
         "lxml",
         "requests",
