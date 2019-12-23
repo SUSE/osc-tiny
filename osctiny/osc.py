@@ -15,13 +15,13 @@ from requests import Session, Request
 from requests.auth import HTTPBasicAuth
 from requests.exceptions import ConnectionError as _ConnectionError
 
-from .buildresults import Build
-from .comments import Comment
-from .packages import Package
-from .projects import Project
-from .bs_requests import Request as BsRequest
-from .search import Search
-from .users import Group, Person
+from .extensions.buildresults import Build
+from .extensions.comments import Comment
+from .extensions.packages import Package
+from .extensions.projects import Project
+from .extensions.bs_requests import Request as BsRequest
+from .extensions.search import Search
+from .extensions.users import Group, Person
 
 try:
     from cachecontrol import CacheControl
@@ -48,21 +48,21 @@ class Osc:
 
         * - Extension
           - Accessible through attribute
-        * - :py:class:`osctiny.packages.Package`
+        * - :py:class:`osctiny.extensions.packages.Package`
           - :py:attr:`packages`
-        * - :py:class:`osctiny.projects.Project`
+        * - :py:class:`osctiny.extensions.projects.Project`
           - :py:attr:`projects`
-        * - :py:class:`osctiny.bs_requests.Request`
+        * - :py:class:`osctiny.extensions.bs_requests.Request`
           - :py:attr:`requests`
-        * - :py:class:`osctiny.search.Search`
+        * - :py:class:`osctiny.extensions.search.Search`
           - :py:attr:`search`
-        * - :py:class:`osctiny.users.Group`
+        * - :py:class:`osctiny.extensions.users.Group`
           - :py:attr:`groups`
-        * - :py:class:`osctiny.users.Person`
+        * - :py:class:`osctiny.extensions.users.Person`
           - :py:attr:`users`
-        * - :py:class:`osctiny.build.Build`
+        * - :py:class:`osctiny.extensions.build.Build`
           - :py:attr:`build`
-        * - :py:class:`osctiny.comments.Comment`
+        * - :py:class:`osctiny.extensions.comments.Comment`
           - :py:attr:`comments`
 
     :param url: API URL of a BuildService instance

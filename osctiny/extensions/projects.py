@@ -8,7 +8,7 @@ from urllib.parse import urljoin
 from lxml.etree import tounicode
 from lxml.objectify import fromstring
 
-from .base import ExtensionBase
+from ..utils.base import ExtensionBase
 
 
 TEMPLATE_CREATE_ATTR = "<attributes><attribute namespace='' name=''>" \

@@ -1,4 +1,4 @@
-from .. import projects
+from ..extensions import projects
 from .base import OscTest
 
 

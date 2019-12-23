@@ -2,7 +2,6 @@ import re
 from urllib.parse import urlparse, parse_qs
 
 from lxml.objectify import ObjectifiedElement
-from requests.exceptions import HTTPError
 import responses
 
 from .base import OscTest, CallbackFactory

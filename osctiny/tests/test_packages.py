@@ -5,7 +5,7 @@ from unittest import skip
 import responses
 
 from .base import OscTest, CallbackFactory
-from osctiny.errors import OscError
+from ..utils.errors import OscError
 
 
 class TestPackage(OscTest):

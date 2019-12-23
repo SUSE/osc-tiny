@@ -9,8 +9,8 @@ from urllib.parse import urljoin
 from lxml.etree import tounicode, SubElement, Element
 from lxml.objectify import fromstring
 
-from .base import ExtensionBase, DataDir
-from .errors import OscError
+from ..utils.base import ExtensionBase, DataDir
+from ..utils.errors import OscError
 
 
 class Package(ExtensionBase):
@@ -145,7 +145,8 @@ class Package(ExtensionBase):
         return self.osc.get_objectified_xml(response)
 
     # pylint: disable=too-many-arguments
-    def get_file(self, project, package, filename, meta=False, rev=None):
+    def get_file(self, project, package, filename, meta=False, rev=None,
+                 expand=0):
         """
         Get a source file
 
@@ -157,11 +158,17 @@ class Package(ExtensionBase):
         :param filename: name of file
         :param meta: switch to meta files
         :param rev: Get file from this specific package revision
+        :param expand: If the package is linked, it typically only contains a
+                       ``_link`` file. In order to allow retrieval of the linked
+                       package instead of a 404 error, set this parameter to '1'
         :return: response
         :rtype: requests.Response
 
         .. versionadded:: 0.1.1
             Parameter rev
+
+        .. versionadded:: 0.1.11
+            Parameter expand
         """
         response = self.osc.request(
             url=urljoin(
@@ -170,7 +177,7 @@ class Package(ExtensionBase):
             ),
             method="GET",
             stream=True,
-            params={'meta': meta, 'rev': rev}
+            params={'meta': meta, 'rev': rev, 'expand': expand}
         )
 
         return response

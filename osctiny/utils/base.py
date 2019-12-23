@@ -1,4 +1,8 @@
-# pylint: disable=missing-docstring,too-few-public-methods,
+"""
+Common base classes
+^^^^^^^^^^^^^^^^^^^
+"""
+# pylint: disable=too-few-public-methods,
 import os
 
 from lxml.etree import tounicode
@@ -39,6 +43,9 @@ class DataDir:
             self.write_dir_contents()
 
     def write_dir_contents(self):
+        """
+        Create files with default content in ``.osc`` sub-directory
+        """
         with open(self._apiurl, "w") as filehandle:
             filehandle.write(self.osc.url + os.linesep)
 
