@@ -5,7 +5,7 @@ Comments extension
 import os
 from urllib.parse import urljoin
 
-from .base import ExtensionBase
+from ..utils.base import ExtensionBase
 
 
 class Comment(ExtensionBase):

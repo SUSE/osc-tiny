@@ -4,7 +4,7 @@ Requests extension
 """
 from urllib.parse import urljoin
 
-from .base import ExtensionBase
+from ..utils.base import ExtensionBase
 
 
 class Request(ExtensionBase):

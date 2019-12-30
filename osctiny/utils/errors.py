@@ -1,5 +1,6 @@
 """
-Base classes for and specific exceptions
+Base classes for osc-tiny specific exceptions
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 """
 
 

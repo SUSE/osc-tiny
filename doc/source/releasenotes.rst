@@ -1,12 +1,26 @@
 Release Notes
 =============
 
+0.1.11
+------
+
+* Changed structure of sub-modules
+* Added :py:mod:`osctiny.utils.changelog`
+* Added parameter ``expand`` to
+  :py:meth:`osctiny.extensions.packages.Package.get_file`
+
+0.1.9 / 0.1.10
+--------------
+
+* Include license file in published package
+
 0.1.8
 -----
 
-* Collected methods to get/add in new :py:class:`osctiny.comments.Comment`
-  extension
-* Added method to delete comments :py:meth:`osctiny.comments.Comment.delete`
+* Collected methods to get/add in new
+  :py:class:`osctiny.extensions.comments.Comment` extension
+* Added method to delete comments
+  :py:meth:`osctiny.extensions.comments.Comment.delete`
 
 0.1.7
 -----
@@ -14,7 +28,8 @@ Release Notes
 * Define ``Content-Type`` header in requests in
   :py:meth:`osctiny.osc.Osc.request`
 * Use new parameter ``params`` in calls of :py:meth:`osctiny.osc.Osc.request`
-* Added parameter ``deleted`` to :py:meth:`osctiny.packages.Package.get_list`
+* Added parameter ``deleted`` to
+  :py:meth:`osctiny.extensions.packages.Package.get_list`
 
 0.1.6
 -----
@@ -27,13 +42,14 @@ Release Notes
 
 * Retry sending requests in case the API server disconnects before returning a
   response.
-* Added method :py:meth:`osctiny.projects.Project.put_meta` and alias
-  :py:meth:`osctiny.projects.Project.create`
+* Added method :py:meth:`osctiny.extensions.projects.Project.put_meta` and alias
+  :py:meth:`osctiny.extensions.projects.Project.create`
 
 0.1.4
 -----
 
-* Fixed incorrect URL in :py:meth:`osctiny.projects.Project.add_comment`
+* Fixed incorrect URL in
+  :py:meth:`osctiny.extensions.projects.Project.add_comment`
 
 0.1.3
 -----
@@ -43,7 +59,7 @@ Release Notes
 * Transfer all parameters as GET parameters except comments/texts, which are
   still transferred as POST parameters without values
 * Added validation for arguments of command ``changereviewstate`` in
-  :py:meth:`osctiny.bs_requests.Request.cmd`
+  :py:meth:`osctiny.extensions.bs_requests.Request.cmd`
 
 0.1.2
 -----
@@ -69,11 +85,11 @@ Release Notes
 -----
 
 * Added ``changereviewstate`` to list of allowed commands on
-  :py:meth:`osctiny.bs_requests.Request.cmd`
+  :py:meth:`osctiny.extensions.bs_requests.Request.cmd`
 * Added capability to add comments to requests
 * Added extension for build results
-* Added :py:meth:`osctiny.packages.Package.checkout` to properly check-out an
-  entire package
+* Added :py:meth:`osctiny.extensions.packages.Package.checkout` to properly
+  check-out an entire package
 * Request parameters get encoded prior to submission to avoid decoding issues in
   the build service
 * On initialization :py:class:`osctiny.Osc` accepts a ``cache`` keyword argument

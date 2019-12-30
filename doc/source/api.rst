@@ -1,26 +1,44 @@
 API description
 ===============
 
+Core
+----
+
 .. automodule:: osctiny.osc
     :members:
 
-.. automodule:: osctiny.buildresults
+Extensions
+----------
+
+.. automodule:: osctiny.extensions.buildresults
     :members:
 
-.. automodule:: osctiny.comments
+.. automodule:: osctiny.extensions.comments
     :members:
 
-.. automodule:: osctiny.bs_requests
+.. automodule:: osctiny.extensions.bs_requests
     :members:
 
-.. automodule:: osctiny.packages
+.. automodule:: osctiny.extensions.packages
     :members:
 
-.. automodule:: osctiny.projects
+.. automodule:: osctiny.extensions.projects
     :members:
 
-.. automodule:: osctiny.users
+.. automodule:: osctiny.extensions.users
     :members:
 
-.. automodule:: osctiny.search
+.. automodule:: osctiny.extensions.search
+    :members:
+
+Utilities
+---------
+
+.. automodule:: osctiny.utils.errors
+    :members:
+
+.. automodule:: osctiny.utils.base
+    :members:
+
+.. automodule:: osctiny.utils.changelog
     :members:
