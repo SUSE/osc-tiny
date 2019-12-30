@@ -36,7 +36,7 @@ class Entry:
     .. py:attribute:: timestamp
 
         Timestamp of the entry as a :py:class:`datetime.datetime` object. If no
-        value of provided during initialization,
+        value is provided during initialization,
         :py:func:`datetime.datetime.now` is used instead.
 
     .. py:attribute:: packager
@@ -182,12 +182,30 @@ class ChangeLog:
         """
         Parse a changes file
 
-        :param str path: Path to changes file
+        The changes file to parse may be specified by it's path or as an already
+        open file handle (aka. subclass of :py:class:`io.TextIOBase`).
+
+        Use this method to initialize a new instance of :py:class:`ChangeLog`
+        like this:
+
+        .. code:: python
+
+            cl = ChangeLog.parse(path="/path/to/file")
+            for entry in cl.entries:
+                print(entry)
+
+        :param path: If a path is supplied as a string, the file will be opened
+                     for reading. If a subclass of :py:class:`io.TextIOBase` is
+                     provided, this method assumes that it is opened for
+                     reading.
+        :type path: str or open file/stream handle
         :param bool generative: If set to ``True`` (default), changelog entries
                                 are parsed on the fly using a generator.
                                 Otherwise all entries are parsed immediately and
                                 stored in an iterable.
         :return: An instance of ``ChangeLog``
+        :raises TypeError: if ``path`` is not a string or a subclass of
+                           :py:class:`io.TextIOBase`
         """
         def _wrapped(handle):
             # pylint: disable=protected-access
