@@ -1,6 +1,11 @@
 Release Notes
 =============
 
+0.1.12
+------
+
+* Bugfixes for :py:mod:`osctiny.utils.changelog`
+
 0.1.11
 ------
 
