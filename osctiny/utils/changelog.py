@@ -138,44 +138,54 @@ class ChangeLog:
         :param handle: An open and iterable (file) handle
         :type handle: Any derived object of :py:class:`io.IOBase`
         """
-        entry = None
+        entry = self.entry_factory()
 
-        handle.seek(0)
-        for line in handle:
-            match = self.patterns["init"].match(line)
-            if match:
-                if entry:
-                    # We are at the beginning of a new entry. Time to emit
-                    # the finished one.
-                    yield entry
-                entry = self.entry_factory()
-                continue
+        if isinstance(handle, TextIOBase):
+            handle.seek(0)
+        elif isinstance(handle, str):
+            handle = open(handle, "r")
+        else:
+            raise TypeError("Unexpected type for 'path': {}".format(
+                type(handle)))
 
-            match = self.patterns["header"].match(line)
-            if match:
-                entry.timestamp = parse(match.group("timestamp"),
-                                        ignoretz=False,
-                                        tzinfos=self.additional_tzinfos)
-                # Assuming UTC may not be correct, but beats dealing with
-                # a mix of tz-aware and naive datetime objects
-                if not is_aware(entry.timestamp):
-                    entry.timestamp = entry.default_tz.localize(
-                        parse(match.group("timestamp"), ignoretz=True,)
-                    )
-                entry.packager = match.group("packager")
-                continue
+        try:
+            for line in handle:
+                match = self.patterns["init"].match(line)
+                if match:
+                    if entry:
+                        # We are at the beginning of a new entry. Time to emit
+                        # the finished one.
+                        yield entry
+                    entry = self.entry_factory()
+                    continue
 
-            if not line.strip():
-                continue
+                match = self.patterns["header"].match(line)
+                if match:
+                    entry.timestamp = parse(match.group("timestamp"),
+                                            ignoretz=False,
+                                            tzinfos=self.additional_tzinfos)
+                    # Assuming UTC may not be correct, but beats dealing with
+                    # a mix of tz-aware and naive datetime objects
+                    if not is_aware(entry.timestamp):
+                        entry.timestamp = entry.default_tz.localize(
+                            parse(match.group("timestamp"), ignoretz=True,)
+                        )
+                    entry.packager = match.group("packager")
+                    continue
 
-            if entry.content:
-                entry.content += "\n"
+                if not line.strip():
+                    continue
 
-            entry.content += line.rstrip()
+                if entry.content:
+                    entry.content += "\n"
 
-        if entry:
-            # The last entry of the file is emitted explicitly
-            yield entry
+                entry.content += line.rstrip()
+
+            if entry:
+                # The last entry of the file is emitted explicitly
+                yield entry
+        finally:
+            handle.close()
 
     @classmethod
     def parse(cls, path, generative=True):
@@ -207,22 +217,12 @@ class ChangeLog:
         :raises TypeError: if ``path`` is not a string or a subclass of
                            :py:class:`io.TextIOBase`
         """
-        def _wrapped(handle):
-            # pylint: disable=protected-access
-            if generative:
-                new.entries = new._parse(handle)
-            else:
-                new.entries = list(new._parse(handle))
-
         new = cls()
 
-        if isinstance(path, TextIOBase):
-            _wrapped(path)
-        elif isinstance(path, str):
-            with open(path, "r") as handle:
-                _wrapped(handle)
+        if generative:
+            new.entries = new._parse(path)
         else:
-            raise TypeError("Unexpected type for 'path': {}".format(type(path)))
+            new.entries = list(new._parse(path))
 
         return new
 
