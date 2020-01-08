@@ -1,5 +1,9 @@
+# -*- coding: utf-8 -*-
+from future.standard_library import install_aliases
+install_aliases()
+
 from io import IOBase
-from unittest import TestCase
+from unittest2 import TestCase
 from urllib.parse import parse_qs
 
 import responses
@@ -34,7 +38,7 @@ class CallbackFactory:
             body.seek(0)
             body = body.read()
         if hasattr(body, "decode"):
-            body = body.decode()
+            body = body.decode('utf-8')
         params = parse_qs(body)
         headers = {
             "Cache-Control": "max-age=0, private, must-revalidate",
@@ -53,7 +57,7 @@ class CallbackFactory:
 class OscTest(TestCase):
     @classmethod
     def setUpClass(cls):
-        super().setUpClass()
+        super(OscTest, cls).setUpClass()
         cls.osc = Osc(
             url="http://api.example.com",
             username="foobar",

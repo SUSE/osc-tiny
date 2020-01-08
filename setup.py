@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
 from setuptools import setup, find_packages
@@ -10,7 +10,7 @@ with open("README.md") as fh:
 
 setup(
     name='osc-tiny',
-    version='0.1.12',
+    version='0.1.13',
     description='Client API for openSUSE BuildService',
     long_description=long_description,
     long_description_content_type="text/markdown",
@@ -33,7 +33,7 @@ setup(
         "Intended Audience :: System Administrators",
         "License :: OSI Approved :: MIT License",
         "Operating System :: OS Independent",
-        "Programming Language :: Python :: 3 :: Only",
+        "Programming Language :: Python :: 2.7",
         "Programming Language :: Python :: 3.4",
         "Programming Language :: Python :: 3.5",
         "Programming Language :: Python :: 3.6",

@@ -2,7 +2,8 @@
 Requests extension
 ------------------
 """
-from urllib.parse import urljoin
+from six.moves.urllib.parse import urljoin
+from builtins import str as text_type
 
 from ..utils.base import ExtensionBase
 
@@ -15,7 +16,7 @@ class Request(ExtensionBase):
 
     @staticmethod
     def _validate_id(request_id):
-        request_id = str(request_id)
+        request_id = text_type(request_id)
         if not request_id.isnumeric():
             raise ValueError(
                 "Request ID must be numeric! Got instead: {}".format(request_id)

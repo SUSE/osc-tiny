@@ -1,4 +1,7 @@
-from unittest import mock
+try:
+    from unittest import mock
+except ImportError:
+    import mock
 
 # Absolute import needed for mocking ;)
 from ..utils.base import DataDir
