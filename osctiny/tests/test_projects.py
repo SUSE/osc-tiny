@@ -1,3 +1,4 @@
+from __future__ import unicode_literals
 import re
 from six.moves.urllib_parse import urlparse, parse_qs
 

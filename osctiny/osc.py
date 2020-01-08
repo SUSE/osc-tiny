@@ -2,7 +2,7 @@
 Main API access
 ---------------
 """
-from builtins import str as text_type
+from __future__ import unicode_literals
 from io import BufferedReader, BytesIO, StringIO
 import gc
 import re
@@ -15,6 +15,7 @@ from lxml.objectify import fromstring, makeparser
 from requests import Session, Request
 from requests.auth import HTTPBasicAuth
 from requests.exceptions import ConnectionError as _ConnectionError
+from six import text_type
 
 from .extensions.buildresults import Build
 from .extensions.comments import Comment

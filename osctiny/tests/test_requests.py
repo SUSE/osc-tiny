@@ -1,8 +1,9 @@
 # -*- coding: utf-8 -*-
-from builtins import str as text_type
-
+from __future__ import unicode_literals
 import re
+
 from six.moves.urllib_parse import urlparse, parse_qs
+from six import text_type
 
 from lxml.objectify import ObjectifiedElement
 import responses

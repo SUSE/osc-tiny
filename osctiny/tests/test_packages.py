@@ -1,9 +1,10 @@
 # -*- coding: utf-8 -*-
+from __future__ import unicode_literals
 from io import StringIO, BytesIO, IOBase
 import re
 from unittest import skip
-from builtins import str as text_type
 
+from six import text_type
 import responses
 
 from .base import OscTest, CallbackFactory
@@ -338,7 +339,7 @@ class TestPackage(OscTest):
 
     @responses.activate
     def test_push_file(self):
-        content = u"""
+        content = """
         ლ(ಠ益ಠ)ლ            ლ(ಠ益ಠ)ლ
         Lorem ipsum dolor sit amet,
         consectetur adipiscing elit.

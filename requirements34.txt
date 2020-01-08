@@ -3,3 +3,4 @@ requests
 responses
 python-dateutil
 pytz
+six

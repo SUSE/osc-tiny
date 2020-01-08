@@ -2,8 +2,9 @@
 Requests extension
 ------------------
 """
+from __future__ import unicode_literals
 from six.moves.urllib.parse import urljoin
-from builtins import str as text_type
+from six import text_type
 
 from ..utils.base import ExtensionBase
 

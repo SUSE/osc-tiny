@@ -1,6 +1,16 @@
 Release Notes
 =============
 
+0.2.0
+-----
+
+* Backport for Python2 compatibility.
+
+.. note::
+
+    When using :py:obj:`osctiny` in a legacy Python2 application keep in mind
+    that :py:obj:`osctiny` expects Unicode strings like in Python3!
+
 0.1.12
 ------
 

@@ -2,9 +2,11 @@
 Packages extension
 ------------------
 """
+from __future__ import unicode_literals
 import errno
 import os
 from six.moves.urllib.parse import urljoin
+from six import text_type
 
 from lxml.etree import tounicode, SubElement, Element
 from lxml.objectify import fromstring
@@ -100,7 +102,7 @@ class Package(ExtensionBase):
         :type meta: str or lxml.objectify.ObjectifiedElement
         :return:
         """
-        if isinstance(meta, str):
+        if isinstance(meta, text_type):
             meta = fromstring(meta)
 
         if meta is not None:

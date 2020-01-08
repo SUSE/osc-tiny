@@ -1,6 +1,9 @@
+future
 lxml
+mock
 requests
 responses
 python-dateutil
 pytz
+unittest2
 six
