@@ -1,5 +1,6 @@
+from __future__ import unicode_literals
 import re
-from urllib.parse import urlparse, parse_qs
+from six.moves.urllib_parse import urlparse, parse_qs
 
 from lxml.objectify import fromstring
 from requests.exceptions import HTTPError

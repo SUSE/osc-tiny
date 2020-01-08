@@ -1,6 +1,8 @@
-import re
-from urllib.parse import urlparse, parse_qs
+from __future__ import unicode_literals
 
+import re
+
+from six.moves.urllib_parse import urlparse, parse_qs
 import responses
 
 from .base import OscTest, CallbackFactory

@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
 Changelog
 ^^^^^^^^^
@@ -10,12 +11,14 @@ from the openSUSE:Tools ``build`` package. See:
 
 .. versionadded:: 0.1.11
 """
+from __future__ import unicode_literals
 from datetime import datetime
 from io import TextIOBase
 import re
 
 from dateutil.parser import parse
 from pytz import _UTC
+from six import text_type, binary_type
 
 
 def is_aware(timestamp):
@@ -69,6 +72,9 @@ class Entry:
     def __bool__(self):
         return bool(self.timestamp and self.packager and self.content)
 
+    def __len__(self):
+        return 1 if self.timestamp and self.packager and self.content else 0
+
     def now(self):
         """
         Return current UTC timestamp
@@ -91,6 +97,9 @@ class Entry:
     def __str__(self):
         return "{sep}\n{self.formatted_timestamp} - {self.packager}\n\n" \
                "{self.content}\n\n".format(sep="-" * 67, self=self)
+
+    def __unicode__(self):
+        return self.__str__()
 
 
 class ChangeLog:
@@ -143,7 +152,7 @@ class ChangeLog:
 
         if isinstance(handle, TextIOBase):
             handle.seek(0)
-        elif isinstance(handle, str):
+        elif isinstance(handle, (text_type, binary_type)):
             handle = open(handle, "r")
         else:
             raise TypeError("Unexpected type for 'path': {}".format(
@@ -241,11 +250,11 @@ class ChangeLog:
         def _wrapped(handle):
             for entry in sorted(self.entries, key=lambda x: x.timestamp,
                                 reverse=True):
-                handle.write(str(entry))
+                handle.write(text_type(entry))
 
         if isinstance(path, TextIOBase):
             _wrapped(path)
-        elif isinstance(path, str):
+        elif isinstance(path, (text_type, binary_type)):
             with open(path, "w") as handle:
                 _wrapped(handle)
         else:

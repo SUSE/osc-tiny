@@ -1,4 +1,9 @@
-from unittest import mock
+from __future__ import unicode_literals
+
+try:
+    from unittest import mock
+except ImportError:
+    import mock
 
 # Absolute import needed for mocking ;)
 from ..utils.base import DataDir

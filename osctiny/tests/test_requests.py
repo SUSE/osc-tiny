@@ -1,5 +1,9 @@
+# -*- coding: utf-8 -*-
+from __future__ import unicode_literals
 import re
-from urllib.parse import urlparse, parse_qs
+
+from six.moves.urllib_parse import urlparse, parse_qs
+from six import text_type
 
 from lxml.objectify import ObjectifiedElement
 import responses
@@ -318,7 +322,7 @@ spec files:
 
 class TestRequest(OscTest):
     def setUp(self):
-        super().setUp()
+        super(TestRequest, self).setUp()
 
         self.mock_request(
             method=responses.GET,
@@ -374,7 +378,7 @@ class TestRequest(OscTest):
     def test_cmd(self):
         with self.subTest("plain diff"):
             response = self.osc.requests.cmd(30902, "diff")
-            self.assertTrue(isinstance(response, str))
+            self.assertTrue(isinstance(response, text_type))
             self.assertIn("changes files:", response)
             self.assertIn("+++ perl-XML-DOM-XPath.changes", response)
         with self.subTest("xml diff"):

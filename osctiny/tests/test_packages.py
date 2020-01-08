@@ -1,7 +1,10 @@
+# -*- coding: utf-8 -*-
+from __future__ import unicode_literals
 from io import StringIO, BytesIO, IOBase
 import re
 from unittest import skip
 
+from six import text_type
 import responses
 
 from .base import OscTest, CallbackFactory
@@ -156,7 +159,7 @@ class TestPackage(OscTest):
             response = self.osc.packages.get_meta(
                 "SUSE:SLE-12-SP1:Update", "python.8549", blame=True
             )
-            self.assertTrue(isinstance(response, str))
+            self.assertTrue(isinstance(response, text_type))
 
     @skip("No test data available")
     @responses.activate
@@ -245,7 +248,7 @@ class TestPackage(OscTest):
         response = self.osc.packages.cmd(
             "SUSE:SLE-12-SP1:Update", "python.8549", "diff"
         )
-        self.assertTrue(isinstance(response, str))
+        self.assertTrue(isinstance(response, text_type))
         self.assertIn(
             "++#if FFI_TYPE_LONGDOUBLE != FFI_TYPE_DOUBLE", response
         )
@@ -368,22 +371,22 @@ class TestPackage(OscTest):
 
         with self.subTest("as unicode"):
             self.osc.packages.push_file("prj", "pkg", "readme.txt", content)
-            self.assertEqual(bodies[-1], content.encode())
+            self.assertEqual(bodies[-1], content.encode('utf-8'))
 
         with self.subTest("as bytes"):
             self.osc.packages.push_file("prj", "pkg", "readme.txt",
-                                        content.encode())
-            self.assertEqual(bodies[-1], content.encode())
+                                        content.encode('utf-8'))
+            self.assertEqual(bodies[-1], content.encode('utf-8'))
 
         with self.subTest("as StringIO"):
             self.osc.packages.push_file("prj", "pkg", "readme.txt",
                                         StringIO(content))
-            self.assertEqual(bodies[-1], content.encode())
+            self.assertEqual(bodies[-1], content.encode('utf-8'))
 
         with self.subTest("as BytesIO"):
             self.osc.packages.push_file("prj", "pkg", "readme.txt",
-                                        BytesIO(content.encode()))
-            self.assertEqual(bodies[-1], content.encode())
+                                        BytesIO(content.encode('utf-8')))
+            self.assertEqual(bodies[-1], content.encode('utf-8'))
 
     @responses.activate
     def test_aggregate(self):

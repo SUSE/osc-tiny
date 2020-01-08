@@ -2,8 +2,10 @@
 Comments extension
 ------------------
 """
+from __future__ import unicode_literals
 import os
-from urllib.parse import urljoin
+from six.moves.urllib.parse import urljoin
+from six import text_type
 
 from ..utils.base import ExtensionBase
 
@@ -51,7 +53,7 @@ class Comment(ExtensionBase):
         response = self.osc.request(
             url=urljoin(self.osc.url,
                         os.path.join(*([self.base_path, obj_type]
-                                       + [str(x) for x in ids]))),
+                                       + [text_type(x) for x in ids]))),
             method="GET",
         )
         return self.osc.get_objectified_xml(response)
@@ -74,9 +76,9 @@ class Comment(ExtensionBase):
         self._validate(obj_type, ids)
         url = urljoin(self.osc.url,
                       os.path.join(*([self.base_path, obj_type]
-                                     + [str(x) for x in ids])))
+                                     + [text_type(x) for x in ids])))
         params = {}
-        if parent_id and str(parent_id).isnumeric():
+        if parent_id and text_type(parent_id).isnumeric():
             params["parent_id"] = parent_id
 
         response = self.osc.request(
@@ -102,7 +104,7 @@ class Comment(ExtensionBase):
         :return: ``True``, if successful. Otherwise API response
         :rtype: bool or lxml.objectify.ObjectifiedElement
         """
-        url = urljoin(self.osc.url, '/comment/' + str(comment_id))
+        url = urljoin(self.osc.url, '/comment/' + text_type(comment_id))
 
         response = self.osc.request(
             url=url,

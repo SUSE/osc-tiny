@@ -24,9 +24,9 @@ copyright = '2019, Andreas Hasenkopf'
 author = 'Andreas Hasenkopf'
 
 # The short X.Y version
-version = '0.1.12'
+version = '0.2.0'
 # The full version, including alpha/beta/rc tags
-release = '0.1.12'
+release = '0.2.0'
 
 
 # -- General configuration ---------------------------------------------------

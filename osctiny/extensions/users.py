@@ -2,7 +2,8 @@
 Persons and groups extension
 ----------------------------
 """
-from urllib.parse import urljoin
+from __future__ import unicode_literals
+from six.moves.urllib.parse import urljoin
 
 from ..utils.base import ExtensionBase
 

@@ -1,9 +1,24 @@
+# -*- coding: utf-8 -*-
+from __future__ import unicode_literals
+
+import sys
+
+if sys.version_info.major < 3:
+    from future.standard_library import install_aliases
+    install_aliases()
+    from unittest2 import TestCase
+    import mock
+    from six import text_type
+else:
+    from unittest import TestCase, mock
+    text_type = str
+
 from datetime import datetime
 from io import StringIO
 from os import remove
 from tempfile import mkstemp
 from types import GeneratorType
-from unittest import TestCase, mock
+from unittest import skipIf
 
 from dateutil.parser import parse
 from pytz import _UTC, timezone
@@ -125,6 +140,7 @@ class TestChangeLog(TestCase):
                 timestamp = parse(match.group("timestamp"))
                 self.assertIsInstance(timestamp, datetime)
 
+    @skipIf(sys.version_info.major < 3, "Python2 does not support this")
     def test_parse_non_generative(self):
         with mock.patch("osctiny.utils.changelog.open",
                         mock.mock_open(read_data=SAMPLE_CHANGES),
@@ -169,6 +185,7 @@ class TestChangeLog(TestCase):
         finally:
             remove(path)
 
+    @skipIf(sys.version_info.major < 3, "Python2 does not support this")
     def test_parse_generative(self):
         with mock.patch("osctiny.utils.changelog.open",
                         mock.mock_open(read_data=SAMPLE_CHANGES),
@@ -213,7 +230,7 @@ class TestChangeLog(TestCase):
             cl.write(path="/who/cares/test.changes")
 
             self.assertEqual(len(omock.mock_calls), 6)
-            content = "".join(str(omock.mock_calls[x][1][0])
+            content = "".join(text_type(omock.mock_calls[x][1][0])
                               for x in range(2, 5))
 
             self.assertEqual(
@@ -248,6 +265,7 @@ class TestChangeLog(TestCase):
                 "Føø Bar\n\n"
             )
 
+    @skipIf(sys.version_info.major < 3, "Python2 does not support this")
     def test_write_append(self):
         with mock.patch("osctiny.utils.changelog.open",
                         mock.mock_open(read_data=SAMPLE_CHANGES_2),
@@ -266,7 +284,7 @@ class TestChangeLog(TestCase):
             write_calls = [x for x in omock.mock_calls if x[0] == "().write"]
             self.assertEqual(len(write_calls), 5)
             self.assertEqual(
-                str(write_calls[0][1][0]),
+                text_type(write_calls[0][1][0]),
                 "-------------------------------------------------------------------\n"
                 "Sat Oct 31 00:00:00 UTC 2020 - Andreas Hasenkopf <ahasenkopf@suse.com>\n\n"
                 "New entry at the top\n\n"
