@@ -1,5 +1,7 @@
 from datetime import datetime
 from io import StringIO
+from os import remove
+from tempfile import mkstemp
 from types import GeneratorType
 from unittest import TestCase, mock
 
@@ -54,6 +56,18 @@ Wed May 10 00:00:00 CEST 2006 - poeml@suse.de
 - created package (version 0.2)
 
 
+"""
+
+
+SAMPLE_CHANGES_3 = """
+Tue Dec  3 10:38:41 UTC 2019 - Andreas Hasenkopf <ahasenkopf@suse.com>
+
+- Version 0.1.10
+
+-------------------------------------------------------------------
+Tue Dec  3 10:13:08 UTC 2019 - Andreas Hasenkopf <ahasenkopf@suse.com>
+
+- New package osc-tiny (version 0.1.9)
 """
 
 
@@ -134,6 +148,26 @@ class TestChangeLog(TestCase):
 
         self.assertIsInstance(cl.entries, list)
         self.assertEqual(len(cl.entries), 2)
+
+    def test_parse_path(self):
+        _, path = mkstemp()
+        with open(path, "w") as handle:
+            handle.write(SAMPLE_CHANGES)
+
+        try:
+            with self.subTest("generative"):
+                cl = ChangeLog.parse(path, generative=True)
+
+                self.assertNotIsInstance(cl.entries, list)
+                self.assertEqual(len(list(cl.entries)), 2)
+
+            with self.subTest("non-generative"):
+                cl = ChangeLog.parse(path, generative=False)
+
+                self.assertIsInstance(cl.entries, list)
+                self.assertEqual(len(cl.entries), 2)
+        finally:
+            remove(path)
 
     def test_parse_generative(self):
         with mock.patch("osctiny.utils.changelog.open",
@@ -255,3 +289,10 @@ class TestChangeLog(TestCase):
             len([x for x in outbuff.readlines() if x.startswith("-" * 67)]),
             5
         )
+
+    def test_parse_missing_sep(self):
+        buffer = StringIO(SAMPLE_CHANGES_3)
+        cl = ChangeLog.parse(buffer, generative=False)
+
+        self.assertIsInstance(cl.entries, list)
+        self.assertEqual(len(cl.entries), 2)
