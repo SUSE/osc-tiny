@@ -2,6 +2,7 @@
 Main API access
 ---------------
 """
+from builtins import str as text_type
 from io import BufferedReader, BytesIO, StringIO
 import gc
 import re
@@ -191,6 +192,7 @@ class Osc:
         )
         prepped_req = session.prepare_request(req)
         prepped_req.headers['Content-Type'] = "application/octet-stream"
+        prepped_req.headers['Accept'] = "application/xml"
         settings = session.merge_environment_settings(
             prepped_req.url, {}, None, None, None
         )
@@ -227,12 +229,12 @@ class Osc:
         if isinstance(params, bytes):
             return params
 
-        if isinstance(params, str):
-            return params.encode()
+        if isinstance(params, text_type):
+            return params.encode('utf-8')
 
         if isinstance(params, StringIO):
             params.seek(0)
-            return params.read().encode()
+            return params.read().encode('utf-8')
 
         if isinstance(params, (BufferedReader, BytesIO)):
             params.seek(0)
@@ -265,7 +267,8 @@ class Osc:
         except ValueError:
             # Just in case OBS returns a Unicode string with encoding
             # declaration
-            if isinstance(response.text, str) and "encoding=" in response.text:
+            if isinstance(response.text, text_type) and \
+                    "encoding=" in response.text:
                 return fromstring(
                     re.sub(r'encoding="[^"]+"', "", response.text)
                 )

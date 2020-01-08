@@ -3,7 +3,7 @@ Projects extension
 ------------------
 """
 import re
-from urllib.parse import urljoin
+from six.moves.urllib.parse import urljoin
 
 from lxml.etree import tounicode
 from lxml.objectify import fromstring

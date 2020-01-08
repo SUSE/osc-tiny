@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 from ..extensions import projects
 from .base import OscTest
 
@@ -12,7 +13,7 @@ class BasicTest(OscTest):
             (None, {}),
             (1, {}),
             ("hello world", b"hello world"),
-            ("føø bær", b"f\xc3\xb8\xc3\xb8 b\xc3\xa6r"),
+            (u"føø bær", b"f\xc3\xb8\xc3\xb8 b\xc3\xa6r"),
             (
                 {"view": "xml", "withissues": 1},
                 {b"view": b"xml", b"withissues": b"1"}

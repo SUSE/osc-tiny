@@ -4,7 +4,7 @@ Packages extension
 """
 import errno
 import os
-from urllib.parse import urljoin
+from six.moves.urllib.parse import urljoin
 
 from lxml.etree import tounicode, SubElement, Element
 from lxml.objectify import fromstring
