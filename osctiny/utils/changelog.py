@@ -138,6 +138,7 @@ class ChangeLog:
         :param handle: An open and iterable (file) handle
         :type handle: Any derived object of :py:class:`io.IOBase`
         """
+        # pylint: disable=too-many-branches
         entry = self.entry_factory()
 
         if isinstance(handle, TextIOBase):
@@ -219,6 +220,7 @@ class ChangeLog:
         """
         new = cls()
 
+        # pylint: disable=protected-access
         if generative:
             new.entries = new._parse(path)
         else:
