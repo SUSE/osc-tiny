@@ -15,6 +15,7 @@ from __future__ import unicode_literals
 from datetime import datetime
 from io import TextIOBase
 import re
+import warnings
 
 from dateutil.parser import parse
 from pytz import _UTC
@@ -90,6 +91,9 @@ class Entry:
 
         :return: str
         """
+        if not isinstance(self.timestamp, datetime):
+            return self.timestamp
+
         return self.timestamp\
             .astimezone(self.default_tz)\
             .strftime("%a %b %d %H:%M:%S %Z %Y")
@@ -171,15 +175,22 @@ class ChangeLog:
 
                 match = self.patterns["header"].match(line)
                 if match:
-                    entry.timestamp = parse(match.group("timestamp"),
-                                            ignoretz=False,
-                                            tzinfos=self.additional_tzinfos)
-                    # Assuming UTC may not be correct, but beats dealing with
-                    # a mix of tz-aware and naive datetime objects
-                    if not is_aware(entry.timestamp):
-                        entry.timestamp = entry.default_tz.localize(
-                            parse(match.group("timestamp"), ignoretz=True,)
-                        )
+                    try:
+                        entry.timestamp = parse(match.group("timestamp"),
+                                                ignoretz=False,
+                                                tzinfos=self.additional_tzinfos)
+                    except ValueError as error:
+                        warnings.warn(
+                            "Cannot parse changelog entry's timestamp: "
+                            "'{}'".format(error))
+                        entry.timestamp = match.group("timestamp")
+                    else:
+                        # Assuming UTC may not be correct, but beats dealing
+                        # with a mix of tz-aware and naive datetime objects
+                        if not is_aware(entry.timestamp):
+                            entry.timestamp = entry.default_tz.localize(
+                                parse(match.group("timestamp"), ignoretz=True,)
+                            )
                     entry.packager = match.group("packager")
                     continue
 

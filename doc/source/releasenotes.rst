@@ -1,6 +1,12 @@
 Release Notes
 =============
 
+0.2.1
+-----
+
+* Allow invalid timestamps during changelog parsing
+* Removed dependency of the ``future`` package
+
 0.2.0
 -----
 

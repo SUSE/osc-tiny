@@ -1,16 +1,14 @@
 from __future__ import unicode_literals
 import sys
 if sys.version_info.major < 3:
-    from future.standard_library import install_aliases
-    install_aliases()
     from unittest2 import TestCase
 else:
     from unittest import TestCase
 
 from io import IOBase
-from urllib.parse import parse_qs
 
 import responses
+from six.moves.urllib_parse import parse_qs
 
 from osctiny import Osc
 
@@ -43,7 +41,7 @@ class CallbackFactory:
             body = body.read()
         if hasattr(body, "decode"):
             body = body.decode('utf-8')
-        params = parse_qs(body)
+        params = parse_qs(body) if body else {}
         headers = {
             "Cache-Control": "max-age=0, private, must-revalidate",
             "Connection": "Keep-Alive",
