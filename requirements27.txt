@@ -1,4 +1,3 @@
-future
 lxml
 mock
 requests

@@ -4,14 +4,10 @@ from __future__ import unicode_literals
 import sys
 
 if sys.version_info.major < 3:
-    from future.standard_library import install_aliases
-    install_aliases()
     from unittest2 import TestCase
     import mock
-    from six import text_type
 else:
     from unittest import TestCase, mock
-    text_type = str
 
 from datetime import datetime
 from io import StringIO
@@ -22,6 +18,7 @@ from unittest import skipIf
 
 from dateutil.parser import parse
 from pytz import _UTC, timezone
+from six import text_type
 
 from ..utils.changelog import ChangeLog, Entry
 
@@ -72,7 +69,6 @@ Wed May 10 00:00:00 CEST 2006 - poeml@suse.de
 
 
 """
-
 
 SAMPLE_CHANGES_3 = """
 Tue Dec  3 10:38:41 UTC 2019 - Andreas Hasenkopf <ahasenkopf@suse.com>
@@ -314,3 +310,16 @@ class TestChangeLog(TestCase):
 
         self.assertIsInstance(cl.entries, list)
         self.assertEqual(len(cl.entries), 2)
+
+    @mock.patch("warnings.warn")
+    def test_parse_invalid_timestamp(self, wmock):
+        buffer = StringIO(SAMPLE_CHANGES.replace("10:38:41", "10::41"))
+        cl = ChangeLog.parse(buffer, generative=False)
+
+        self.assertIsInstance(cl.entries, list)
+        self.assertEqual(len(cl.entries), 2)
+        self.assertIsInstance(cl.entries[0].timestamp, text_type)
+        self.assertIsInstance(cl.entries[1].timestamp, datetime)
+
+        self.assertEqual(wmock.call_count, 1)
+        self.assertIn("Cannot parse changelog entry", wmock.call_args[0][0])
