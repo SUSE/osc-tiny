@@ -28,6 +28,10 @@ class Search(ExtensionBase):
 
                 Osc.search.request("starts-with(@name,'SUSE:Maintenance')")
 
+        .. note:: Pagination
+
+            Search results can be paginated using ``limit`` and ``offset``.
+
         :param path: object type / relative URL
         :param xpath: XPath expression to filter results
         :param kwargs: Additional parameters to be passed to the underlying API
