@@ -26,7 +26,16 @@ class Search(ExtensionBase):
 
             .. code:: python
 
-                Osc.search.request("starts-with(@name,'SUSE:Maintenance')")
+                Osc.search.project("starts-with(@name,'SUSE:Maintenance')")
+
+        .. note:: Pagination
+
+            Search results can be paginated using ``limit`` and ``offset``, e.g.
+
+            .. code:: python
+
+                Osc.search.project("starts-with(@name,'SUSE:Maintenance')",
+                                   limit=10, offset=30)
 
         :param path: object type / relative URL
         :param xpath: XPath expression to filter results
