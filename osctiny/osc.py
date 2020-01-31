@@ -19,6 +19,7 @@ from six import text_type
 
 from .extensions.buildresults import Build
 from .extensions.comments import Comment
+from .extensions.issues import Issue
 from .extensions.packages import Package
 from .extensions.projects import Project
 from .extensions.bs_requests import Request as BsRequest
@@ -79,6 +80,9 @@ class Osc:
     .. versionadded:: 0.1.8
         The ``comments`` extension
 
+    .. versionadded:: 0.2.2
+        The `issues`` extension
+
     .. _SSL Cert Verification:
         http://docs.python-requests.org/en/master/user/advanced/
         #ssl-cert-verification
@@ -107,6 +111,7 @@ class Osc:
         self.build = Build(osc_obj=self)
         self.comments = Comment(osc_obj=self)
         self.groups = Group(osc_obj=self)
+        self.issues = Issue(osc_obj=self)
         self.packages = Package(osc_obj=self)
         self.projects = Project(osc_obj=self)
         self.requests = BsRequest(osc_obj=self)

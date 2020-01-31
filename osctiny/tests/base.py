@@ -8,7 +8,7 @@ else:
 from io import IOBase
 
 import responses
-from six.moves.urllib_parse import parse_qs
+from six.moves.urllib_parse import parse_qs, urlparse
 
 from osctiny import Osc
 
@@ -42,6 +42,8 @@ class CallbackFactory:
         if hasattr(body, "decode"):
             body = body.decode('utf-8')
         params = parse_qs(body) if body else {}
+        parsed = urlparse(request.url)
+        params.update(parse_qs(parsed.query))
         headers = {
             "Cache-Control": "max-age=0, private, must-revalidate",
             "Connection": "Keep-Alive",
@@ -65,6 +67,8 @@ class OscTest(TestCase):
             username="foobar",
             password="helloworld",
         )
+        cls.osc.default_connection_retries = 0
+        cls.osc.default_retry_timeout = 0
 
     @staticmethod
     def mock_request(**kwargs):

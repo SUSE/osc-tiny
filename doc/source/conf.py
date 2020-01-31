@@ -20,13 +20,13 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath('.'))))
 # -- Project information -----------------------------------------------------
 
 project = 'OSC Tiny'
-copyright = '2019, Andreas Hasenkopf'
+copyright = '2020, Andreas Hasenkopf'
 author = 'Andreas Hasenkopf'
 
 # The short X.Y version
-version = '0.2.1'
+version = '0.2.2'
 # The full version, including alpha/beta/rc tags
-release = '0.2.1'
+release = '0.2.2'
 
 
 # -- General configuration ---------------------------------------------------
