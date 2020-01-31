@@ -13,7 +13,8 @@ from ..utils.base import ExtensionBase
 try:
     from functools import lru_cache
 except ImportError:
-    # Whoever had the grandious idea to backport this to Python2?
+    # Whoever had the grandiose idea to backport this to Python2?
+    # pylint: disable=unused-argument, missing-function-docstring
     def lru_cache(func, *args, **kwargs):
         def wrapper(*args_, **kwargs_):
             return func(*args_, **kwargs_)
