@@ -1,6 +1,11 @@
 Release Notes
 =============
 
+0.2.2
+-----
+
+* Added :py:mod:`osctiny.extensions.issues`
+
 0.2.1
 -----
 

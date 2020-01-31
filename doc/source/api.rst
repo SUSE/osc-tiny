@@ -19,6 +19,9 @@ Extensions
 .. automodule:: osctiny.extensions.bs_requests
     :members:
 
+.. automodule:: osctiny.extensions.issues
+    :members:
+
 .. automodule:: osctiny.extensions.packages
     :members:
 
