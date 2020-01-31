@@ -1,3 +1,4 @@
+# -*- coding: utf8 -*-
 from __future__ import unicode_literals
 import re
 from sys import version_info
@@ -10,9 +11,8 @@ from .base import OscTest, CallbackFactory
 
 
 class TestIssue(OscTest):
-    @classmethod
-    def setUpClass(cls):
-        super().setUpClass()
+    def setUp(self):
+        super(TestIssue, self).setUpClass()
 
         def callback(headers, params, request):
             status, body = 200, """
@@ -50,9 +50,9 @@ class TestIssue(OscTest):
             </issue-trackers>"""
             return status, headers, body
 
-        cls.mock_request(
+        self.mock_request(
             method=responses.GET,
-            url=cls.osc.url + '/issue_trackers/',
+            url=re.compile(self.osc.url + '/issue_trackers/?$'),
             callback=CallbackFactory(callback)
         )
 
@@ -105,7 +105,7 @@ class TestIssue(OscTest):
     def test_get(self):
         def callback(headers, params, request):
             if params.get("force_update", ["0"]) == ["1"]:
-                status, body = 200, """
+                status, body = 200, u"""
                 <issue>
                   <created_at>2020-01-04 14:12:00 UTC</created_at>
                   <name>1160086</name>
@@ -149,4 +149,4 @@ class TestIssue(OscTest):
             # to whom it may concern: `responses.calls` does not get reset
             # between sub-tests
             self.assertEqual(len(responses.calls),
-                             5 if version_info.major < 3 else 4)
+                             6 if version_info.major < 3 else 4)
