@@ -3,13 +3,22 @@ Issues extension
 ------------------
 """
 from __future__ import unicode_literals
-from functools import lru_cache
 import os
 
 from six.moves.urllib.parse import urljoin
 from six import text_type
 
 from ..utils.base import ExtensionBase
+
+try:
+    from functools import lru_cache
+except ImportError:
+    # Whoever had the grandious idea to backport this to Python2?
+    def lru_cache(func, *args, **kwargs):
+        def wrapper(*args_, **kwargs_):
+            return func(*args_, **kwargs_)
+
+        return wrapper
 
 
 class Issue(ExtensionBase):
