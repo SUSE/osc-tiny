@@ -81,9 +81,10 @@ class Issue(ExtensionBase):
             method="GET",
             params={'force_update': force_update}
         )
+        response = self.osc.get_objectified_xml(response)
 
         if not force_update and can_get_details and all(can_get_details):
             if not getattr(getattr(response, "summary", None), "text", None):
                 return self.get(tracker, name, force_update=True)
 
-        return self.osc.get_objectified_xml(response)
+        return response
