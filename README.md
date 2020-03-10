@@ -13,7 +13,7 @@ Usage
 This is a very basic example:
 
 ```python
-from ostiny import Osc
+from osctiny import Osc
 
 osc = Osc(
     url="https://api.opensuse.org",
