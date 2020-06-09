@@ -16,6 +16,9 @@ Extensions
 .. automodule:: osctiny.extensions.comments
     :members:
 
+.. automodule:: osctiny.extensions.distributions
+    :members:
+
 .. automodule:: osctiny.extensions.bs_requests
     :members:
 
