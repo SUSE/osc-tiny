@@ -11,9 +11,8 @@ from .base import OscTest, CallbackFactory
 
 
 class TestIssue(OscTest):
-    @classmethod
-    def setUpClass(cls):
-        super(TestIssue, cls).setUpClass()
+    def setUp(self):
+        super(TestIssue, self).setUp()
 
         def callback(headers, params, request):
             status, body = 200, """
@@ -51,9 +50,9 @@ class TestIssue(OscTest):
             </issue-trackers>"""
             return status, headers, body
 
-        cls.mock_request(
+        self.mock_request(
             method=responses.GET,
-            url=re.compile(cls.osc.url + '/issue_trackers/?$'),
+            url=re.compile(self.osc.url + '/issue_trackers/?$'),
             callback=CallbackFactory(callback)
         )
 
