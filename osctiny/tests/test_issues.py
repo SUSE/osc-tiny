@@ -12,7 +12,7 @@ from .base import OscTest, CallbackFactory
 
 class TestIssue(OscTest):
     def setUp(self):
-        super(TestIssue, self).setUpClass()
+        super(TestIssue, self).setUp()
 
         def callback(headers, params, request):
             status, body = 200, """

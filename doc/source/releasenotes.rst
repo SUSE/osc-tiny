@@ -1,6 +1,11 @@
 Release Notes
 =============
 
+0.2.3
+-----
+
+* Added :py:mod:`osctiny.extensions.distributions`
+
 0.2.2
 -----
 
