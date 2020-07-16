@@ -43,12 +43,20 @@ class Search(ExtensionBase):
         :return: Objectified XML element
         :rtype: lxml.objectify.ObjectifiedElement
         """
-        kwargs["match"] = xpath
-        response = self.osc.request(
-            url=urljoin(self.osc.url, self.base_path + path.lstrip("/")),
-            params=kwargs,
-            method='GET'
-        )
+        if path in [ "owner", "missing_owner" ]:
+            response = self.osc.request(
+                url=urljoin(self.osc.url, self.base_path + path.lstrip("/")),
+                params=xpath,
+                method='GET'
+            )
+        else:
+            kwargs["match"] = xpath
+            response = self.osc.request(
+                url=urljoin(self.osc.url, self.base_path + path.lstrip("/")),
+                params=kwargs,
+                method='GET'
+            )        kwargs["match"] = xpath
+
         return self.osc.get_objectified_xml(response)
 
     def __getattr__(self, name):
