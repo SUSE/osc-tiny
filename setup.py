@@ -30,7 +30,7 @@ setup(
     author_email='ahasenkopf@suse.com',
     url='http://github.com/crazyscientist/osc-tiny',
     download_url='http://github.com/crazyscientist/osc-tiny/tarball/master',
-    packages=find_packages(),
+    packages=find_packages(exclude=["*.tests", "*.tests.*", "tests.*", "tests"]),
     license='MIT',
     install_requires=get_requires(),
     classifiers=[

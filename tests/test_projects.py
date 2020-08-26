@@ -7,7 +7,7 @@ from requests.exceptions import HTTPError
 import responses
 
 from .base import OscTest, CallbackFactory
-from ..extensions.projects import TEMPLATE_META
+from osctiny.extensions.projects import TEMPLATE_META
 
 
 class TestProject(OscTest):

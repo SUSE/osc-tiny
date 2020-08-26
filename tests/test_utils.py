@@ -20,7 +20,7 @@ from dateutil.parser import parse
 from pytz import _UTC, timezone
 from six import text_type
 
-from ..utils.changelog import ChangeLog, Entry
+from osctiny.utils.changelog import ChangeLog, Entry
 
 
 SAMPLE_CHANGES = """

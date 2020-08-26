@@ -8,7 +8,7 @@ from six import text_type
 import responses
 
 from .base import OscTest, CallbackFactory
-from ..utils.errors import OscError
+from osctiny.utils.errors import OscError
 
 
 class TestPackage(OscTest):

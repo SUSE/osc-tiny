@@ -6,7 +6,7 @@ except ImportError:
     import mock
 
 # Absolute import needed for mocking ;)
-from ..utils.base import DataDir
+from osctiny.utils.base import DataDir
 from .base import OscTest
 
 
