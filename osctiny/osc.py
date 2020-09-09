@@ -269,21 +269,31 @@ class Osc:
         Return API response as an XML object
 
         .. versionchanged:: 0.1.6
+
             Allow parsing of "huge" XML inputs
 
-        :param response: An API response
+        .. versionchanged:: 0.2.4
+
+            Allow ``response`` to be a string
+
+        :param response: An API response or XML string
         :rtype response: :py:class:`requests.Response`
         :return: :py:class:`lxml.objectify.ObjectifiedElement`
         """
+        if isinstance(response, text_type):
+            text = response
+        else:
+            text = response.text
+
         try:
-            return fromstring(response.text, self.parser)
+            return fromstring(text, self.parser)
         except ValueError:
             # Just in case OBS returns a Unicode string with encoding
             # declaration
-            if isinstance(response.text, text_type) and \
-                    "encoding=" in response.text:
+            if isinstance(text, text_type) and \
+                    "encoding=" in text:
                 return fromstring(
-                    re.sub(r'encoding="[^"]+"', "", response.text)
+                    re.sub(r'encoding="[^"]+"', "", text)
                 )
 
             # This might be something else
