@@ -45,6 +45,27 @@ class Build(ExtensionBase):
 
         return self.osc.get_objectified_xml(response)
 
+    def get_package_list(self, project, repo, arch):
+        """
+        Get a list of packages for which build results exist
+
+        :param project: Project name
+        :param repo: Repository name
+        :param arch: Architecture name
+        :return: Objectified XML element
+        :rtype: lxml.objectify.ObjectifiedElement
+
+        .. versionadded:: 0.2.4
+        """
+        response = self.osc.request(
+            method="GET",
+            url=urljoin(self.osc.url, "{}/{}/{}/{}".format(
+                self.base_path, project, repo, arch
+            ))
+        )
+
+        return self.osc.get_objectified_xml(response)
+
     def get_binary_list(self, project, repo, arch, package, **params):
         """
         Get a list of built RPMs
@@ -68,3 +89,27 @@ class Build(ExtensionBase):
         )
 
         return self.osc.get_objectified_xml(response)
+
+    # pylint: disable=too-many-arguments
+    def get_binary(self, project, repo, arch, package, filename):
+        """
+        Get the build binary file
+
+        :param project: Project name
+        :param repo: Repository name
+        :param arch: Architecture name
+        :param package: Package name
+        :param filename: File name
+        :return: Raw response
+        :rtype: str
+
+        .. versionadded:: 0.2.4
+        """
+        response = self.osc.request(
+            method="GET",
+            url=urljoin(self.osc.url, "{}/{}/{}/{}/{}/{}".format(
+                self.base_path, project, repo, arch, package, filename
+            )),
+        )
+
+        return response.text

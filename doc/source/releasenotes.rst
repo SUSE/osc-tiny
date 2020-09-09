@@ -1,6 +1,13 @@
 Release Notes
 =============
 
+0.2.4
+-----
+
+* Added :py:meth:`osctiny.extensions.buildresults.Build.get_binary`
+* Added :py:meth:`osctiny.extensions.buildresults.Build.get_package_list`
+* Changed :py:meth:`osctiny.osc.Osc.get_objectified_xml` to accept request objects and strings
+
 0.2.3
 -----
 
