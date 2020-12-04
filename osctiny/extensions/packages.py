@@ -479,7 +479,9 @@ class Package(ExtensionBase):
             meta_xml.set("name", tgt_package)
             meta_xml.set("project", tgt_project)
 
-            build_elem = meta_xml.find("build") or SubElement(meta_xml, "build")
+            build_elem = meta_xml.find("build")
+            if build_elem is None:
+                build_elem = SubElement(meta_xml, "build")
             build_elem.clear()
             SubElement(build_elem, "enable")
 
