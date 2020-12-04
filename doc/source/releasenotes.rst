@@ -1,6 +1,11 @@
 Release Notes
 =============
 
+0.2.5
+-----
+
+* Changed :py:meth:`osctiny.extensions.packages.Package.aggregate` to always enable the build flag
+
 0.2.4
 -----
 
