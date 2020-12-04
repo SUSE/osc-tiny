@@ -448,6 +448,10 @@ class Package(ExtensionBase):
 
         .. versionadded:: 0.1.2
 
+        .. versionchanged:: 0.2.5
+
+            When creating a new aggregate package, the build flag is always enabled.
+
         :param src_project: Name of source project
         :param src_package: Name of source package
         :param tgt_project: Name of target project
@@ -474,6 +478,10 @@ class Package(ExtensionBase):
             )
             meta_xml.set("name", tgt_package)
             meta_xml.set("project", tgt_project)
+
+            build_elem = meta_xml.find("build") or SubElement(meta_xml, "build")
+            build_elem.clear()
+            SubElement(build_elem, "enable")
 
             if not publish:
                 pub_elem = meta_xml.find("publish")
