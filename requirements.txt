@@ -1,6 +1,7 @@
+backports.cached-property
 lxml
 requests
 responses
 python-dateutil
 pytz
-six
+pyyaml

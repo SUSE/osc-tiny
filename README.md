@@ -2,6 +2,8 @@ OSC Tiny
 ========
 
 [![Build Status](https://travis-ci.com/crazyscientist/osc-tiny.svg?branch=master)](https://travis-ci.com/crazyscientist/osc-tiny)
+[![Coverage Status](https://coveralls.io/repos/github/crazyscientist/osc-tiny/badge.svg)](https://coveralls.io/github/crazyscientist/osc-tiny)
+[![PyPI version](https://badge.fury.io/py/osc-tiny.svg)](https://badge.fury.io/py/osc-tiny)
 
 This project aims to provide a minimalistic and transparent client for accessing
 the [OpenBuildService](https://openbuildservice.org/) 

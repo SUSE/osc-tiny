@@ -1,7 +1,5 @@
 # -*- coding: utf8 -*-
-from __future__ import unicode_literals
 import re
-from sys import version_info
 
 from lxml.objectify import ObjectifiedElement
 from requests.exceptions import HTTPError
@@ -148,5 +146,4 @@ class TestIssue(OscTest):
             self.assertTrue(hasattr(response, "summary"))
             # to whom it may concern: `responses.calls` does not get reset
             # between sub-tests
-            self.assertEqual(len(responses.calls),
-                             6 if version_info.major < 3 else 4)
+            self.assertEqual(len(responses.calls), 4)

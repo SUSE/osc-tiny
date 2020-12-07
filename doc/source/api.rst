@@ -25,6 +25,9 @@ Extensions
 .. automodule:: osctiny.extensions.issues
     :members:
 
+.. automodule:: osctiny.extensions.origin
+    :members:
+
 .. automodule:: osctiny.extensions.packages
     :members:
 
@@ -47,4 +50,7 @@ Utilities
     :members:
 
 .. automodule:: osctiny.utils.changelog
+    :members:
+
+.. automodule:: osctiny.utils.mapping
     :members:

@@ -1,6 +1,13 @@
 Release Notes
 =============
 
+0.3.0
+-----
+
+* Added :py:mod:`osctiny.extensions.origin`
+* Added :py:mod:`osctiny.utils.mapping`
+* Removed support for all Python version prior to 3.6
+
 0.2.5
 -----
 

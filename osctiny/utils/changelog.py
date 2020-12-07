@@ -11,7 +11,6 @@ from the openSUSE:Tools ``build`` package. See:
 
 .. versionadded:: 0.1.11
 """
-from __future__ import unicode_literals
 from datetime import datetime
 from io import TextIOBase
 import re
@@ -19,7 +18,6 @@ import warnings
 
 from dateutil.parser import parse
 from pytz import _UTC
-from six import text_type, binary_type
 
 
 def is_aware(timestamp):
@@ -156,7 +154,7 @@ class ChangeLog:
 
         if isinstance(handle, TextIOBase):
             handle.seek(0)
-        elif isinstance(handle, (text_type, binary_type)):
+        elif isinstance(handle, (str, bytes)):
             handle = open(handle, "r")
         else:
             raise TypeError("Unexpected type for 'path': {}".format(
@@ -261,11 +259,11 @@ class ChangeLog:
         def _wrapped(handle):
             for entry in sorted(self.entries, key=lambda x: x.timestamp,
                                 reverse=True):
-                handle.write(text_type(entry))
+                handle.write(str(entry))
 
         if isinstance(path, TextIOBase):
             _wrapped(path)
-        elif isinstance(path, (text_type, binary_type)):
+        elif isinstance(path, (str, bytes)):
             with open(path, "w") as handle:
                 _wrapped(handle)
         else:

@@ -1,6 +1,0 @@
-lxml<4.4
-requests
-responses
-python-dateutil
-pytz
-six
