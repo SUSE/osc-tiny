@@ -2,6 +2,7 @@ from __future__ import unicode_literals
 import re
 
 from lxml.objectify import ObjectifiedElement
+from requests.exceptions import HTTPError
 import responses
 
 from .base import OscTest, CallbackFactory
@@ -38,3 +39,29 @@ class TestComment(OscTest):
         with self.subTest("Non-existing comment"):
             response = self.osc.comments.delete(1)
             self.assertTrue(isinstance(response, ObjectifiedElement))
+
+    @responses.activate
+    def test_add_comment(self):
+        def callback(headers, params, request):
+            status, body = 400, """
+            <status code="invalid_record">
+              <summary>Body is too long (maximum is 6 characters)</summary>
+            </status>
+            """
+            if len(request.body) <= 6:
+                status = 200
+                body = '<status code="ok"/>'
+            return status, headers, body
+
+        self.mock_request(
+            method=responses.POST,
+            url=re.compile(self.osc.url + r'/comments/project/.+'),
+            callback=CallbackFactory(callback)
+        )
+
+        with self.subTest("Good comment"):
+            self.assertTrue(self.osc.comments.add("project", ("home:nemo",), "foo"))
+
+        with self.subTest("Bad comment"):
+            self.assertRaises(HTTPError, self.osc.comments.add, 'project', ('home:nemo',),
+                              'don\'t panic')

@@ -62,21 +62,26 @@ class Comment(ExtensionBase):
         """
         Add a comment to object
 
-        .. versionadded: 0.1.8
-
         :param obj_type: Name of object type (project, package, request)
         :type obj_type: str
         :param ids: IDs of object
         :type ids: iterable
         :param comment: Comment to be added
         :param parent_id: ID of parent comment. Default: ``None``
-        :return: ``True``, if successful. Otherwise API response
-        :rtype: bool or lxml.objectify.ObjectifiedElement
+        :return: ``True``, if successful.
+        :raises HTTPError: if comment was not saved correctly. The raised exception contains the
+                           full response object and API response.
+
+        .. versionadded: 0.1.8
+
+        .. versionchanged:: 0.3.0
+
+            Instead of simply returning the API response, if the comment was not added, an exception
+            is raised.
         """
         self._validate(obj_type, ids)
         url = urljoin(self.osc.url,
-                      os.path.join(*([self.base_path, obj_type]
-                                     + [text_type(x) for x in ids])))
+                      os.path.join(*([self.base_path, obj_type] + [text_type(x) for x in ids])))
         params = {}
         if parent_id and text_type(parent_id).isnumeric():
             params["parent_id"] = parent_id
@@ -86,13 +91,13 @@ class Comment(ExtensionBase):
             method="POST",
             data=comment,
             params=params,
-            raise_for_status=False
+            raise_for_status=True
         )
         parsed = self.osc.get_objectified_xml(response)
         if response.status_code == 200 and parsed.get("code") == "ok":
             return True
 
-        return parsed
+        return False
 
     def delete(self, comment_id):
         """
