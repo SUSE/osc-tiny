@@ -42,7 +42,7 @@ class BasicTest(OscTest):
                 _run(params, expected)
 
     def test_attrib_regexp(self):
-        def _run(attr, expcted):
+        def _run(attr, expected):
             match = projects.Project.attribute_pattern.match(attr)
             self.assertIsNotNone(match)
             self.assertEqual(match.groupdict(), expected)
