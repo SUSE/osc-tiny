@@ -2,7 +2,7 @@
 Origin extension
 ----------------
 
-This is an incomplete reference implementation of the `Origin Manager`_.
+This is a runtime optimized implementation of the `Origin Manager`_.
 
 The intention of this implementation is to quickly yield batch results. In doing so a different
 logic than in the original OSC plugin is used:
