@@ -1,7 +1,5 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-from __future__ import unicode_literals
-import sys
 from setuptools import setup, find_packages
 
 
@@ -9,8 +7,7 @@ def get_requires():
     def _filter(requires):
         return [req.strip() for req in requires if req.strip()]
 
-    filename = "requirements.txt" if sys.version_info.major >= 3 \
-                                  else "requirements27.txt"
+    filename = "requirements.txt"
 
     with open(filename, "r") as fh:
         return _filter(fh.readlines())
@@ -22,7 +19,7 @@ with open("README.md") as fh:
 
 setup(
     name='osc-tiny',
-    version='0.2.5',
+    version='0.3.0',
     description='Client API for openSUSE BuildService',
     long_description=long_description,
     long_description_content_type="text/markdown",
@@ -39,11 +36,9 @@ setup(
         "Intended Audience :: System Administrators",
         "License :: OSI Approved :: MIT License",
         "Operating System :: OS Independent",
-        "Programming Language :: Python :: 2.7",
-        "Programming Language :: Python :: 3.4",
-        "Programming Language :: Python :: 3.5",
         "Programming Language :: Python :: 3.6",
         "Programming Language :: Python :: 3.7",
-        "Programming Language :: Python :: 3.8"
+        "Programming Language :: Python :: 3.8",
+        "Programming Language :: Python :: 3.9",
     ]
 )

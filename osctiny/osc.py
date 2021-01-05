@@ -15,12 +15,12 @@ from lxml.objectify import fromstring, makeparser
 from requests import Session, Request
 from requests.auth import HTTPBasicAuth
 from requests.exceptions import ConnectionError as _ConnectionError
-from six import text_type
 
 from .extensions.buildresults import Build
 from .extensions.comments import Comment
 from .extensions.distributions import Distribution
 from .extensions.issues import Issue
+from .extensions.origin import Origin
 from .extensions.packages import Package
 from .extensions.projects import Project
 from .extensions.bs_requests import Request as BsRequest
@@ -70,6 +70,8 @@ class Osc:
           - :py:attr:`comments`
         * - :py:class:`osctiny.extensions.distributions.Distribution`
           - :py:attr:`distributions`
+        * - :py:class:`osctiny.extensions.origin.Origin`
+          - :py:attr:`origins`
 
     :param url: API URL of a BuildService instance
     :param username: Credential for login
@@ -88,6 +90,9 @@ class Osc:
 
     .. versionadded:: 0.2.3
         The ``distributions`` extension
+
+    .. versionadded:: 0.3.0
+        The ``origins`` extension
 
     .. _SSL Cert Verification:
         http://docs.python-requests.org/en/master/user/advanced/
@@ -119,6 +124,7 @@ class Osc:
         self.distributions = Distribution(osc_obj=self)
         self.groups = Group(osc_obj=self)
         self.issues = Issue(osc_obj=self)
+        self.origins = Origin(osc_obj=self)
         self.packages = Package(osc_obj=self)
         self.projects = Project(osc_obj=self)
         self.requests = BsRequest(osc_obj=self)
@@ -242,7 +248,7 @@ class Osc:
         if isinstance(params, bytes):
             return params
 
-        if isinstance(params, text_type):
+        if isinstance(params, str):
             return params.encode('utf-8')
 
         if isinstance(params, StringIO):
@@ -280,7 +286,7 @@ class Osc:
         :rtype response: :py:class:`requests.Response`
         :return: :py:class:`lxml.objectify.ObjectifiedElement`
         """
-        if isinstance(response, text_type):
+        if isinstance(response, str):
             text = response
         else:
             text = response.text
@@ -290,7 +296,7 @@ class Osc:
         except ValueError:
             # Just in case OBS returns a Unicode string with encoding
             # declaration
-            if isinstance(text, text_type) and \
+            if isinstance(text, str) and \
                     "encoding=" in text:
                 return fromstring(
                     re.sub(r'encoding="[^"]+"', "", text)

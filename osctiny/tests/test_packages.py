@@ -1,10 +1,8 @@
 # -*- coding: utf-8 -*-
-from __future__ import unicode_literals
 from io import StringIO, BytesIO, IOBase
 import re
 from unittest import skip
 
-from six import text_type
 import responses
 
 from .base import OscTest, CallbackFactory
@@ -159,7 +157,7 @@ class TestPackage(OscTest):
             response = self.osc.packages.get_meta(
                 "SUSE:SLE-12-SP1:Update", "python.8549", blame=True
             )
-            self.assertTrue(isinstance(response, text_type))
+            self.assertTrue(isinstance(response, str))
 
     @skip("No test data available")
     @responses.activate
@@ -248,7 +246,7 @@ class TestPackage(OscTest):
         response = self.osc.packages.cmd(
             "SUSE:SLE-12-SP1:Update", "python.8549", "diff"
         )
-        self.assertTrue(isinstance(response, text_type))
+        self.assertTrue(isinstance(response, str))
         self.assertIn(
             "++#if FFI_TYPE_LONGDOUBLE != FFI_TYPE_DOUBLE", response
         )

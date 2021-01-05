@@ -1,22 +1,19 @@
 language: python
 python:
-  - "3.5"
   - "3.6"
   - "3.7"
-  - "3.8"
+  - "3.9"
 jobs:
   include:
     - name: "Pylint"
-      python: "3.6"
+      python: "3.8"
       script: pylint --rcfile=pylint.rc osctiny
-    - name: "Python: 3.4 (with old dep. versions)"
-      python: "3.4"
-      install: pip install -r requirements34.txt
-    - name: "Python: 2.7"
-      python: "2.7"
-      install: pip install -r requirements27.txt
-      script: python -m unittest2 discover
-install: pip install -r requirements.txt pylint
+    - name: "Python: 3.8"
+      python: "3.8"
+      script: coverage run --source=. --omit "*tests*" -m unittest discover
+      after_success:
+        coveralls
+install: pip install -r requirements.txt pylint coverage coveralls
 script: python -m unittest
 deploy:
   provider: pypi
