@@ -10,7 +10,7 @@ This module provides a collection of mapping types with special behavior.
 from collections.abc import MutableMapping
 
 
-class Mapable(MutableMapping):
+class Mappable(MutableMapping):
     """
     Basic implementation of a dictionary
     """
@@ -59,9 +59,9 @@ class Mapable(MutableMapping):
         return self._data.values()
 
 
-class LazyOscMapable(Mapable):
+class LazyOscMappable(Mappable):
     """
-    Base class for lazy mapables
+    Base class for lazy mappables
 
     To define custom subclasses override the ``__missing__`` method and set the missing key.
 

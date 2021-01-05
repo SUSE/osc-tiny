@@ -30,7 +30,7 @@ from yaml import load, CSafeLoader as SafeLoader
 
 from ..utils.backports import lru_cache
 from ..utils.base import ExtensionBase
-from ..utils.mapping import LazyOscMapable
+from ..utils.mapping import LazyOscMappable
 
 try:
     from functools import cached_property
@@ -39,7 +39,7 @@ except ImportError:
     from backports.cached_property import cached_property
 
 
-class DevelProjects(LazyOscMapable):
+class DevelProjects(LazyOscMappable):
     """
     Lazy lookup table for package specific development projects
     """
@@ -77,7 +77,7 @@ class DevelProjects(LazyOscMapable):
         self._data[key] = self.get_devel_projects(key)
 
 
-class PackageMatrix(LazyOscMapable):
+class PackageMatrix(LazyOscMappable):
     """
     Lazy lookup matrix for package origins
 
