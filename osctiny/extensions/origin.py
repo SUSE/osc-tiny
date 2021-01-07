@@ -36,7 +36,10 @@ try:
     from functools import cached_property
 except ImportError:
     # Support for Python3 prior 3.8
-    from backports.cached_property import cached_property
+    try:
+        from backports.cached_property import cached_property
+    except ImportError:
+        from cached_property import cached_property
 
 try:
     from yaml import CSafeLoader as SafeLoader

@@ -1,6 +1,11 @@
 Release Notes
 =============
 
+0.3.2
+-----
+
+* Allow different ``cached_property`` decorators in :py:mod:`osctiny.extensions.origin`
+
 0.3.1
 -----
 
