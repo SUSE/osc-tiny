@@ -20,13 +20,13 @@ logic than in the original OSC plugin is used:
 
 .. versionadded:: 0.3.0
 """
-# pylint: disable=too-many-ancestors
+# pylint: disable=too-many-ancestors,ungrouped-imports
 from collections import defaultdict
 import re
 from warnings import warn
 
 from lxml.objectify import ObjectifiedElement
-from yaml import load, CSafeLoader as SafeLoader
+from yaml import load
 
 from ..utils.backports import lru_cache
 from ..utils.base import ExtensionBase
@@ -37,6 +37,12 @@ try:
 except ImportError:
     # Support for Python3 prior 3.8
     from backports.cached_property import cached_property
+
+try:
+    from yaml import CSafeLoader as SafeLoader
+except ImportError:
+    # If libyaml installed, we should fall back to the SafeLoader
+    from yaml import SafeLoader
 
 
 class DevelProjects(LazyOscMappable):
