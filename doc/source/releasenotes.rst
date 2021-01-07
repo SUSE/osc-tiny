@@ -1,6 +1,11 @@
 Release Notes
 =============
 
+0.3.1
+-----
+
+* :py:mod:`osctiny.extensions.origin` does not require libyaml
+
 0.3.0
 -----
 
