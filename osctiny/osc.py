@@ -262,9 +262,8 @@ class Osc:
         if not isinstance(params, dict):
             return {}
 
-        for key in params:
-            if isinstance(params[key], bool):
-                params[key] = '1' if params[key] else '0'
+        params = { **{key: '1' for key, v in params.items() if v is True},
+            **{key: v for key, v in params.items() if not isinstance(v, bool)}}
 
         return {key.encode(): str(value).encode()
                 for key, value in params.items()
