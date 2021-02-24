@@ -186,7 +186,7 @@ class Package(ExtensionBase):
 
     # pylint: disable=too-many-arguments
     def download_file(self, project, package, filename, destdir, meta=False,
-                      overwrite=False, rev=None):
+                      overwrite=False, rev=None, expand=False):
         """
         Download a file to directory
 
@@ -215,7 +215,7 @@ class Package(ExtensionBase):
         if not os.path.exists(destdir):
             os.makedirs(destdir)
 
-        response = self.get_file(project, package, filename, meta=meta, rev=rev)
+        response = self.get_file(project, package, filename, meta=meta, rev=rev, expand=expand)
 
         with open(abspath_filename, "wb") as handle:
             for chunk in response.iter_content(1024):
@@ -343,7 +343,7 @@ class Package(ExtensionBase):
 
         return response.text
 
-    def checkout(self, project, package, destdir, rev=None, meta=False):
+    def checkout(self, project, package, destdir, rev=None, meta=False, expand=False):
         """
         Checkout all files and directories of package
 
@@ -368,7 +368,7 @@ class Package(ExtensionBase):
         oscdir = DataDir(osc=self.osc, path=destdir, project=project,
                          package=package)
 
-        dirlist = self.get_files(project, package, rev=rev, meta=meta)
+        dirlist = self.get_files(project, package, rev=rev, meta=meta, expand=expand)
         for entry in dirlist.findall("entry"):
             self.download_file(
                 project=project,
@@ -377,7 +377,8 @@ class Package(ExtensionBase):
                 destdir=destdir,
                 meta=meta,
                 overwrite=True,
-                rev=rev
+                rev=rev,
+                expand=expand
             )
             os.link(
                 os.path.join(destdir, entry.get("name")),
