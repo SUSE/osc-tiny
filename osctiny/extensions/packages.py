@@ -186,7 +186,7 @@ class Package(ExtensionBase):
 
     # pylint: disable=too-many-arguments
     def download_file(self, project, package, filename, destdir, meta=False,
-                      overwrite=False, rev=None, expand=0):
+                      overwrite=False, rev=None, expand=False):
         """
         Download a file to directory
 
@@ -343,7 +343,7 @@ class Package(ExtensionBase):
 
         return response.text
 
-    def checkout(self, project, package, destdir, rev=None, meta=False, expand=0):
+    def checkout(self, project, package, destdir, rev=None, meta=False, expand=False):
         """
         Checkout all files and directories of package
 
