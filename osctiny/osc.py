@@ -178,9 +178,10 @@ class Osc:
             * Added parameter `params`
 
         :param url: Full URL
-        :param data: Data to be included as GET or POST parameters in request
         :param method: HTTP method
         :param stream: Delayed access, see `Body Content Workflow`_
+        :param data: Data to be included as POST parameters in request
+        :param params: Additional GET parameters to be included in request
         :param raise_for_status: See `requests.Response.raise_for_status`_
         :param timeout: Request timeout. See `Timeouts`_
         :return: :py:class:`requests.Response`
@@ -231,6 +232,8 @@ class Osc:
                 if raise_for_status:
                     response.raise_for_status()
                 return response
+
+        return None
 
     @staticmethod
     def handle_params(params):
