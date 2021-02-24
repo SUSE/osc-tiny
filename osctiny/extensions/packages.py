@@ -197,11 +197,16 @@ class Package(ExtensionBase):
         :param meta: switch to meta files
         :param overwrite: switch to overwrite existing downloaded file
         :param rev: Download file from this specific package revision
+        :param expand: If ``True`` and the package is a link, download the file from the linked
+                       package
         :return: absolute path to file or ``None``
         :raises OSError: if something goes wrong
 
         .. versionadded:: 0.1.1
             Parameter rev
+
+        .. versionchanged:: 0.3.3
+            Added the parameter ``expand``
         """
         abspath_filename = os.path.abspath(os.path.join(destdir, filename))
         if os.path.isfile(destdir):
@@ -355,9 +360,14 @@ class Package(ExtensionBase):
         :param destdir: target local directory
         :param rev: Package revision to check out
         :param meta: Checkout meta files instead
+        :param expand: If ``True`` and the package is a link, download the file from the linked
+                       package
         :return: nothing
 
         .. versionadded:: 0.1.1
+
+        .. versionchanged:: 0.3.3
+            Added the parameter ``expand``
         """
         if not os.path.exists(destdir):
             if not os.path.isdir(destdir):
