@@ -25,7 +25,6 @@ from collections import defaultdict
 import re
 from warnings import warn
 
-from lxml.objectify import ObjectifiedElement
 from yaml import load
 
 from ..utils.backports import lru_cache
@@ -280,10 +279,15 @@ class Origin(ExtensionBase):
 
         This project is important, because it's meta can provide the list of maintained projects.
 
-        :return: Objectified XML element or ``None``
-        :rtype: lxml.objectify.ObjectifiedElement
+        :return: Project name or ``None``
+        :rtype: str or None
+
+        .. versionchanged:: 0.4.0
+
+            Return string instead of XML object
         """
-        response = self.osc.search.project(xpath="attribute/@name='OBS:MaintenanceProject'")
+        response = self.osc.search.search(path="project/id",
+                                          xpath="attribute/@name='OBS:MaintenanceProject'")
         projects = getattr(response, "project", [])
         if len(projects) < 1:
             warn("The build service defines no maintenance projects!")
@@ -291,25 +295,26 @@ class Origin(ExtensionBase):
         if len(projects) > 1:
             warn("The build service defines multiple maintenance projects!")
 
-        return projects[0]
+        return projects[0].get("name")
 
     @cached_property
-    def maintained_projects(self, from_project=None):
+    def maintained_projects(self):
         """
         Get the list of maintained projects
 
-        By default this property uses :py:meth:`maintenance_project` and allows usage of a specified
-        ``from_project`` instead.
+        Maintained projects are identified by the presence of the ``OBS:Maintained`` attribute.
 
-        :param from_project: The maintenance project to query
-        :return: Objectified XML element
-        :rtype: lxml.objectify.ObjectifiedElement
+        :return: Project names
+        :rtype: List of str
+
+        .. versionchanged:: 0.4.0
+
+            Search maintained projects via the ``OBS:Maintained`` attribute and not via the
+            maintenance project.
         """
-        from_project = from_project or self.maintenance_project
-        if not isinstance(from_project, ObjectifiedElement):
-            from_project = self.osc.projects.get_meta(project=from_project)
-
-        return [m.get("project") for m in from_project.xpath("maintenance/maintains")]
+        response = self.osc.search.search(path="project/id",
+                                          xpath="attribute/@name='OBS:Maintained'")
+        return [project.get("name") for project in getattr(response, "project", [])]
 
     @lru_cache(maxsize=16)
     def get_project_origin_config(self, project):

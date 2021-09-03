@@ -149,7 +149,7 @@ class ChangeLog:
         :param handle: An open and iterable (file) handle
         :type handle: Any derived object of :py:class:`io.IOBase`
         """
-        # pylint: disable=too-many-branches
+        # pylint: disable=too-many-branches,consider-using-with
         entry = self.entry_factory()
 
         if isinstance(handle, TextIOBase):

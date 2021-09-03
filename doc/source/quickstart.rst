@@ -26,6 +26,21 @@ purely optional feature so it is not listed in the requirements file. Use:
 
 .. _CacheControl: https://cachecontrol.readthedocs.io/en/latest/
 
+If you want to use the credentials stored in the `osc`_ configuration, you can also install ``osc``
+to give OSC Tiny access to it's configuration. Use one of:
+
+.. code-block:: bash
+
+    pip install osc
+    zypper install osc
+    apt install osc
+    # ...
+
+In order to install ``osc`` via the package manager on a non-SUSE distribution you will need to add
+a repository from https://download.opensuse.org/repositories/openSUSE:/Tools/.
+
+.. _osc: https://github.com/openSUSE/osc
+
 Usage
 -----
 
