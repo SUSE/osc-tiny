@@ -1,0 +1,9 @@
+[run]
+relative_files = true
+omit =
+    /doc/*
+    */tests/*
+    */test*.py
+
+[html]
+directory = coverage
