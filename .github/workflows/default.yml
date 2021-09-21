@@ -1,4 +1,4 @@
-name: OSC Tiny
+name: Tests
 
 on: [push, pull_request]
 
@@ -55,3 +55,4 @@ jobs:
       - name: Lint with PyLint
         run: |
           pylint --rcfile=pylint.rc osctiny
+
