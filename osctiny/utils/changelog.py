@@ -155,7 +155,7 @@ class ChangeLog:
         if isinstance(handle, TextIOBase):
             handle.seek(0)
         elif isinstance(handle, (str, bytes)):
-            handle = open(handle, "r")
+            handle = open(handle, "r")  # pylint: disable=consider-using-with
         else:
             raise TypeError("Unexpected type for 'path': {}".format(
                 type(handle)))

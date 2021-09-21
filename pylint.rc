@@ -147,6 +147,7 @@ disable=print-statement,
         unused-wildcard-import,
         no-name-in-module,
         duplicate-code,
+        consider-using-f-string,
         unspecified-encoding
 
 # Enable the message, report, category or checker with the given id(s). You can

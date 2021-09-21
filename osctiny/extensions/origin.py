@@ -534,6 +534,10 @@ class Origin(ExtensionBase):
         :return: Generator of pairs: ('pkg', 'origin')
         :rtype: generator
         """
+        if project not in self.expanded_origins:
+            warn("Project {} has no origin definition".format(project))
+            return
+
         packages = self.osc.projects.get_files(project, expand='1')
 
         for package in getattr(packages, "entry", []):
