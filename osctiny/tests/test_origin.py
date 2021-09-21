@@ -85,30 +85,29 @@ class OriginTest(OscTest):
                 status = 200
                 body = """
                 <collection matches="1">
-                    <project name="openSUSE:Maintenance" kind="maintenance">
-                      <title>The openSUSE Maintenance project</title>
-                      <description/>
-                      <group groupid="maintenance-opensuse.org" role="maintainer"/>
-                      <maintenance>
-                        <maintains project="openSUSE:Leap:15.1:Update"/>
-                        <maintains project="openSUSE:Leap:15.2:Update"/>
-                      </maintenance>
-                    </project>
-                    </collection>
+                    <project name="openSUSE:Maintenance"/>
+                </collection>
+                """
+            elif "OBS:Maintained" in "".join(params.get("match", [])):
+                status = 200
+                body = """
+                <collection matches="2">
+                    <project name="openSUSE:Leap:15.1:Update"/>
+                    <project name="openSUSE:Leap:15.2:Update"/>
+                </collection>
                 """
 
             return status, headers, body
 
         self.mock_request(
             method=responses.GET,
-            url=re.compile(self.osc.url + "/search/project/?"),
+            url=re.compile(self.osc.url + "/search/project/id"),
             callback=CallbackFactory(callback)
         )
 
         with self.subTest("Maintenance Project"):
             maint_project = self.osc.origins.maintenance_project
-            self.assertEqual(maint_project.get("name"), "openSUSE:Maintenance")
-            self.assertEqual(maint_project.get("kind"), "maintenance")
+            self.assertEqual(maint_project, "openSUSE:Maintenance")
 
         with self.subTest("Maintained Projects"):
             self.assertEqual(self.osc.origins.maintained_projects,

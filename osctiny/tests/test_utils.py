@@ -1,15 +1,20 @@
 # -*- coding: utf-8 -*-
+from base64 import b64encode
+from bz2 import compress
 from unittest import TestCase, mock
 from datetime import datetime
 from io import StringIO
-from os import remove
+import os
+from pathlib import Path
 from tempfile import mkstemp
 from types import GeneratorType
 
 from dateutil.parser import parse
 from pytz import _UTC, timezone
+from surrogate import surrogate
 
 from ..utils.changelog import ChangeLog, Entry
+from ..utils.conf import get_config_path, get_credentials
 
 
 SAMPLE_CHANGES = """
@@ -167,7 +172,7 @@ class TestChangeLog(TestCase):
                 self.assertIsInstance(cl.entries, list)
                 self.assertEqual(len(cl.entries), 2)
         finally:
-            remove(path)
+            os.remove(path)
 
     def test_parse_generative(self):
         with mock.patch("osctiny.utils.changelog.open",
@@ -309,3 +314,55 @@ class TestChangeLog(TestCase):
 
         self.assertEqual(wmock.call_count, 1)
         self.assertIn("Cannot parse changelog entry", wmock.call_args[0][0])
+
+
+@surrogate('osc.conf')
+@mock.patch("osc.conf", side_effect=ImportError)
+@mock.patch("pathlib.Path.is_file", return_value=True)
+class TestConfig(TestCase):
+    def test_get_config_path(self, *_):
+        with self.subTest("No env vars"):
+            with mock.patch.dict(os.environ, values={}, clear=True):
+                self.assertEqual(Path.home().joinpath(".oscrc"), get_config_path())
+
+        with self.subTest("OSC_CONFIG"):
+            osc_config = "/foo/bar/oscrc"
+            with mock.patch.dict(os.environ, values={'OSC_CONFIG': osc_config}, clear=True):
+                self.assertEqual(Path(osc_config), get_config_path())
+
+    def test_get_credentials(self, *_):
+        _, path = mkstemp()
+        expected_credentials = ("my-dummy-user", "my-insecure-dummy-password")
+
+        with open(path, "w") as handle:
+            handle.write("[http://api.dummy-bs.org]\n")
+            handle.write("user={}\npass={}\n".format(*expected_credentials))
+
+        try:
+            with self.subTest("No URL, no default"):
+                self.assertRaises(ValueError, get_credentials())
+
+            with self.subTest("Wrong URL"):
+                self.assertRaises(ValueError, get_credentials("http://google.de"))
+
+            with self.subTest("Wrong scheme"):
+                self.assertRaises(ValueError, get_credentials("https://api.dummy-bs.org"))
+
+            with self.subTest("Correct URL"):
+                credentials = get_credentials("http://api.dummy-bs.org")
+                self.assertEqual(expected_credentials, credentials)
+
+            expected_credentials = ('my-dummy-user', 'my-s€cure-ðuµµy-paŝŝswørð')
+            with open(path, "w") as handle:
+                handle.write("[general]\n")
+                handle.write("apiurl=http://api.dummy-bs.org\n")
+                handle.write("[http://api.dummy-bs.org]\n")
+                handle.write("user={}\n".format(expected_credentials[0]))
+                handle.write("passx={}\n".format(b64encode(compress(
+                    expected_credentials[1].encode("ascii")
+                )).decode("ascii")))
+
+            with self.subTest("No URL"):
+                self.assertEqual(expected_credentials, get_credentials())
+        finally:
+            os.remove(path)

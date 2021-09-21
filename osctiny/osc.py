@@ -26,6 +26,8 @@ from .extensions.projects import Project
 from .extensions.bs_requests import Request as BsRequest
 from .extensions.search import Search
 from .extensions.users import Group, Person
+from .utils.conf import get_credentials
+from .utils.errors import OscError
 
 try:
     from cachecontrol import CacheControl
@@ -78,6 +80,7 @@ class Osc:
     :param password: Password for login
     :param verify: See `SSL Cert Verification`_ for more details
     :param cache: Store API responses in a cache
+    :raises osctiny.errors.OscError: if no credentials are provided
 
     .. versionadded:: 0.1.1
         The ``cache`` parameter and the ``build`` extension
@@ -93,6 +96,9 @@ class Osc:
 
     .. versionadded:: 0.3.0
         The ``origins`` extension
+
+    .. versionchanged:: 0.4.0
+        Raises an exception when no credentials are provided
 
     .. _SSL Cert Verification:
         http://docs.python-requests.org/en/master/user/advanced/
@@ -113,6 +119,13 @@ class Osc:
         self.url = url or self.url
         self.username = username or self.username
         self.password = password or self.password
+
+        if not self.username and not self.password:
+            try:
+                self.username, self.password = get_credentials(self.url)
+            except (ValueError, NotImplementedError, FileNotFoundError) as error:
+                raise OscError from error
+
         self._session = Session()
         self._session.verify = verify or get_default_verify_paths().capath
         self.auth = HTTPBasicAuth(self.username, self.password)

@@ -1,4 +1,4 @@
 Release Notes
 =============
 
-See `https://github.com/crazyscientist/osc-tiny/releases`_.
+See `release notes on GitHub <https://github.com/crazyscientist/osc-tiny/releases>`_.

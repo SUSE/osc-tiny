@@ -52,5 +52,8 @@ Utilities
 .. automodule:: osctiny.utils.changelog
     :members:
 
+.. automodule:: osctiny.utils.conf
+    :members:
+
 .. automodule:: osctiny.utils.mapping
     :members:

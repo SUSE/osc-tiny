@@ -279,10 +279,15 @@ class Origin(ExtensionBase):
 
         This project is important, because it's meta can provide the list of maintained projects.
 
-        :return: Objectified XML element or ``None``
-        :rtype: lxml.objectify.ObjectifiedElement
+        :return: Project name or ``None``
+        :rtype: str or None
+
+        .. versionchanged:: 0.4.0
+
+            Return string instead of XML object
         """
-        response = self.osc.search.project(xpath="attribute/@name='OBS:MaintenanceProject'")
+        response = self.osc.search.search(path="project/id",
+                                          xpath="attribute/@name='OBS:MaintenanceProject'")
         projects = getattr(response, "project", [])
         if len(projects) < 1:
             warn("The build service defines no maintenance projects!")
@@ -290,24 +295,26 @@ class Origin(ExtensionBase):
         if len(projects) > 1:
             warn("The build service defines multiple maintenance projects!")
 
-        return projects[0]
+        return projects[0].get("name")
 
     @cached_property
     def maintained_projects(self):
         """
         Get the list of maintained projects
 
-        :return: List of project names
-        :rtype: list of str
+        Maintained projects are identified by the presence of the ``OBS:Maintained`` attribute.
+
+        :return: Project names
+        :rtype: List of str
 
         .. versionchanged:: 0.4.0
 
-            Removed unsupported parameter
+            Search maintained projects via the ``OBS:Maintained`` attribute and not via the
+            maintenance project.
         """
-        if self.maintenance_project is None:
-            return []
-
-        return [m.get("project") for m in self.maintenance_project.xpath("maintenance/maintains")]
+        response = self.osc.search.search(path="project/id",
+                                          xpath="attribute/@name='OBS:Maintained'")
+        return [project.get("name") for project in getattr(response, "project", [])]
 
     @lru_cache(maxsize=16)
     def get_project_origin_config(self, project):
