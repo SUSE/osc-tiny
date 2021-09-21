@@ -25,7 +25,6 @@ from collections import defaultdict
 import re
 from warnings import warn
 
-from lxml.objectify import ObjectifiedElement
 from yaml import load
 
 from ..utils.backports import lru_cache
@@ -294,22 +293,21 @@ class Origin(ExtensionBase):
         return projects[0]
 
     @cached_property
-    def maintained_projects(self, from_project=None):
+    def maintained_projects(self):
         """
         Get the list of maintained projects
 
-        By default this property uses :py:meth:`maintenance_project` and allows usage of a specified
-        ``from_project`` instead.
+        :return: List of project names
+        :rtype: list of str
 
-        :param from_project: The maintenance project to query
-        :return: Objectified XML element
-        :rtype: lxml.objectify.ObjectifiedElement
+        .. versionchanged:: 0.4.0
+
+            Removed unsupported parameter
         """
-        from_project = from_project or self.maintenance_project
-        if not isinstance(from_project, ObjectifiedElement):
-            from_project = self.osc.projects.get_meta(project=from_project)
+        if self.maintenance_project is None:
+            return []
 
-        return [m.get("project") for m in from_project.xpath("maintenance/maintains")]
+        return [m.get("project") for m in self.maintenance_project.xpath("maintenance/maintains")]
 
     @lru_cache(maxsize=16)
     def get_project_origin_config(self, project):
