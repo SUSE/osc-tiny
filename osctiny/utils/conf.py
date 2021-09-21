@@ -58,7 +58,6 @@ def get_credentials(url=None):
                     from the ``apiurl`` parameter in the config file will be used.
     :return: (username, password)
     :raises ValueError: if config provides no credentials
-    :raises NotImplementedError: if the ``osc`` package is not installed
     """
     if _conf is not None:
         # pylint: disable=protected-access
