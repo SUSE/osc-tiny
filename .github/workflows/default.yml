@@ -55,4 +55,3 @@ jobs:
       - name: Lint with PyLint
         run: |
           pylint --rcfile=pylint.rc osctiny
-
