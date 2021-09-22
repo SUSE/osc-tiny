@@ -6,16 +6,18 @@ from datetime import datetime
 from io import StringIO
 import os
 from pathlib import Path
+import sys
 from tempfile import mkstemp
 from types import GeneratorType
 
 from dateutil.parser import parse
 from pytz import _UTC, timezone
-from surrogate import surrogate
 
 from ..utils.changelog import ChangeLog, Entry
 from ..utils.conf import get_config_path, get_credentials
 
+
+sys.modules["osc"] = mock.MagicMock(side_effect=ImportError)
 
 SAMPLE_CHANGES = """
 -------------------------------------------------------------------
@@ -316,8 +318,7 @@ class TestChangeLog(TestCase):
         self.assertIn("Cannot parse changelog entry", wmock.call_args[0][0])
 
 
-@surrogate('osc.conf')
-@mock.patch("osc.conf", side_effect=ImportError)
+@mock.patch("osc.conf", side_effect=ImportError, create=True)
 @mock.patch("pathlib.Path.is_file", return_value=True)
 class TestConfig(TestCase):
     def test_get_config_path(self, *_):
@@ -331,38 +332,46 @@ class TestConfig(TestCase):
                 self.assertEqual(Path(osc_config), get_config_path())
 
     def test_get_credentials(self, *_):
-        _, path = mkstemp()
-        expected_credentials = ("my-dummy-user", "my-insecure-dummy-password")
+        _, path1 = mkstemp()
+        _, path2 = mkstemp()
 
-        with open(path, "w") as handle:
+        expected_insecure_credentials = ("my-dummy-user", "my-insecure-dummy-password")
+        expected_secure_credentials = ('my-dummy-user', 'my-secure-dummy-password')
+
+        with open(path1, "w") as handle:
             handle.write("[http://api.dummy-bs.org]\n")
-            handle.write("user={}\npass={}\n".format(*expected_credentials))
+            handle.write("user={}\npass={}\n".format(*expected_insecure_credentials))
+
+        with open(path2, "w") as handle:
+            handle.write("[general]\n")
+            handle.write("apiurl=http://api.dummy-bs.org\n")
+            handle.write("[http://api.dummy-bs.org]\n")
+            handle.write("user={}\n".format(expected_secure_credentials[0]))
+            handle.write("passx={}\n".format(b64encode(compress(
+                expected_secure_credentials[1].encode("ascii")
+            )).decode("ascii")))
 
         try:
             with self.subTest("No URL, no default"):
-                self.assertRaises(ValueError, get_credentials())
+                with mock.patch.dict(os.environ, values={'OSC_CONFIG': path1}, clear=True):
+                    self.assertRaises(ValueError, get_credentials)
 
             with self.subTest("Wrong URL"):
-                self.assertRaises(ValueError, get_credentials("http://google.de"))
+                with mock.patch.dict(os.environ, values={'OSC_CONFIG': path1}, clear=True):
+                    self.assertRaises(ValueError, get_credentials, "http://google.de")
 
             with self.subTest("Wrong scheme"):
-                self.assertRaises(ValueError, get_credentials("https://api.dummy-bs.org"))
+                with mock.patch.dict(os.environ, values={'OSC_CONFIG': path1}, clear=True):
+                    self.assertRaises(ValueError, get_credentials, "https://api.dummy-bs.org")
 
             with self.subTest("Correct URL"):
-                credentials = get_credentials("http://api.dummy-bs.org")
-                self.assertEqual(expected_credentials, credentials)
-
-            expected_credentials = ('my-dummy-user', 'my-s€cure-ðuµµy-paŝŝswørð')
-            with open(path, "w") as handle:
-                handle.write("[general]\n")
-                handle.write("apiurl=http://api.dummy-bs.org\n")
-                handle.write("[http://api.dummy-bs.org]\n")
-                handle.write("user={}\n".format(expected_credentials[0]))
-                handle.write("passx={}\n".format(b64encode(compress(
-                    expected_credentials[1].encode("ascii")
-                )).decode("ascii")))
+                with mock.patch.dict(os.environ, values={'OSC_CONFIG': path1}, clear=True):
+                    credentials = get_credentials("http://api.dummy-bs.org")
+                self.assertEqual(expected_insecure_credentials, credentials)
 
             with self.subTest("No URL"):
-                self.assertEqual(expected_credentials, get_credentials())
+                with mock.patch.dict(os.environ, values={'OSC_CONFIG': path2}, clear=True):
+                    self.assertEqual(expected_secure_credentials, get_credentials())
         finally:
-            os.remove(path)
+            os.remove(path1)
+            os.remove(path2)

@@ -10,7 +10,7 @@ with OSC Tiny.
 """
 from base64 import b64decode
 from bz2 import decompress
-from configparser import ConfigParser
+from configparser import ConfigParser, NoSectionError
 import os
 from pathlib import Path
 import warnings
@@ -62,9 +62,14 @@ def get_credentials(url=None):
     if _conf is not None:
         # pylint: disable=protected-access
         parser = _conf.get_configParser()
-        url = url or parser["general"].get("apiurl", url)
-        cred_mgr = _conf._get_credentials_manager(url, parser)
-        username = _conf._extract_user_compat(parser, url, cred_mgr)
+        try:
+            if url is None:
+                url = parser["general"].get("apiurl", url)
+            cred_mgr = _conf._get_credentials_manager(url, parser)
+            username = _conf._extract_user_compat(parser, url, cred_mgr)
+        except (KeyError, NoSectionError) as error:
+            raise ValueError("`osc` config does not provide the default API URL") from error
+
         if not username:
             raise ValueError("`osc` config provides no username for URL {}".format(url))
         password = cred_mgr.get_password(url, username, defer=False)
@@ -75,9 +80,13 @@ def get_credentials(url=None):
     warnings.warn("`osc` is not installed. Not all configuration backends of `osc` will be "
                   "available.")
     parser = ConfigParser()
-    url = url or parser["general"].get("apiurl", url)
     path = get_config_path()
     parser.read((path))
+    try:
+        if url is None:
+            url = parser["general"].get("apiurl", url)
+    except (KeyError, NoSectionError) as error:
+        raise ValueError("`osc` config does not provide the default API URL") from error
 
     if url not in parser.sections():
         raise ValueError("`osc` config has no section for URL {}".format(url))
@@ -90,6 +99,9 @@ def get_credentials(url=None):
     if not password:
         password = parser[url].get("passx", None)
         if password:
-            return username, decompress(b64decode(password.encode("ascii"))).decode("ascii")
+            password = decompress(b64decode(password.encode("ascii"))).decode("ascii")
 
-    raise ValueError("`osc` config provides no password for URL {}".format(url))
+    if not password:
+        raise ValueError("`osc` config provides no password for URL {}".format(url))
+
+    return username, password
