@@ -16,8 +16,7 @@ from pytz import _UTC, timezone
 from ..utils.changelog import ChangeLog, Entry
 from ..utils.conf import get_config_path, get_credentials
 
-
-sys.modules["osc"] = mock.MagicMock(side_effect=ImportError)
+sys.path.append(os.path.dirname(__file__))
 
 SAMPLE_CHANGES = """
 -------------------------------------------------------------------
