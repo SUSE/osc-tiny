@@ -1,4 +1,4 @@
-name: OSC Tiny
+name: Tests
 
 on: [push, pull_request]
 
