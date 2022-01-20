@@ -8,6 +8,7 @@ import gc
 import re
 from ssl import get_default_verify_paths
 import time
+from urllib.parse import quote
 import warnings
 
 # pylint: disable=no-name-in-module
@@ -218,7 +219,7 @@ class Osc:
 
         req = Request(
             method,
-            url,
+            url.replace("#", quote("#")).replace("?", quote("?")),
             auth=self.auth,
             data=self.handle_params(data),
             params=self.handle_params(params)
