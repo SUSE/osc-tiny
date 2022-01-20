@@ -1,6 +1,11 @@
 # -*- coding: utf-8 -*-
+import re
+from urllib.parse import unquote_plus
+
+import responses
+
 from ..extensions import projects
-from .base import OscTest
+from .base import OscTest, CallbackFactory
 
 
 class BasicTest(OscTest):
@@ -55,3 +60,33 @@ class BasicTest(OscTest):
         for attr, expected in data:
             with self.subTest(attr):
                 _run(attr, expected)
+
+    @responses.activate
+    def test_request_url_encode(self):
+        pattern = re.compile(self.osc.url + r'file/(?P<filename>.*)')
+        special_chars = ('#', '?')
+        data = [
+            ["Clean URL", "hello_world.txt"],
+            ["URL with hashtag", "hełłø#wørłd.txt"],
+            ["URL with question mark", "hello?wørłð.txt"],
+            ["URL with ampersand", "hełłö&world.txt"]
+        ]
+
+        def callback(headers, params, request):
+            match = pattern.match(request.url)
+            self.assertIsNotNone(match)
+            print(match.groups())
+            self.assertEqual(unquote_plus(match.group("filename")), filename)
+            for special_c in special_chars:
+                self.assertNotIn(special_c, match.group("filename"))
+            return 200, headers, ""
+
+        self.mock_request(
+            method=responses.GET,
+            url=pattern,
+            callback=CallbackFactory(callback)
+        )
+
+        for name, filename in data:
+            with self.subTest(name):
+                self.osc.request(f"{self.osc.url}file/{filename}")
