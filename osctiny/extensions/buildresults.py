@@ -45,6 +45,30 @@ class Build(ExtensionBase):
 
         return self.osc.get_objectified_xml(response)
 
+    def get_history(self, project, package, repo, arch="x86_64", **params):
+        """
+        Get build history
+
+        :param project: Project name
+        :param package: Package name
+        :param repo: Repository name
+        :param arch: Architecture name
+        :param params: Additional parameters
+        :return: Objectified XML element
+        :rtype: lxml.objectify.ObjectifiedElement
+
+        .. versionadded:: 4.3.0
+        """
+
+        response = self.osc.request(
+            method="GET",
+            url=urljoin(self.osc.url, "{}/{}/{}/{}/{}/_history".format(self.base_path,
+                                                             project,repo,arch,package)),
+            params=params
+        )
+
+        return self.osc.get_objectified_xml(response)
+
     def get_package_list(self, project, repo, arch):
         """
         Get a list of packages for which build results exist
