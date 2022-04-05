@@ -228,7 +228,7 @@ class Package(ExtensionBase):
 
         return abspath_filename
 
-    def push_file(self, project, package, filename, data):
+    def push_file(self, project, package, filename, data, comment=None):
         """
         Upload a file to package
 
@@ -237,13 +237,20 @@ class Package(ExtensionBase):
         :param filename: Name of file
         :param data: content of file
         :type data: str or open file handle
+        :param comment: Optional comment to use as commit message
+
+        .. versionchanged:: {{ NEXT_RELEASE }}
+
+           Added an optional `comment` argument to be used as the commit message when writing the
+           file.
         """
         path = [self.base_path, project, package, filename]
 
         self.osc.request(
             url=urljoin(self.osc.url, "/".join(path)),
             method="PUT",
-            data=data
+            data=data,
+            params={"comment": comment} if comment else None
         )
 
     def get_attribute(self, project, package, attribute=None):
