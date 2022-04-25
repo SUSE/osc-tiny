@@ -241,7 +241,7 @@ class Package(ExtensionBase):
 
         .. versionchanged:: {{ NEXT_RELEASE }}
 
-           Added an optional `comment` argument to be used as the commit message when writing the
+           Added an optional ``comment`` argument to be used as the commit message when writing the
            file.
         """
         path = [self.base_path, project, package, filename]
