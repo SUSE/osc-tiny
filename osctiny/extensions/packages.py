@@ -250,7 +250,7 @@ class Package(ExtensionBase):
             url=urljoin(self.osc.url, "/".join(path)),
             method="PUT",
             data=data,
-            params={"comment": comment} if comment else None
+            params={"comment": comment}
         )
 
     def get_attribute(self, project, package, attribute=None):
