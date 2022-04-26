@@ -347,6 +347,7 @@ class TestPackage(OscTest):
         ლ(ಠ益ಠ)ლ            ლ(ಠ益ಠ)ლ 
         """
         bodies = []
+        received_params = []
 
         def callback(headers, params, request):
             if isinstance(request.body, IOBase):
@@ -355,6 +356,7 @@ class TestPackage(OscTest):
             else:
                 bodies.append(request.body)
             status, body = 200, ""
+            received_params.append(params)
 
             return status, headers, body
 
@@ -385,6 +387,13 @@ class TestPackage(OscTest):
             self.osc.packages.push_file("prj", "pkg", "readme.txt",
                                         BytesIO(content.encode('utf-8')))
             self.assertEqual(bodies[-1], content.encode('utf-8'))
+
+        with self.subTest("with comment"):
+            the_comment = "This is a comment"
+            self.osc.packages.push_file("prj", "pkg", "readme.txt", content,
+                                        comment=the_comment)
+            self.assertEqual(received_params[-1]["comment"], [the_comment])
+
 
     @responses.activate
     def test_aggregate(self):
