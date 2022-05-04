@@ -241,8 +241,10 @@ class Osc:
 
         for i in range(self.default_connection_retries, -1, -1):
             logger.info("Requested URL: %s", prepped_req.url)
-            logger.debug("Sent data: '%s'", req.data)
-            logger.debug("Sent parameters:\n%s",
+            logger.debug("Sent data:\n%s\n---",
+                         "\n".join(f"{k}: {v}" for k, v in req.data.items())
+                         if isinstance(req.data, dict) else req.data)
+            logger.debug("Sent parameters:\n%s\n---",
                          "\n".join(f"{k}: {v}" for k, v in req.params.items()))
             try:
                 response = session.send(prepped_req, **settings)
@@ -256,9 +258,9 @@ class Osc:
                 time.sleep(self.default_retry_timeout)
             else:
                 logger.info("Server replied with status %d", response.status_code)
-                logger.debug("Response headers:\n%s",
+                logger.debug("Response headers:\n%s\n---",
                              "\n".join(f"{k}: {v}" for k, v in response.headers.items()))
-                logger.debug("Response content:\n%s", response.text)
+                logger.debug("Response content:\n%s\n---", response.text)
                 if raise_for_status:
                     response.raise_for_status()
                 return response
