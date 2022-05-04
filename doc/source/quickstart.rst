@@ -59,3 +59,14 @@ Usage
 
     # This returns an LXML object
     osc.search.request(xpath="state/@name='new'")
+
+Logging
+-------
+
+OSC Tiny provides a limited amount of built-in logging. To utilize this (e.g. for debugging) you
+only need to `configure <https://docs.python.org/3/library/logging.config.html>` the used loggers:
+
+osctiny.request
+"""""""""""""""
+
+Logs every HTTP request (including data and params) and response (including headers and body).

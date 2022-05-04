@@ -5,6 +5,7 @@ Main API access
 from __future__ import unicode_literals
 from io import BufferedReader, BytesIO, StringIO
 import gc
+import logging
 import re
 from ssl import get_default_verify_paths
 import time
@@ -188,8 +189,10 @@ class Osc:
             Retry sending the request, if the remote host disconnects
 
         .. versionadded:: 0.1.7
+            Added parameter `params`
 
-            * Added parameter `params`
+        .. versionchanged:: {{ NEXT_RELEASE }}
+            Added logging of request/response
 
         :param url: Full URL
         :param method: HTTP method
@@ -234,15 +237,28 @@ class Osc:
         if timeout:
             settings["timeout"] = timeout
 
+        logger = logging.getLogger("osctiny.request")
+
         for i in range(self.default_connection_retries, -1, -1):
+            logger.info("Requested URL: %s", prepped_req.url)
+            logger.debug("Sent data: '%s'", req.data)
+            logger.debug("Sent parameters:\n%s",
+                         "\n".join(f"{k}: {v}" for k, v in req.params.items()))
             try:
                 response = session.send(prepped_req, **settings)
             except _ConnectionError as error:
                 warnings.warn("Problem connecting to server: {}".format(error))
+                log_method = logger.error if i < 1 else logger.warning
+                log_method("Request failed: %s", error)
                 if i < 1:
                     raise
+                logger.debug("Retrying request in %d seconds", self.default_retry_timeout)
                 time.sleep(self.default_retry_timeout)
             else:
+                logger.info("Server replied with status %d", response.status_code)
+                logger.debug("Response headers:\n%s",
+                             "\n".join(f"{k}: {v}" for k, v in response.headers.items()))
+                logger.debug("Response content:\n%s", response.text)
                 if raise_for_status:
                     response.raise_for_status()
                 return response
