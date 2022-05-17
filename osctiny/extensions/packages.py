@@ -239,7 +239,7 @@ class Package(ExtensionBase):
         :type data: str or open file handle
         :param comment: Optional comment to use as commit message
 
-        .. versionchanged:: {{ NEXT_RELEASE }}
+        .. versionchanged:: 0.5.0
 
            Added an optional ``comment`` argument to be used as the commit message when writing the
            file.
