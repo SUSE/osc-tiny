@@ -57,7 +57,7 @@ class Build(ExtensionBase):
         :return: Objectified XML element
         :rtype: lxml.objectify.ObjectifiedElement
 
-        .. versionadded:: 4.3.0
+        .. versionadded:: 0.5.0
         """
 
         response = self.osc.request(
