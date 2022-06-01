@@ -19,7 +19,6 @@ try:
     from osc import conf as _conf
     from osc.oscerr import ConfigError, ConfigMissingApiurl
 except ImportError:
-    print("BLABLA import error")
     _conf = None
 
 
