@@ -72,7 +72,6 @@ def get_credentials(url=None):
             username = api_config["user"]
             password = api_config["pass"]
         except (ConfigError, ConfigMissingApiurl) as error:
-            raise
             if isinstance(error, ConfigError):
                 raise ValueError("`osc` config was not found.") from error
             # this is the case of ConfigMissingApiurl
