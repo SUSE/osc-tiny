@@ -75,7 +75,6 @@ class BasicTest(OscTest):
         def callback(headers, params, request):
             match = pattern.match(request.url)
             self.assertIsNotNone(match)
-            print(match.groups())
             self.assertEqual(unquote_plus(match.group("filename")), filename)
             for special_c in special_chars:
                 self.assertNotIn(special_c, match.group("filename"))
