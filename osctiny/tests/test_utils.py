@@ -15,6 +15,7 @@ from pytz import _UTC, timezone
 
 from ..utils.changelog import ChangeLog, Entry
 from ..utils.conf import get_config_path, get_credentials
+from ..utils.mapping import Mappable
 
 sys.path.append(os.path.dirname(__file__))
 
@@ -75,6 +76,19 @@ Tue Dec  3 10:13:08 UTC 2019 - Andreas Hasenkopf <ahasenkopf@suse.com>
 
 - New package osc-tiny (version 0.1.9)
 """
+
+
+class TestMappable(TestCase):
+    def test(self):
+        m = Mappable(a="a", b="b")
+        m["c"] = "c"
+
+        for key in ('a', 'b', 'c'):
+            with self.subTest(f"get {key}"):
+                self.assertEqual(key, m.get(key))
+
+        with self.subTest("Default"):
+            self.assertEqual("føø", m.get("d", "føø"))
 
 
 class TestEntry(TestCase):
