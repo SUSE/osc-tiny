@@ -331,7 +331,7 @@ class TestChangeLog(TestCase):
         self.assertIn("Cannot parse changelog entry", wmock.call_args[0][0])
 
 
-@mock.patch("osc.conf", side_effect=ImportError, create=True)
+@mock.patch("osctiny.utils.conf._conf", new_callable=lambda: None, create=True)
 @mock.patch("pathlib.Path.is_file", return_value=True)
 class TestConfig(TestCase):
     def test_get_config_path(self, *_):

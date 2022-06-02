@@ -17,6 +17,7 @@ import warnings
 
 try:
     from osc import conf as _conf
+    from osc.oscerr import ConfigError, ConfigMissingApiurl
 except ImportError:
     _conf = None
 
@@ -43,6 +44,7 @@ def get_config_path():
     raise FileNotFoundError("No `osc` configuration file found")
 
 
+# pylint: disable=too-many-branches
 def get_credentials(url=None):
     """
     Get credentials for Build Service instance identified by ``url``
@@ -60,19 +62,23 @@ def get_credentials(url=None):
     :raises ValueError: if config provides no credentials
     """
     if _conf is not None:
-        # pylint: disable=protected-access
-        parser = _conf.get_configParser()
         try:
+            _conf.get_config()
             if url is None:
-                url = parser["general"].get("apiurl", url)
-            cred_mgr = _conf._get_credentials_manager(url, parser)
-            username = _conf._extract_user_compat(parser, url, cred_mgr)
-        except (KeyError, NoSectionError) as error:
-            raise ValueError("`osc` config does not provide the default API URL") from error
+                # get the default api url from osc's config
+                url = _conf.config["apiurl"]
+            # and now fetch the options for that particular url
+            api_config = _conf.get_apiurl_api_host_options(url)
+            username = api_config["user"]
+            password = api_config["pass"]
+        except (ConfigError, ConfigMissingApiurl) as error:
+            if isinstance(error, ConfigError):
+                raise ValueError("`osc` config was not found.") from error
+            # this is the case of ConfigMissingApiurl
+            raise ValueError("`osc` config has no options for URL {}".format(url)) from error
 
         if not username:
             raise ValueError("`osc` config provides no username for URL {}".format(url))
-        password = cred_mgr.get_password(url, username, defer=False)
         if not password:
             raise ValueError("`osc` config provides no password for URL {}".format(url))
         return username, password
