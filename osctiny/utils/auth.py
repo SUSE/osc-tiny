@@ -48,12 +48,11 @@ class HttpSignatureAuth(HTTPDigestAuth):
                '-n', self._thread_local.chal.get('realm', '')]
         if self.password:
             cmd += ['-P', self.password]
-        proc = Popen(cmd, stdout=PIPE, stderr=PIPE, stdin=PIPE)
-        signature, error = proc.communicate(data.encode(sys.stdin.encoding))
-        if proc.returncode:
-            raise OscError(f"ssh-keygen returned {proc.returncode}: {error}")
+        with Popen(cmd, stdout=PIPE, stderr=PIPE, stdin=PIPE) as proc:
+            signature, error = proc.communicate(data.encode(sys.stdin.encoding))
+            if proc.returncode:
+                raise OscError(f"ssh-keygen returned {proc.returncode}: {error}")
 
-        signature = signature
         match = re.match(br"\A-----BEGIN SSH SIGNATURE-----\n(.*)\n-----END SSH SIGNATURE-----",
                          signature, re.S)
         if not match:
@@ -93,7 +92,9 @@ class HttpSignatureAuth(HTTPDigestAuth):
             challenge["now"] = int(time())
             self._thread_local.chal = challenge
 
-
+            # The following is unchanged from :py:meth:`requests.auth.HTTPDigestAuth.handle_401`,
+            # so we ignore linter issues about it.
+            # pylint: disable=pointless-statement,protected-access
             r.content
             r.close()
             prep = r.request.copy()

@@ -127,7 +127,8 @@ class Osc:
 
     def __init__(self, url: str = None, username: typing.Optional[str] = None,
                  password: typing.Optional[str] = None, verify: typing.Optional[str] = None,
-                 cache: bool = False, ssh_key_file: typing.Optional[typing.Union[Path, str]] = None):
+                 cache: bool = False,
+                 ssh_key_file: typing.Optional[typing.Union[Path, str]] = None):
         # Basic URL and authentication settings
         self.url = url or self.url
         self.username = username or self.username
