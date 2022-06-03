@@ -348,8 +348,8 @@ class TestConfig(TestCase):
         _, path1 = mkstemp()
         _, path2 = mkstemp()
 
-        expected_insecure_credentials = ("my-dummy-user", "my-insecure-dummy-password")
-        expected_secure_credentials = ('my-dummy-user', 'my-secure-dummy-password')
+        expected_insecure_credentials = ("my-dummy-user", "my-insecure-dummy-password", None)
+        expected_secure_credentials = ('my-dummy-user', 'my-secure-dummy-password', None)
 
         with open(path1, "w") as handle:
             handle.write("[http://api.dummy-bs.org]\n")

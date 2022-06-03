@@ -17,6 +17,24 @@ from GitHub using ``pip``:
 
     pip install git+https://github.com/crazyscientist/osc-tiny.git
 
+2FA authentication
+^^^^^^^^^^^^^^^^^^
+
+`OpenBuildService`_ supports two-factor authentication on the API. The authentication method is
+based on SSH signing. If you want to use 2FA, you need a OpenSSH client. To be precise, the program
+``ssh-keygen`` will be required.
+
+E.g. on Ubuntu you can use:
+
+.. code-block:: shell
+
+    sudo apt install openssh-client
+
+.. _OpenBuildService: https://openbuildservice.org/
+
+Caching
+^^^^^^^
+
 If you want to use caching, make sure to also install `CacheControl`_. It's a
 purely optional feature so it is not listed in the requirements file. Use:
 
@@ -25,6 +43,9 @@ purely optional feature so it is not listed in the requirements file. Use:
     pip install CacheControl
 
 .. _CacheControl: https://cachecontrol.readthedocs.io/en/latest/
+
+Configuration
+^^^^^^^^^^^^^
 
 If you want to use the credentials stored in the `osc`_ configuration, you can also install ``osc``
 to give OSC Tiny access to it's configuration. Use one of:
@@ -46,6 +67,7 @@ Usage
 
 .. code-block:: python
 
+    from pathlib import Path
     from ostiny import Osc
 
     osc = Osc(
@@ -59,6 +81,14 @@ Usage
 
     # This returns an LXML object
     osc.search.request(xpath="state/@name='new'")
+
+    # This example will use the SSH private key and passphrase for authentication
+    mfa_osc = Osc(
+        url="https://api.opensuse.org",
+        username="foobar",
+        password="secret-passphrase",
+        ssh_key_file=Path("/home/nemo/.ssh/id_ed25516")
+    )
 
 Logging
 -------

@@ -8,6 +8,7 @@ with OSC Tiny.
 
 .. versionadded:: 0.4.0
 """
+import typing
 from base64 import b64decode
 from bz2 import decompress
 from configparser import ConfigParser, NoSectionError
@@ -22,7 +23,7 @@ except ImportError:
     _conf = None
 
 
-def get_config_path():
+def get_config_path() -> Path:
     """
     Return path of ``osc`` configuration file
 
@@ -45,7 +46,8 @@ def get_config_path():
 
 
 # pylint: disable=too-many-branches
-def get_credentials(url=None):
+def get_credentials(url: typing.Optional[str] = None) \
+        -> typing.Tuple[str, str, typing.Optional[Path]]:
     """
     Get credentials for Build Service instance identified by ``url``
 
@@ -58,7 +60,7 @@ def get_credentials(url=None):
 
     :param str url: URL of Build Service instance (including schema). If not specified, the value
                     from the ``apiurl`` parameter in the config file will be used.
-    :return: (username, password)
+    :return: (username, password, SSH private key path)
     :raises ValueError: if config provides no credentials
     """
     if _conf is not None:
@@ -71,6 +73,7 @@ def get_credentials(url=None):
             api_config = _conf.get_apiurl_api_host_options(url)
             username = api_config["user"]
             password = api_config["pass"]
+            sshkey = Path(api_config["sshkey"]) if api_config["sshkey"] else None
         except (ConfigError, ConfigMissingApiurl) as error:
             if isinstance(error, ConfigError):
                 raise ValueError("`osc` config was not found.") from error
@@ -81,7 +84,7 @@ def get_credentials(url=None):
             raise ValueError("`osc` config provides no username for URL {}".format(url))
         if not password:
             raise ValueError("`osc` config provides no password for URL {}".format(url))
-        return username, password
+        return username, password, sshkey
 
     warnings.warn("`osc` is not installed. Not all configuration backends of `osc` will be "
                   "available.")
@@ -110,4 +113,8 @@ def get_credentials(url=None):
     if not password:
         raise ValueError("`osc` config provides no password for URL {}".format(url))
 
-    return username, password
+    sshkey = parser[url].get("sshkey", None)
+    if sshkey:
+        sshkey = Path(sshkey)
+
+    return username, password, sshkey

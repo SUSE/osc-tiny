@@ -43,6 +43,9 @@ Extensions
 Utilities
 ---------
 
+.. automodule:: osctiny.utils.auth
+    :members:
+
 .. automodule:: osctiny.utils.errors
     :members:
 

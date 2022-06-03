@@ -3,9 +3,12 @@ Main API access
 ---------------
 """
 from __future__ import unicode_literals
+
+import typing
 from io import BufferedReader, BytesIO, StringIO
 import gc
 import logging
+from pathlib import Path
 import re
 from ssl import get_default_verify_paths
 import time
@@ -28,6 +31,7 @@ from .extensions.projects import Project
 from .extensions.bs_requests import Request as BsRequest
 from .extensions.search import Search
 from .extensions.users import Group, Person
+from .utils.auth import HttpSignatureAuth
 from .utils.conf import get_credentials
 from .utils.errors import OscError
 
@@ -78,10 +82,12 @@ class Osc:
           - :py:attr:`origins`
 
     :param url: API URL of a BuildService instance
-    :param username: Credential for login
-    :param password: Password for login
+    :param username: Username
+    :param password: Password; this is either the user password or the SSH passphrase, if
+                     ``ssh_key_file`` is defined
     :param verify: See `SSL Cert Verification`_ for more details
     :param cache: Store API responses in a cache
+    :param ssh_key_file: Path to SSH private key file
     :raises osctiny.errors.OscError: if no credentials are provided
 
     .. versionadded:: 0.1.1
@@ -102,6 +108,10 @@ class Osc:
     .. versionchanged:: 0.4.0
         Raises an exception when no credentials are provided
 
+    .. versionchanged:: 0.6.0
+        Support for 2FA authentication (i.e. added the ``ssh_key_file`` parameter and changed the
+        meaning of the ``password`` parameter
+
     .. _SSL Cert Verification:
         http://docs.python-requests.org/en/master/user/advanced/
         #ssl-cert-verification
@@ -115,22 +125,29 @@ class Osc:
     default_connection_retries = 5
     default_retry_timeout = 5
 
-    def __init__(self, url=None, username=None, password=None, verify=None,
-                 cache=False):
+    def __init__(self, url: str = None, username: typing.Optional[str] = None,
+                 password: typing.Optional[str] = None, verify: typing.Optional[str] = None,
+                 cache: bool = False, ssh_key_file: typing.Optional[typing.Union[Path, str]] = None):
         # Basic URL and authentication settings
         self.url = url or self.url
         self.username = username or self.username
         self.password = password or self.password
+        self.verify = verify
+        self.cache = cache
+        self.ssh_key = ssh_key_file
+        if self.ssh_key is not None and not isinstance(self.ssh_key, Path):
+            self.ssh_key = Path(self.ssh_key)
 
-        if not self.username and not self.password:
+        if not self.username and not self.password and not self.ssh_key:
             try:
-                self.username, self.password = get_credentials(self.url)
+                self.username, _password, self.ssh_key = get_credentials(self.url)
+                if not self.ssh_key:
+                    # Caveat: It is not safe to assume, that the password stored by OSC is the
+                    # passphrase for the SSH private key!
+                    self.password = _password
             except (ValueError, NotImplementedError, FileNotFoundError) as error:
                 raise OscError from error
 
-        self._session = Session()
-        self._session.verify = verify or get_default_verify_paths().capath
-        self.auth = HTTPBasicAuth(self.username, self.password)
         self.parser = makeparser(huge_tree=True)
 
         # API endpoints
@@ -146,8 +163,27 @@ class Osc:
         self.search = Search(osc_obj=self)
         self.users = Person(osc_obj=self)
 
+        self._session, self.session = None, None
+
+    def __del__(self):
+        # Just in case ;-)
+        gc.collect()
+
+    def _init_session(self):
+        """
+        Lazy session initialization
+        """
+        self._session = Session()
+        self._session.verify = self.verify or get_default_verify_paths().capath
+
+        if self.ssh_key is not None:
+            self._session.auth = HttpSignatureAuth(username=self.username, password=self.password,
+                                                   ssh_key_file=self.ssh_key)
+        else:
+            self._session.auth = HTTPBasicAuth(self.username, self.password)
+
         # Cache
-        if cache:
+        if self.cache:
             # pylint: disable=broad-except
             try:
                 self.session = CacheControl(self._session)
@@ -157,10 +193,6 @@ class Osc:
                               RuntimeWarning)
         else:
             self.session = self._session
-
-    def __del__(self):
-        # Just in case ;-)
-        gc.collect()
 
     def request(self, url, method="GET", stream=False, data=None, params=None,
                 raise_for_status=True, timeout=None):
@@ -215,6 +247,9 @@ class Osc:
             https://2.python-requests.org/en/master/user/advanced/#timeouts
         """
         timeout = timeout or self.default_timeout
+        if self._session is None:
+            self._init_session()
+
         if stream:
             session = self._session
         else:
@@ -223,7 +258,6 @@ class Osc:
         req = Request(
             method,
             url.replace("#", quote("#")).replace("?", quote("?")),
-            auth=self.auth,
             data=self.handle_params(data),
             params=self.handle_params(params)
         )
