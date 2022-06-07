@@ -48,8 +48,10 @@ class HttpSignatureAuth(HTTPDigestAuth):
                '-n', self._thread_local.chal.get('realm', '')]
         if self.password:
             cmd += ['-P', self.password]
+
+        encoding = sys.getdefaultencoding()
         with Popen(cmd, stdout=PIPE, stderr=PIPE, stdin=PIPE) as proc:
-            signature, error = proc.communicate(data.encode(sys.stdin.encoding))
+            signature, error = proc.communicate(data.encode(encoding))
             if proc.returncode:
                 raise OscError(f"ssh-keygen returned {proc.returncode}: {error}")
 
@@ -57,7 +59,7 @@ class HttpSignatureAuth(HTTPDigestAuth):
                          signature, re.S)
         if not match:
             raise OscError("Could not generate challenge response")
-        return b64encode(b64decode(match.group(1))).decode(sys.stdout.encoding)
+        return b64encode(b64decode(match.group(1))).decode(encoding)
 
     def build_digest_header(self, method: str, url: str) -> str:
         """
