@@ -19,6 +19,7 @@ import warnings
 from lxml.objectify import fromstring, makeparser
 from requests import Session, Request
 from requests.auth import HTTPBasicAuth
+from requests.cookies import RequestsCookieJar, cookiejar_from_dict
 from requests.exceptions import ConnectionError as _ConnectionError
 
 from .extensions.buildresults import Build
@@ -165,6 +166,29 @@ class Osc:
     def __del__(self):
         # Just in case ;-)
         gc.collect()
+
+    @property
+    def cookies(self) -> RequestsCookieJar:
+        """
+        Access session cookies
+        """
+        if self._session is None:
+            self._init_session()
+
+        return self.session.cookies
+
+    @cookies.setter
+    def cookies(self, value: RequestsCookieJar):
+        if not isinstance(value, (RequestsCookieJar, dict)):
+            raise TypeError(f"Expected a cookie jar or dict. Got instead: {type(value)}")
+
+        if self._session is None:
+            self._init_session()
+
+        if isinstance(value, RequestsCookieJar):
+            self._session.cookies = value
+        else:
+            self._session.cookies = cookiejar_from_dict(value)
 
     def _init_session(self):
         """
