@@ -141,11 +141,7 @@ class Osc:
 
         if not self.username and not self.password and not self.ssh_key:
             try:
-                self.username, _password, self.ssh_key = get_credentials(self.url)
-                if not self.ssh_key:
-                    # Caveat: It is not safe to assume, that the password stored by OSC is the
-                    # passphrase for the SSH private key!
-                    self.password = _password
+                self.username, self.password, self.ssh_key = get_credentials(self.url)
             except (ValueError, NotImplementedError, FileNotFoundError) as error:
                 raise OscError from error
 
