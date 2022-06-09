@@ -96,7 +96,14 @@ Logging
 OSC Tiny provides a limited amount of built-in logging. To utilize this (e.g. for debugging) you
 only need to `configure <https://docs.python.org/3/library/logging.config.html>` the used loggers:
 
-osctiny.request
-"""""""""""""""
+.. list-table:: Loggers
+    :header-rows: 1
+    :widths: 20 80
+    :width: 100%
 
-Logs every HTTP request (including data and params) and response (including headers and body).
+    * - Logger
+      - Description
+    * - osctiny.request
+      - Logs every HTTP request (including data and params)
+
+        and response (including headers and body).

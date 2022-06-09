@@ -24,7 +24,16 @@ class HttpSignatureAuth(HTTPDigestAuth):
     """
     Implementation of the "Signature authentication scheme"
 
-    For reference implementation see https://github.com/openSUSE/osc/pull/1032
+    .. note::
+
+        This seems to be a variation of the `HTTP Message Signatures`_ specification.
+
+        See also the `reference implementation for osc`_
+
+        .. _HTTP Message Signatures:
+            https://datatracker.ietf.org/doc/draft-ietf-httpbis-message-signatures/
+
+        .. _reference implementation for osc: https://github.com/openSUSE/osc/pull/1032
 
     :param username: The username
     :param password: Passphrase for SSH key. This can be omitted, if ``ssh-agent`` is also installed
@@ -35,15 +44,26 @@ class HttpSignatureAuth(HTTPDigestAuth):
         if not ssh_key_file.is_file():
             raise FileNotFoundError(f"SSH key at location does not exist: {ssh_key_file}")
         self.ssh_key_file = ssh_key_file
+        self.pattern = re.compile(r"(?<=\)) (?=\()")
 
     def __eq__(self, other: 'HttpSignatureAuth') -> bool:
         return self.ssh_key_file == getattr(other, 'ssh_key_file', None) and super().__eq__(other)
+
+    def split_headers(self, headers: str) -> typing.List[str]:
+        """
+        Split ``headers`` parameter from ``WWW-Authenticate Signature`` header
+
+        :param headers: Value of the ``headers`` parameter
+        """
+        parts = self.pattern.split(headers)
+        return [part.strip("()") for part in parts]
 
     def ssh_sign(self) -> str:
         """
         Solve the challenge via SSH signing
         """
-        data = f"{self._thread_local.chal.get('headers')}: {self._thread_local.chal['now']}"
+        data = "\n".join(f"({header}): {self._thread_local.chal[header]}"
+                         for header in self._thread_local.chal["headers"])
         cmd = ['ssh-keygen', '-Y', 'sign', '-f', self.ssh_key_file.as_posix(), '-q',
                '-n', self._thread_local.chal.get('realm', '')]
         if self.password:
@@ -65,10 +85,9 @@ class HttpSignatureAuth(HTTPDigestAuth):
         """
         Generate Authentication header
         """
-        return f'Signature keyId="{self.username}",algorithm="ssh",' \
-               f'headers="{self._thread_local.chal.get("headers")}",' \
-               f'created={self._thread_local.chal["now"]},' \
-               f'signature={self.ssh_sign()}'
+        headers = " ".join(f"({header})" for header in self._thread_local.chal["headers"])
+        return f'Signature keyId="{self.username}",algorithm="ssh",signature={self.ssh_sign()},' \
+               f'headers="{headers}",created={self._thread_local.chal["created"]}'
 
     def handle_401(self, r: Response, **kwargs) -> Response:
         """
@@ -91,8 +110,10 @@ class HttpSignatureAuth(HTTPDigestAuth):
 
             _, challenge = s_auth.split(" ", maxsplit=1)
             challenge = parse_dict_header(challenge)
-            challenge["now"] = int(time())
-            self._thread_local.chal = challenge
+            challenge.setdefault("headers", ["created"])
+            challenge["created"] = int(time())
+            challenge["headers"] = self.split_headers(challenge["headers"])
+            self._thread_local.chal.update(challenge)
 
             # The following is unchanged from :py:meth:`requests.auth.HTTPDigestAuth.handle_401`,
             # so we ignore linter issues about it.
