@@ -244,7 +244,7 @@ class Osc:
         .. versionadded:: 0.1.7
             Added parameter `params`
 
-        .. versionchanged:: {{ NEXT_RELEASE }}
+        .. versionchanged:: 0.5.0
             Added logging of request/response
 
         :param url: Full URL
