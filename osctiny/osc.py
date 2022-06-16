@@ -16,7 +16,7 @@ from urllib.parse import quote
 import warnings
 
 # pylint: disable=no-name-in-module
-from lxml.objectify import fromstring, makeparser
+from lxml.objectify import fromstring
 from requests import Session, Request
 from requests.auth import HTTPBasicAuth
 from requests.cookies import RequestsCookieJar, cookiejar_from_dict
@@ -145,8 +145,6 @@ class Osc:
                 self.username, self.password, self.ssh_key = get_credentials(self.url)
             except (ValueError, NotImplementedError, FileNotFoundError) as error:
                 raise OscError from error
-
-        self.parser = makeparser(huge_tree=True)
 
         # API endpoints
         self.build = Build(osc_obj=self)
@@ -382,7 +380,7 @@ class Osc:
             text = response.text
 
         try:
-            return fromstring(text, self.parser)
+            return fromstring(text)
         except ValueError:
             # Just in case OBS returns a Unicode string with encoding
             # declaration
