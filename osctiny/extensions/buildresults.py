@@ -137,3 +137,26 @@ class Build(ExtensionBase):
         )
 
         return response.text
+
+    def cmd(self, project, cmd, **params):
+        """
+        Execute ``cmd`` for ``project`` and get response
+
+        .. versionadded:: 0.6.2
+
+        :param str project: Project name
+        :param str cmd: Command to execute
+        :param params: Additional parameters
+        """
+        allowed_cmds = ["rebuild", "abortbuild", "restartbuild", "unpublish", "sendsysrq",
+                        "wipe"]
+        if cmd not in allowed_cmds:
+            raise ValueError(f"Invalid command: '{cmd}'. Use one of: {', '.join(allowed_cmds)}")
+
+        params["cmd"] = cmd
+        response = self.osc.request(
+            url=urljoin(self.osc.url, f"{self.base_path}/{project}"),
+            method="POST",
+            params=params
+        )
+        return self.osc.get_objectified_xml(response)
