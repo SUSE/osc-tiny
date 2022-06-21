@@ -105,7 +105,7 @@ class HttpSignatureAuth(HTTPDigestAuth):
             r.request.body.seek(self._thread_local.pos)
         s_auth = r.headers.get('www-authenticate', '')
 
-        if s_auth.lower().startswith("signature") and self._thread_local.num_401_calls < 2:
+        if "signature" in s_auth.lower() and self._thread_local.num_401_calls < 2:
             self._thread_local.num_401_calls += 1
 
             _, challenge = s_auth.split(" ", maxsplit=1)
