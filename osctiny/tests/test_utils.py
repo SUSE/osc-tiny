@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import re
 from base64 import b64encode
 from bz2 import compress
 from unittest import TestCase, mock
@@ -12,7 +13,10 @@ from types import GeneratorType
 
 from dateutil.parser import parse
 from pytz import _UTC, timezone
+from requests import Response
+import responses
 
+from ..osc import Osc
 from ..utils.changelog import ChangeLog, Entry
 from ..utils.conf import get_config_path, get_credentials
 from ..utils.mapping import Mappable
@@ -388,3 +392,80 @@ class TestConfig(TestCase):
         finally:
             os.remove(path1)
             os.remove(path2)
+
+
+@mock.patch("osctiny.utils.auth.time", return_value=123456)
+class TestAuth(TestCase):
+    def setUp(self):
+        super().setUp()
+        mocked_path = mock.MagicMock(spec=Path)
+        mocked_path.configure_mock(**{"is_file.return_value": True})
+        self.osc = Osc("https://api.example.com", "nemo", "password", ssh_key_file=mocked_path)
+        self.osc._init_session()
+        self.osc.session.auth.ssh_sign = lambda *args, **kwargs: "Hello World"
+
+    def setup_response(self, headers: dict):
+        responses.reset()
+        responses.add(
+                responses.GET,
+                re.compile("https?://.*"),
+                adding_headers=headers,
+                body="Bla bla",
+                status=401
+            )
+
+    def do_assertions(self, response: Response, expected_challenge: bool):
+        self.assertEqual(401, response.status_code)
+        if expected_challenge:
+            self.assertEqual(
+                {'realm': 'Use your developer account', 'headers': ['created'], 'created': 123456},
+                self.osc.session.auth._thread_local.chal
+            )
+        else:
+            self.assertEqual(0, len(self.osc.session.auth._thread_local.chal))
+
+    @responses.activate
+    def test_handle_401(self, *_):
+        with self.subTest("No WWW-Authenticate header"):
+            self.setup_response({"Foo": "Bar"})
+            response = self.osc.session.get("https://api.example.com/hello-world")
+            self.do_assertions(response, False)
+
+        with self.subTest("WWW-Authenticate: Only Basic"):
+            self.setup_response({"www-authenticate": "Basic realm=\"Use your developer account\""})
+            response = self.osc.session.get("https://api.example.com/hello-world")
+            self.do_assertions(response, False)
+
+        with self.subTest("WWW-Authenticate: Only Signature"):
+            self.setup_response({"www-authenticate":
+                                     "Signature realm=\"Use your developer account\","
+                                     "headers=\"(created)\""})
+            response = self.osc.session.get("https://api.example.com/hello-world")
+            self.do_assertions(response, True)
+
+        responses.reset()
+        responses.add(
+            responses.GET,
+            re.compile("https?://.*"),
+            adding_headers={"www-authenticate": "Basic realm=\"Use your developer account\", "
+                                                "Signature realm=\"Use your developer account\","
+                                                "headers=\"(created)\""},
+            body="Bla bla",
+            status=401
+        )
+
+        with self.subTest("WWW-Authenticate: Basic & Signature"):
+            self.setup_response({"www-authenticate":
+                                     "Basic realm=\"Use your developer account\", "
+                                     "Signature realm=\"Use your developer account\","
+                                     "headers=\"(created)\""})
+            response = self.osc.session.get("https://api.example.com/hello-world")
+            self.do_assertions(response, True)
+
+        with self.subTest("WWW-Authenticate: Signature & Basic"):
+            self.setup_response({"www-authenticate":
+                                     "Signature realm=\"Use your developer account\","
+                                     "headers=\"(created)\", "
+                                     "Basic realm=\"Use your developer account\", "})
+            response = self.osc.session.get("https://api.example.com/hello-world")
+            self.do_assertions(response, True)
