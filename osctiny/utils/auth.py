@@ -89,6 +89,31 @@ class HttpSignatureAuth(HTTPDigestAuth):
         return f'Signature keyId="{self.username}",algorithm="ssh",signature={self.ssh_sign()},' \
                f'headers="{headers}",created={self._thread_local.chal["created"]}'
 
+    def get_auth_header(self, r: Response) -> str:
+        """
+        Extract the relevant header for Signature authentication
+
+        :param r: Response
+        :return: Header text
+        """
+        try:
+            # pylint: disable=protected-access
+            headers = [header
+                       for header in r.raw._original_response.headers.get_all("www-authenticate")
+                       if "signature" in header.lower()]
+            if headers:
+                return headers[0]
+        except AttributeError:
+            headers = r.headers.get("www-authenticate")
+            if headers:
+                parts = headers.split(",")
+                start = [p for p in parts if "signature" in p.lower()]
+                if start:
+                    start_index = parts.index(start[0])
+                    return ",".join(parts[start_index:start_index + 2]).strip()
+
+        return ""
+
     def handle_401(self, r: Response, **kwargs) -> Response:
         """
         Handle authentication in case of 401
@@ -103,7 +128,7 @@ class HttpSignatureAuth(HTTPDigestAuth):
             # Rewind the file position indicator of the body to where
             # it was to resend the request.
             r.request.body.seek(self._thread_local.pos)
-        s_auth = r.headers.get('www-authenticate', '')
+        s_auth = self.get_auth_header(r)
 
         if "signature" in s_auth.lower() and self._thread_local.num_401_calls < 2:
             self._thread_local.num_401_calls += 1
