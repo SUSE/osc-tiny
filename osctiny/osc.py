@@ -4,6 +4,7 @@ Main API access
 """
 from __future__ import unicode_literals
 
+from base64 import b64encode
 import typing
 from io import BufferedReader, BytesIO, StringIO
 import gc
@@ -12,11 +13,12 @@ from pathlib import Path
 import re
 from ssl import get_default_verify_paths
 import time
+import threading
 from urllib.parse import quote
 import warnings
 
 # pylint: disable=no-name-in-module
-from lxml.objectify import fromstring
+from lxml.objectify import fromstring, makeparser
 from requests import Session, Request
 from requests.auth import HTTPBasicAuth
 from requests.cookies import RequestsCookieJar, cookiejar_from_dict
@@ -40,6 +42,8 @@ try:
     from cachecontrol import CacheControl
 except ImportError:
     CacheControl = None
+
+THREAD_LOCAL = threading.local()
 
 
 # pylint: disable=too-many-instance-attributes,too-many-arguments
@@ -120,8 +124,6 @@ class Osc:
     url = 'https://api.opensuse.org'
     username = ''
     password = ''
-    session = None
-    _registered = {}
     default_timeout = (60, 300)
     default_connection_retries = 5
     default_retry_timeout = 5
@@ -159,59 +161,82 @@ class Osc:
         self.search = Search(osc_obj=self)
         self.users = Person(osc_obj=self)
 
-        self._session, self.session = None, None
+        hash_value = b64encode(f'{self.username}@{self.url}@{self.ssh_key}'.encode())
+        self._session_id = f"session_{hash_value}"
 
     def __del__(self):
         # Just in case ;-)
         gc.collect()
 
     @property
+    def _session(self) -> Session:
+        """
+        Session object
+        """
+        session = getattr(THREAD_LOCAL, self._session_id, None)
+        if not session:
+            session = Session()
+            session.verify = self.verify or get_default_verify_paths().capath
+
+            if self.ssh_key is not None:
+                session.auth = HttpSignatureAuth(username=self.username, password=self.password,
+                                                 ssh_key_file=self.ssh_key)
+            else:
+                session.auth = HTTPBasicAuth(self.username, self.password)
+
+            setattr(THREAD_LOCAL, self._session_id, session)
+
+        return session
+
+    @property
+    def session(self) -> typing.Union[CacheControl, Session]:
+        """
+        Session object
+
+        Possibly wrapped in CacheControl, if installed.
+        """
+        key = f"cached_{self._session_id}"
+        session = getattr(THREAD_LOCAL, key, None)
+        if not session:
+            if self.cache:
+                # pylint: disable=broad-except
+                try:
+                    session = CacheControl(self._session)
+                except Exception as error:
+                    session = self._session
+                    warnings.warn("Cannot use the cache: {}".format(error), RuntimeWarning)
+            else:
+                session = self._session
+            setattr(THREAD_LOCAL, key, session)
+
+        return session
+
+    @property
     def cookies(self) -> RequestsCookieJar:
         """
         Access session cookies
         """
-        if self._session is None:
-            self._init_session()
-
-        return self.session.cookies
+        return self._session.cookies
 
     @cookies.setter
     def cookies(self, value: RequestsCookieJar):
         if not isinstance(value, (RequestsCookieJar, dict)):
             raise TypeError(f"Expected a cookie jar or dict. Got instead: {type(value)}")
 
-        if self._session is None:
-            self._init_session()
-
         if isinstance(value, RequestsCookieJar):
             self._session.cookies = value
         else:
             self._session.cookies = cookiejar_from_dict(value)
 
-    def _init_session(self):
+    @property
+    def parser(self):
         """
-        Lazy session initialization
+        Explicit parser instance
         """
-        self._session = Session()
-        self._session.verify = self.verify or get_default_verify_paths().capath
+        if not hasattr(THREAD_LOCAL, "parser"):
+            THREAD_LOCAL.parser = makeparser(huge_tree=True)
 
-        if self.ssh_key is not None:
-            self._session.auth = HttpSignatureAuth(username=self.username, password=self.password,
-                                                   ssh_key_file=self.ssh_key)
-        else:
-            self._session.auth = HTTPBasicAuth(self.username, self.password)
-
-        # Cache
-        if self.cache:
-            # pylint: disable=broad-except
-            try:
-                self.session = CacheControl(self._session)
-            except Exception as error:
-                self.session = self._session
-                warnings.warn("Cannot use the cache: {}".format(error),
-                              RuntimeWarning)
-        else:
-            self.session = self._session
+        return THREAD_LOCAL.parser
 
     def request(self, url, method="GET", stream=False, data=None, params=None,
                 raise_for_status=True, timeout=None):
@@ -266,8 +291,6 @@ class Osc:
             https://2.python-requests.org/en/master/user/advanced/#timeouts
         """
         timeout = timeout or self.default_timeout
-        if self._session is None:
-            self._init_session()
 
         if stream:
             session = self._session
@@ -380,7 +403,7 @@ class Osc:
             text = response.text
 
         try:
-            return fromstring(text)
+            return fromstring(text, self.parser)
         except ValueError:
             # Just in case OBS returns a Unicode string with encoding
             # declaration

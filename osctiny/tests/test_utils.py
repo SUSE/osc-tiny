@@ -401,7 +401,6 @@ class TestAuth(TestCase):
         mocked_path = mock.MagicMock(spec=Path)
         mocked_path.configure_mock(**{"is_file.return_value": True})
         self.osc = Osc("https://api.example.com", "nemo", "password", ssh_key_file=mocked_path)
-        self.osc._init_session()
         self.osc.session.auth.ssh_sign = lambda *args, **kwargs: "Hello World"
 
     def setup_response(self, headers: dict):
