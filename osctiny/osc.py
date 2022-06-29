@@ -124,8 +124,6 @@ class Osc:
     url = 'https://api.opensuse.org'
     username = ''
     password = ''
-    session = None
-    _registered = {}
     default_timeout = (60, 300)
     default_connection_retries = 5
     default_retry_timeout = 5
