@@ -161,7 +161,8 @@ class Osc:
         self.search = Search(osc_obj=self)
         self.users = Person(osc_obj=self)
 
-        self._session_id = f"session_{b64encode(f'{self.username}@{self.url}@{self.ssh_key}'.encode())}"
+        hash_value = b64encode(f'{self.username}@{self.url}@{self.ssh_key}'.encode())
+        self._session_id = f"session_{hash_value}"
 
     def __del__(self):
         # Just in case ;-)
