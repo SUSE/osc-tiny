@@ -6,6 +6,7 @@ Authentication handlers for 2FA
 """
 import typing
 from base64 import b64decode, b64encode
+import os
 from pathlib import Path
 from subprocess import Popen, PIPE
 import re
@@ -43,6 +44,9 @@ class HttpSignatureAuth(HTTPDigestAuth):
         super().__init__(username=username, password=password)
         if not ssh_key_file.is_file():
             raise FileNotFoundError(f"SSH key at location does not exist: {ssh_key_file}")
+        if not password and not self.is_ssh_agent_available():
+            raise RuntimeError("SSH signing impossible: No password/passphrase provided and no SSH "
+                               "agent running! ")
         self.ssh_key_file = ssh_key_file
         self.pattern = re.compile(r"(?<=\)) (?=\()")
 
@@ -57,6 +61,19 @@ class HttpSignatureAuth(HTTPDigestAuth):
         """
         parts = self.pattern.split(headers)
         return [part.strip("()") for part in parts]
+
+    @staticmethod
+    def is_ssh_agent_available() -> bool:
+        """
+        Check whether SSH agent is running/available
+
+        :return: ``True``, if agent is running
+
+        .. versionadded:: 0.6.3
+        """
+        relevant_keys = {'SSH_AUTH_SOCK', 'SSH_AGENT_PID'}
+        overlap = os.environ.keys() & relevant_keys
+        return len(overlap) > 0
 
     def ssh_sign(self) -> str:
         """

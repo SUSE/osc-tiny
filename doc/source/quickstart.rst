@@ -17,12 +17,12 @@ from GitHub using ``pip``:
 
     pip install git+https://github.com/crazyscientist/osc-tiny.git
 
-2FA authentication
-^^^^^^^^^^^^^^^^^^
+Strong authentication
+^^^^^^^^^^^^^^^^^^^^^
 
-`OpenBuildService`_ supports two-factor authentication on the API. The authentication method is
-based on SSH signing. If you want to use 2FA, you need a OpenSSH client. To be precise, the program
-``ssh-keygen`` will be required.
+`OpenBuildService`_ supports strong authentication on the API. The authentication method is
+based on SSH signing. If you want to use strong authentication, you need a OpenSSH client. To be
+precise, the program ``ssh-keygen`` will be required to create a signed message.
 
 E.g. on Ubuntu you can use:
 
@@ -65,15 +65,37 @@ a repository from https://download.opensuse.org/repositories/openSUSE:/Tools/.
 Usage
 -----
 
+Depending on the authentication method :py:class:`osctiny.osc.Osc` gets initialized slightly
+different:
+
 .. code-block:: python
 
     from pathlib import Path
     from ostiny import Osc
 
+    # Basic Auth with username + password
     osc = Osc(
         url="https://api.opensuse.org",
         username="foobar",
         password="helloworld",
+    )
+
+    # Strong auth with username + passphrase (for SSH key) + SSH key
+    osc = Osc(
+        url="https://api.opensuse.org",
+        username="foobar",
+        password="secret-passphrase",
+        ssh_key_file=Path("/home/nemo/.ssh/id_ed25516")
+    )
+
+    # Strong auth with username + SSH key
+    # This applies to keys without passphrase or for using the SSH agent (i.e. passphrase will be
+    # queried by SSH agent)
+    osc = Osc(
+        url="https://api.opensuse.org",
+        username="foobar",
+        password=None,
+        ssh_key_file=Path("/home/nemo/.ssh/id_ed25516")
     )
 
     # This returns an LXML object
@@ -82,13 +104,7 @@ Usage
     # This returns an LXML object
     osc.search.request(xpath="state/@name='new'")
 
-    # This example will use the SSH private key and passphrase for authentication
-    mfa_osc = Osc(
-        url="https://api.opensuse.org",
-        username="foobar",
-        password="secret-passphrase",
-        ssh_key_file=Path("/home/nemo/.ssh/id_ed25516")
-    )
+
 
 Logging
 -------
