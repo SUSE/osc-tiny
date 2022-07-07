@@ -82,7 +82,7 @@ def _get_credentials_from_oscrc(url: typing.Optional[str] = None) -> typing.Tupl
 
     sshkey = parser[url].get("sshkey", None)
     if sshkey:
-        sshkey = Path(sshkey)
+        sshkey = Path(sshkey).expanduser()
 
     return username, password, sshkey
 
