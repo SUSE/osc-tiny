@@ -115,7 +115,7 @@ def _get_credentials_from_oscconf(url: typing.Optional[str] = None) -> typing.Tu
         api_config = _conf.get_apiurl_api_host_options(url)
         username = api_config["user"]
         password = api_config["pass"]
-        sshkey = Path(api_config["sshkey"]) if api_config["sshkey"] else None
+        sshkey = Path(api_config["sshkey"]) if api_config.get("sshkey", None) else None
     except (KeyError, ConfigError, ConfigMissingApiurl) as error:
         if isinstance(error, ConfigError):
             raise ValueError("`osc` config was not found.") from error
