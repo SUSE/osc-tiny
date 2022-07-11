@@ -116,7 +116,7 @@ def _get_credentials_from_oscconf(url: typing.Optional[str] = None) -> typing.Tu
         username = api_config["user"]
         password = api_config["pass"]
         sshkey = Path(api_config["sshkey"]) if api_config["sshkey"] else None
-    except (ConfigError, ConfigMissingApiurl) as error:
+    except (KeyError, ConfigError, ConfigMissingApiurl) as error:
         if isinstance(error, ConfigError):
             raise ValueError("`osc` config was not found.") from error
         # this is the case of ConfigMissingApiurl
@@ -145,7 +145,7 @@ def get_credentials(url: typing.Optional[str] = None) \
 
     .. versionchanged:: 0.6.3
 
-        If an SSH key is configured, this function will not return ``None`` instead of a password.
+        If an SSH key is configured, this function will return ``None`` instead of a password.
     """
     getter = _get_credentials_from_oscrc if _conf is None else _get_credentials_from_oscconf
     username, password, sshkey = getter(url=url)
