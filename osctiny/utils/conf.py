@@ -14,7 +14,6 @@ from bz2 import decompress
 from configparser import ConfigParser, NoSectionError
 import os
 from pathlib import Path
-import warnings
 
 try:
     from osc import conf as _conf
@@ -45,52 +44,25 @@ def get_config_path() -> Path:
     raise FileNotFoundError("No `osc` configuration file found")
 
 
-# pylint: disable=too-many-branches
-def get_credentials(url: typing.Optional[str] = None) \
-        -> typing.Tuple[str, str, typing.Optional[Path]]:
+def _get_credentials_from_oscrc(url: typing.Optional[str] = None) -> typing.Tuple[str, str, Path]:
     """
-    Get credentials for Build Service instance identified by ``url``
+    Get credentials for Build Service instance identified by ``url`` from ``osc`` config file
 
-    .. important::
+    .. note::
 
-        If the ``osc`` package is not installed, this function will only try to extract the username
-        and password from the configuration file.
+        This function does not perform data validation or sanitation. It is not recommended to call
+        this function directly; use :py:fun:`get_credentials` instead.
 
-        Any credentials stored on a keyring will not be accessible!
-
-    :param str url: URL of Build Service instance (including schema). If not specified, the value
-                    from the ``apiurl`` parameter in the config file will be used.
+    :param url: URL of Build Service instance (including schema). If not specified, the value
+                from the ``apiurl`` parameter in the config file will be used.
     :return: (username, password, SSH private key path)
     :raises ValueError: if config provides no credentials
+
+    .. versionadded:: 0.6.3
     """
-    if _conf is not None:
-        try:
-            _conf.get_config()
-            if url is None:
-                # get the default api url from osc's config
-                url = _conf.config["apiurl"]
-            # and now fetch the options for that particular url
-            api_config = _conf.get_apiurl_api_host_options(url)
-            username = api_config["user"]
-            password = api_config["pass"]
-            sshkey = Path(api_config["sshkey"]) if api_config["sshkey"] else None
-        except (ConfigError, ConfigMissingApiurl) as error:
-            if isinstance(error, ConfigError):
-                raise ValueError("`osc` config was not found.") from error
-            # this is the case of ConfigMissingApiurl
-            raise ValueError("`osc` config has no options for URL {}".format(url)) from error
-
-        if not username:
-            raise ValueError("`osc` config provides no username for URL {}".format(url))
-        if not password:
-            raise ValueError("`osc` config provides no password for URL {}".format(url))
-        return username, password, sshkey
-
-    warnings.warn("`osc` is not installed. Not all configuration backends of `osc` will be "
-                  "available.")
     parser = ConfigParser()
     path = get_config_path()
-    parser.read((path))
+    parser.read(path)
     try:
         if url is None:
             url = parser["general"].get("apiurl", url)
@@ -101,8 +73,6 @@ def get_credentials(url: typing.Optional[str] = None) \
         raise ValueError("`osc` config has no section for URL {}".format(url))
 
     username = parser[url].get("user", None)
-    if not username:
-        raise ValueError("`osc` config provides no username for URL {}".format(url))
 
     password = parser[url].get("pass", None)
     if not password:
@@ -110,11 +80,84 @@ def get_credentials(url: typing.Optional[str] = None) \
         if password:
             password = decompress(b64decode(password.encode("ascii"))).decode("ascii")
 
-    if not password:
-        raise ValueError("`osc` config provides no password for URL {}".format(url))
-
     sshkey = parser[url].get("sshkey", None)
     if sshkey:
-        sshkey = Path(sshkey)
+        sshkey = Path(sshkey).expanduser()
 
     return username, password, sshkey
+
+
+def _get_credentials_from_oscconf(url: typing.Optional[str] = None) -> typing.Tuple[str, str, Path]:
+    """
+    Get credentials for Build Service instance identified by ``url`` from ``osc``
+
+    .. note::
+
+        This function does not perform data validation or sanitation. It is not recommended to call
+        this function directly; use :py:fun:`get_credentials` instead.
+
+    :param url: URL of Build Service instance (including schema). If not specified, the value
+                from the ``apiurl`` parameter in the config file will be used.
+    :return: (username, password, SSH private key path)
+    :raises ValueError: if config provides no credentials
+    :raises RuntimeError: if ``osc`` is not installed
+
+    .. versionadded:: 0.6.3
+    """
+    if _conf is None:
+        raise RuntimeError("`osc` is not installed. Use _get_credentials_from_oscrc instead!")
+    try:
+        _conf.get_config()
+        if url is None:
+            # get the default api url from osc's config
+            url = _conf.config["apiurl"]
+        # and now fetch the options for that particular url
+        api_config = _conf.get_apiurl_api_host_options(url)
+        username = api_config["user"]
+        password = api_config["pass"]
+        sshkey = Path(api_config["sshkey"]) if api_config["sshkey"] else None
+    except (KeyError, ConfigError, ConfigMissingApiurl) as error:
+        if isinstance(error, ConfigError):
+            raise ValueError("`osc` config was not found.") from error
+        # this is the case of ConfigMissingApiurl
+        raise ValueError("`osc` config has no options for URL {}".format(url)) from error
+
+    return username, password, sshkey
+
+
+# pylint: disable=too-many-branches
+def get_credentials(url: typing.Optional[str] = None) \
+        -> typing.Tuple[str, typing.Optional[str], typing.Optional[Path]]:
+    """
+    Get credentials for Build Service instance identified by ``url``
+
+    .. important::
+
+        If the ``osc`` package is not installed, this function will only try to extract the username
+        and password from the configuration file.
+
+        Any credentials stored on a keyring will not be accessible!
+
+    :param url: URL of Build Service instance (including schema). If not specified, the value
+                from the ``apiurl`` parameter in the config file will be used.
+    :return: (username, password, SSH private key path)
+    :raises ValueError: if config provides no credentials
+
+    .. versionchanged:: 0.6.3
+
+        If an SSH key is configured, this function will return ``None`` instead of a password.
+    """
+    getter = _get_credentials_from_oscrc if _conf is None else _get_credentials_from_oscconf
+    username, password, sshkey = getter(url=url)
+
+    if not username:
+        raise ValueError(f"`osc` config provides no username for URL {url}")
+
+    if sshkey is not None:
+        if not sshkey.exists():
+            raise ValueError(f"SSH key from config does not exist: {sshkey}")
+
+    if not password and not sshkey:
+        raise ValueError(f"`osc` config provides no password or SSH key for URL {url}")
+
+    return username, password if sshkey is None else None, sshkey

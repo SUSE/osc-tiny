@@ -88,8 +88,8 @@ class Osc:
 
     :param url: API URL of a BuildService instance
     :param username: Username
-    :param password: Password; this is either the user password or the SSH passphrase, if
-                     ``ssh_key_file`` is defined
+    :param password: Password; this is either the user password (``ssh_key_file`` is ``None``) or
+                     the SSH passphrase, if ``ssh_key_file`` is defined
     :param verify: See `SSL Cert Verification`_ for more details
     :param cache: Store API responses in a cache
     :param ssh_key_file: Path to SSH private key file
@@ -145,7 +145,7 @@ class Osc:
         if not self.username and not self.password and not self.ssh_key:
             try:
                 self.username, self.password, self.ssh_key = get_credentials(self.url)
-            except (ValueError, NotImplementedError, FileNotFoundError) as error:
+            except (ValueError, RuntimeError, FileNotFoundError) as error:
                 raise OscError from error
 
         # API endpoints
