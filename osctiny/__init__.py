@@ -6,4 +6,4 @@ from .extensions import bs_requests, buildresults, comments, packages, \
 
 __all__ = ['Osc', 'bs_requests', 'buildresults', 'comments', 'packages',
            'projects', 'search', 'users']
-__version__ = "0.6.2"
+__version__ = "0.6.3"
