@@ -138,7 +138,8 @@ class HttpSignatureAuth(HTTPDigestAuth):
             return
 
         logger.info("Server replied with status %d", r.status_code)
-        logger.debug("Response headers:\n%s\n---", "\n".join(f"{k}: {v}" for k, v in r.headers.items()))
+        logger.debug("Response headers:\n%s\n---", "\n".join(f"{k}: {v}"
+                                                             for k, v in r.headers.items()))
         logger.debug("Response content:\n%s\n---", r.text)
 
     def handle_401(self, r: Response, **kwargs) -> Response:
