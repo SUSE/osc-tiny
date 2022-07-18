@@ -6,6 +6,7 @@ Authentication handlers for 2FA
 """
 import typing
 from base64 import b64decode, b64encode
+import logging
 import os
 from pathlib import Path
 from subprocess import Popen, PIPE
@@ -131,6 +132,15 @@ class HttpSignatureAuth(HTTPDigestAuth):
 
         return ""
 
+    def _log(self, r: Response) -> None:
+        logger = logging.getLogger("osctiny.request")
+        if logger.level >= logging.CRITICAL:
+            return
+
+        logger.info("Server replied with status %d", r.status_code)
+        logger.debug("Response headers:\n%s\n---", "\n".join(f"{k}: {v}" for k, v in r.headers.items()))
+        logger.debug("Response content:\n%s\n---", r.text)
+
     def handle_401(self, r: Response, **kwargs) -> Response:
         """
         Handle authentication in case of 401
@@ -140,6 +150,13 @@ class HttpSignatureAuth(HTTPDigestAuth):
         if not 400 <= r.status_code < 500:
             self._thread_local.num_401_calls = 1
             return r
+
+        if r.status_code != 401:
+            # If this is not a 401 response, the server does not send the authentication headers.
+            # So there is no point in pretending otherwise.
+            return r
+
+        self._log(r)
 
         if self._thread_local.pos is not None:
             # Rewind the file position indicator of the body to where
