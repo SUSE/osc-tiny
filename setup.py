@@ -1,16 +1,23 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
+from sys import version_info
 from setuptools import setup, find_packages
 
 
 def get_requires():
+    requirements = []
+
     def _filter(requires):
         return [req.strip() for req in requires if req.strip()]
 
-    filename = "requirements.txt"
+    with open("requirements.txt", "r") as fh:
+        requirements += _filter(fh.readlines())
 
-    with open(filename, "r") as fh:
-        return _filter(fh.readlines())
+    if version_info.minor < 8:
+        with open("requirements_pre38.txt", "r") as fh:
+            requirements += _filter(fh.readlines())
+
+    return requirements
 
 
 with open("README.md") as fh:
