@@ -114,7 +114,9 @@ def _get_credentials_from_oscconf(url: typing.Optional[str] = None) -> typing.Tu
         # and now fetch the options for that particular url
         api_config = _conf.get_apiurl_api_host_options(url)
         username = api_config["user"]
-        password = api_config["pass"]
+        # Note: `osc` can return a wrapper object instead of a plain password:
+        # https://github.com/openSUSE/osc/issues/1073
+        password = str(api_config["pass"])
         sshkey = Path(api_config["sshkey"]) if api_config.get("sshkey", None) else None
     except (KeyError, ConfigError, ConfigMissingApiurl) as error:
         if isinstance(error, ConfigError):
