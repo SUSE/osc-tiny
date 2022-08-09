@@ -34,7 +34,7 @@ class Package(ExtensionBase):
         :return: Objectified XML element
         :rtype: lxml.objectify.ObjectifiedElement
         """
-        params = {"deleted": deleted}
+        params = {"deleted": deleted} if deleted else {}
         response = self.osc.request(
             url=urljoin(self.osc.url, "{}/{}".format(self.base_path, project)),
             method="GET",
