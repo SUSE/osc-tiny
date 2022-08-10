@@ -159,7 +159,7 @@ def get_credentials(url: typing.Optional[str] = None) \
         if not sshkey.exists():
             # if it is just a key file name, look at the default SSH dir (which is the most
             # common case)
-            sshkey = Path("~").expanduser() / ".ssh" / sshkey
+            sshkey = Path.home() / ".ssh" / sshkey
             if not sshkey.exists():
                 raise ValueError(f"SSH key from config does not exist: {sshkey}")
 
