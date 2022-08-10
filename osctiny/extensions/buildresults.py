@@ -125,7 +125,7 @@ class Build(ExtensionBase):
         :param package: Package name
         :param filename: File name
         :return: Raw response
-        :rtype: str
+        :rtype: bytes
 
         .. versionadded:: 0.2.4
         """
@@ -136,7 +136,7 @@ class Build(ExtensionBase):
             )),
         )
 
-        return response.text
+        return response.content
 
     def cmd(self, project, cmd, **params):
         """
