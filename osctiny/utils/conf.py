@@ -157,7 +157,11 @@ def get_credentials(url: typing.Optional[str] = None) \
 
     if sshkey is not None:
         if not sshkey.exists():
-            raise ValueError(f"SSH key from config does not exist: {sshkey}")
+            # if it is just a key file name, look at the default SSH dir (which is the most
+            # common case)
+            sshkey = Path.home() / ".ssh" / sshkey
+            if not sshkey.exists():
+                raise ValueError(f"SSH key from config does not exist: {sshkey}")
 
     if not password and not sshkey:
         raise ValueError(f"`osc` config provides no password or SSH key for URL {url}")
