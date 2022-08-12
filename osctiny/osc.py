@@ -321,7 +321,11 @@ class Osc:
                          "\n".join(f"{k}: {v}" for k, v in req.data.items())
                          if isinstance(req.data, dict) else req.data)
             logger.debug("Sent parameters:\n%s\n---",
-                         "\n".join(f"{k}: {v}" for k, v in (req.params if isinstance(req.params, dict) else parse_qs(req.params, keep_blank_values=True)).items()))
+                         "\n".join(f"{k}: {v}" for k, v in (
+                             req.params
+                             if isinstance(req.params, dict)
+                             else parse_qs(req.params, keep_blank_values=True)
+                         ).items()))
             try:
                 response = session.send(prepped_req, **settings)
             except _ConnectionError as error:
@@ -356,7 +360,8 @@ class Osc:
                      make sure to use ``True`` and ``False``. If you use ``0`` or ``1`` instead, you
                      might receive unexpected results.
 
-                     .. _not intend to fix: https://github.com/openSUSE/open-build-service/issues/9715
+                     .. _not intend to fix: https://github.com/openSUSE/open-build-service/issues
+                                            /9715
 
         :param params: Request parameter
         :type params: dict or str or io.BufferedReader
