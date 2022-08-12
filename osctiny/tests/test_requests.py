@@ -12,7 +12,7 @@ def callback(headers, params, request):
     status = 500
     body = ""
     parsed = urlparse(request.url)
-    params.update(parse_qs(parsed.query))
+    params.update(parse_qs(parsed.query, keep_blank_values=True))
 
     if re.search("comments/request/30902", request.url):
         status = 200
@@ -76,8 +76,7 @@ def callback(headers, params, request):
           <description>Required package for FATE#315181 (virt-v2v)
           </description>
         """
-        if params.get("withhistory", ['0']) == ['1'] \
-                or params.get("withfullhistory", ['0']) == ['1']:
+        if "withhistory" in params or "withfullhistory" in params:
             body += """
                 <history who="foo" when="2014-01-22T17:51:08">
                   <description>Request created</description>
@@ -97,7 +96,7 @@ def callback(headers, params, request):
                   </comment>
                 </history>
             """
-        if params.get("withfullhistory", ['0']) == ['1']:
+        if "withfullhistory" in params:
             body += """
                   <history who="acceptor" when="2014-01-23T19:24:37">
                     <description>Review got accepted</description>

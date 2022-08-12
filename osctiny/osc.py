@@ -14,7 +14,7 @@ import re
 from ssl import get_default_verify_paths
 import time
 import threading
-from urllib.parse import quote
+from urllib.parse import quote, parse_qs
 import warnings
 
 # pylint: disable=no-name-in-module
@@ -35,7 +35,7 @@ from .extensions.bs_requests import Request as BsRequest
 from .extensions.search import Search
 from .extensions.users import Group, Person
 from .utils.auth import HttpSignatureAuth
-from .utils.conf import get_credentials
+from .utils.conf import BOOLEAN_PARAMS, get_credentials
 from .utils.errors import OscError
 
 try:
@@ -321,7 +321,11 @@ class Osc:
                          "\n".join(f"{k}: {v}" for k, v in req.data.items())
                          if isinstance(req.data, dict) else req.data)
             logger.debug("Sent parameters:\n%s\n---",
-                         "\n".join(f"{k}: {v}" for k, v in req.params.items()))
+                         "\n".join(f"{k}: {v}" for k, v in (
+                             req.params
+                             if isinstance(req.params, dict)
+                             else parse_qs(req.params, keep_blank_values=True)
+                         ).items()))
             try:
                 response = session.send(prepped_req, **settings)
             except _ConnectionError as error:
@@ -349,7 +353,15 @@ class Osc:
         Translate request parameters to API conform format
 
         .. note:: The build service does not handle URL-encoded Unicode well.
-                  Therefore parameters are encoded as ``bytes``.
+                  Therefore, parameters are encoded as ``bytes``.
+
+        .. warning:: The build service does not declare its parameters properly and developers do
+                     `not intend to fix`_ this server-side. If you want to use _boolean_ parameters,
+                     make sure to use ``True`` and ``False``. If you use ``0`` or ``1`` instead, you
+                     might receive unexpected results.
+
+                     .. _not intend to fix: https://github.com/openSUSE/open-build-service/issues
+                                            /9715
 
         :param params: Request parameter
         :type params: dict or str or io.BufferedReader
@@ -373,13 +385,26 @@ class Osc:
         if not isinstance(params, dict):
             return {}
 
-        for key in params:
-            if isinstance(params[key], bool):
-                params[key] = '1' if params[key] else '0'
+        # The OBS API has a weird expectation regarding boolean parameters and the maintainers have
+        # made it clear, that they are not going to clean up the API :(
+        # See: https://github.com/openSUSE/open-build-service/issues/9715
+        unexpected_bools = {key for key, value in params.items()
+                            if isinstance(value, bool) and key not in BOOLEAN_PARAMS}
+        if unexpected_bools:
+            warnings.warn(f"Received boolean query params, which are not expected to be: "
+                          f"{', '.join(unexpected_bools)}")
 
-        return {key.encode(): str(value).encode()
+        return "&".join(
+            quote(str(key))
+            if key in BOOLEAN_PARAMS or value is True
+            else f"{quote(str(key))}={quote(str(value))}"
+            for key, value in (
+                (key, value)
                 for key, value in params.items()
-                if value is not None}
+                if not ((key in BOOLEAN_PARAMS or isinstance(value, bool) or value is None)
+                        and value in [False, "0", 0, None])
+            )
+        ).encode()
 
     def get_objectified_xml(self, response):
         """

@@ -1,5 +1,6 @@
 # -*- coding: utf8 -*-
 import re
+from urllib.parse import parse_qs, urlparse
 
 from lxml.objectify import ObjectifiedElement
 from requests.exceptions import HTTPError
@@ -102,7 +103,9 @@ class TestIssue(OscTest):
     @responses.activate
     def test_get(self):
         def callback(headers, params, request):
-            if params.get("force_update", ["0"]) == ["1"]:
+            parsed = urlparse(request.url)
+            query_params = parse_qs(parsed.query, keep_blank_values=True)
+            if "force_update" in query_params:
                 status, body = 200, u"""
                 <issue>
                   <created_at>2020-01-04 14:12:00 UTC</created_at>
@@ -136,12 +139,12 @@ class TestIssue(OscTest):
             callback=CallbackFactory(callback)
         )
 
-        with self.subTest("Manual force update"):
+        with self.subTest("Force update"):
             response = self.osc.issues.get("bnc", 1160086, True)
             self.assertTrue(hasattr(response, "summary"))
             self.assertEqual(len(responses.calls), 2)
 
-        with self.subTest("Manual force update"):
+        with self.subTest("Update"):
             response = self.osc.issues.get("bnc", 1160086, False)
             self.assertTrue(hasattr(response, "summary"))
             # to whom it may concern: `responses.calls` does not get reset

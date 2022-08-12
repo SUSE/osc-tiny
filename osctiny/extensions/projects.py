@@ -133,8 +133,7 @@ class Project(ExtensionBase):
         :return: Objectified XML element
         :rtype: lxml.objectify.ObjectifiedElement
         """
-        if meta:
-            kwargs["meta"] = '1'
+        kwargs["meta"] = meta
         if rev:
             kwargs["rev"] = text_type(rev)
         response = self.osc.request(
@@ -297,7 +296,8 @@ class Project(ExtensionBase):
         """
         if rev:
             kwargs["rev"] = rev
-        kwargs["meta"] = "1" if meta else "0"
+
+        kwargs["meta"] = meta
 
         response = self.osc.request(
             url=urljoin(self.osc.url, "{}/{}/_project/_history".format(

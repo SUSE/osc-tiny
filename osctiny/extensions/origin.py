@@ -497,7 +497,8 @@ class Origin(ExtensionBase):
             return None
 
         if resolve_inheritance:
-            response = self.osc.packages.get_files(package=package, project=project, withlinked=1)
+            response = self.osc.packages.get_files(package=package, project=project,
+                                                   withlinked=True)
             links = response.xpath("linkinfo/linked")
             if len(links) > 0:
                 project = links[-1].get("project")
@@ -535,7 +536,7 @@ class Origin(ExtensionBase):
             warn("Project {} has no origin definition".format(project))
             return
 
-        packages = self.osc.projects.get_files(project, expand='1')
+        packages = self.osc.projects.get_files(project, expand=True)
 
         for package in getattr(packages, "entry", []):
             name = package.get("name")
