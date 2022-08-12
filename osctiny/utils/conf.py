@@ -22,6 +22,30 @@ except ImportError:
     _conf = None
 
 
+# Query parameters that are considered to be boolean by the build service
+BOOLEAN_PARAMS = (
+    "add_repositories",
+    "deleted",
+    "emptylink",
+    "expand",
+    "extend_package_names",
+    "extend_package_names",
+    "ignoredevel",
+    "keeplink",
+    "lastbuild",
+    "lastworking",
+    "locallink",
+    "meta",
+    "multibuild",
+    "noaccess",
+    "parse",
+    "repairlink",
+    "update_path_elements",
+    "withdownloadurl",
+    "withlinked",
+)
+
+
 def get_config_path() -> Path:
     """
     Return path of ``osc`` configuration file

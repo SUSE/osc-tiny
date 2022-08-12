@@ -22,19 +22,23 @@ class Package(ExtensionBase):
     base_path = "/source"
     new_package_meta_templ = "<package><title/><description/></package>"
 
-    def get_list(self, project, deleted=False):
+    def get_list(self, project: str, deleted: bool = False, expand: bool = True):
         """
         Get packages from project
 
         .. versionadded:: 0.1.7
             Parameter ``deleted``
 
+        .. versionadded:: 0.7.0
+            Parameter ``expand``
+
         :param project: name of project
         :param deleted: Show deleted packages instead
+        :param expand: Include inherited packages and their project of origin
         :return: Objectified XML element
         :rtype: lxml.objectify.ObjectifiedElement
         """
-        params = {"deleted": deleted}
+        params = {"deleted": deleted, "expand": expand}
         response = self.osc.request(
             url=urljoin(self.osc.url, "{}/{}".format(self.base_path, project)),
             method="GET",
@@ -148,7 +152,7 @@ class Package(ExtensionBase):
 
     # pylint: disable=too-many-arguments
     def get_file(self, project, package, filename, meta=False, rev=None,
-                 expand=0):
+                 expand=False):
         """
         Get a source file
 

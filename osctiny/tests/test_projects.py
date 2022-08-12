@@ -24,8 +24,8 @@ class TestProject(OscTest):
             </directory>
             """
             parsed = urlparse(request.url)
-            params.update(parse_qs(parsed.query))
-            if params.get("deleted", ["0"]) == ["1"]:
+            params.update(parse_qs(parsed.query, keep_blank_values=True))
+            if "deleted" in params:
                 status = 403
                 body = """<status code="no_permission_for_deleted">
                   <summary>only admins can see deleted projects</summary>
@@ -165,9 +165,9 @@ class TestProject(OscTest):
                 </directory>
             """
             parsed = urlparse(request.url)
-            params.update(parse_qs(parsed.query))
+            params.update(parse_qs(parsed.query, keep_blank_values=True))
 
-            if params.get("meta", ['0']) == ['1']:
+            if "meta" in params:
                 status = 200
                 body = """
                     <directory name="_project" rev="41" vrev="" 

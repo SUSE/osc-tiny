@@ -49,14 +49,14 @@ class Issue(ExtensionBase):
         )
         return self.osc.get_objectified_xml(response)
 
-    def get(self, tracker, name, force_update=None):
+    def get(self, tracker, name, force_update=False):
         """
         Get details for an issue
 
         :param str tracker: issue tracker name
         :param str name: issue name
-        :param force_update: If ``True``, BuildService will update the issue
-                             details internally prior to returning the response
+        :param bool force_update: If ``True``, BuildService will update the issue
+                                  details internally prior to returning the response
         :return: Objectified XML element
         :rtype: lxml.objectify.ObjectifiedElement
         """
