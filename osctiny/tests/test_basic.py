@@ -46,7 +46,7 @@ class BasicTest(OscTest):
                 with tmpfile2.open("r") as handle:
                     self.assertEqual(content, handle.read())
             finally:
-                tmpfile2.unlink(missing_ok=True)
+                tmpfile2.unlink()
 
     def test_handle_params(self):
         def _run(data, expected):
