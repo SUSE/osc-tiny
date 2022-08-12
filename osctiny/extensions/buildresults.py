@@ -115,19 +115,26 @@ class Build(ExtensionBase):
         return self.osc.get_objectified_xml(response)
 
     # pylint: disable=too-many-arguments
-    def get_binary(self, project, repo, arch, package, filename):
+    def get_binary(self, project, repo, arch, package, filename, raw=False):
         """
-        Get the build binary file
+        Get the content of file
+
+        .. note:: This method decodes the content of the file and returns a Python string by
+                  default.
 
         :param project: Project name
         :param repo: Repository name
         :param arch: Architecture name
         :param package: Package name
         :param filename: File name
-        :return: Raw response
-        :rtype: str
+        :param raw: If ``True``, return a byte string. Otherwise, a string is returned
+        :return: Content of binary file
+        :rtype: str or bytes
 
         .. versionadded:: 0.2.4
+
+        .. versionchanged:: 0.7.0
+            Added the ``raw`` parameter
         """
         response = self.osc.request(
             method="GET",
@@ -136,7 +143,34 @@ class Build(ExtensionBase):
             )),
         )
 
-        return response.text
+        return response.content if raw else response.text
+
+    def download_binary(self, project, repo, arch, package, filename, destdir, destfile=None,
+                        overwrite=False):
+        """
+        Download binary file to disk
+
+        :param project: Project name
+        :param repo: Repository name
+        :param arch: Architecture name
+        :param package: Package name
+        :param filename: File name
+        :param pathlib.Path destdir: Destination directory
+        :param str destfile: Target file name. If not specified, it will be taken from the URL
+        :param bool overwrite: switch to overwrite existing downloaded file
+        :return: Path of downloaded file
+        :rtype: pathlib.Path
+
+        .. versionadded:: 0.7.0
+        """
+        return self.osc.download(
+            url=urljoin(self.osc.url, "{}/{}/{}/{}/{}/{}".format(
+                self.base_path, project, repo, arch, package, filename
+            )),
+            destdir=destdir,
+            destfile=destfile,
+            overwrite=overwrite
+        )
 
     def cmd(self, project, cmd, **params):
         """

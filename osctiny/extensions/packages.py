@@ -3,7 +3,6 @@ Packages extension
 ------------------
 """
 from __future__ import unicode_literals
-import errno
 import os
 from six.moves.urllib.parse import urljoin
 from six import text_type
@@ -207,26 +206,20 @@ class Package(ExtensionBase):
 
         .. versionchanged:: 0.3.3
             Added the parameter ``expand``
+
+        .. versionchanged:: 0.7.0
+            Moved some logic to :py:meth:`osctiny.osc.Osc.download`
         """
-        abspath_filename = os.path.abspath(os.path.join(destdir, filename))
-        if os.path.isfile(destdir):
-            raise OSError(
-                errno.EEXIST, "Target directory is a file", destdir
-            )
-        if not overwrite and os.path.exists(abspath_filename):
-            raise OSError(
-                errno.EEXIST, "File already exists", abspath_filename
-            )
-        if not os.path.exists(destdir):
-            os.makedirs(destdir)
-
-        response = self.get_file(project, package, filename, meta=meta, rev=rev, expand=expand)
-
-        with open(abspath_filename, "wb") as handle:
-            for chunk in response.iter_content(1024):
-                handle.write(chunk)
-
-        return abspath_filename
+        return self.osc.download(
+            url=urljoin(self.osc.url,
+                        "{}/{}/{}/{}".format(self.base_path, project, package, filename)),
+            destdir=destdir,
+            destfile=filename,
+            overwrite=overwrite,
+            meta=meta,
+            rev=rev,
+            expand=expand
+        )
 
     def push_file(self, project, package, filename, data, comment=None):
         """

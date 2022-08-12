@@ -6,6 +6,7 @@ from __future__ import unicode_literals
 
 from base64 import b64encode
 import typing
+import errno
 from io import BufferedReader, BytesIO, StringIO
 import gc
 import logging
@@ -14,7 +15,7 @@ import re
 from ssl import get_default_verify_paths
 import time
 import threading
-from urllib.parse import quote
+from urllib.parse import quote, urlparse
 import warnings
 
 # pylint: disable=no-name-in-module
@@ -380,6 +381,41 @@ class Osc:
         return {key.encode(): str(value).encode()
                 for key, value in params.items()
                 if value is not None}
+
+    def download(self, url, destdir, destfile=None, overwrite=False, **params):
+        """
+        Shortcut for a streaming GET request
+
+        :param str url: Download URL
+        :param pathlib.Path destdir: Destination directory
+        :param str destfile: Target file name. If not specified, it will be taken from the URL
+        :param bool overwrite: switch to overwrite existing downloaded file
+        :param params: Additional query params
+        :return: absolute path to file or ``None``
+
+        .. versionadded:: 0.7.0
+        """
+        destdir = destdir if isinstance(destdir, Path) else Path(destdir)
+        if not destfile:
+            parsed = urlparse(url)
+            destfile = Path(parsed.path).name
+
+        if destdir.is_file():
+            raise OSError(errno.EEXIST, "Target directory is a file", destdir)
+
+        target = destdir.joinpath(destfile)
+        if not overwrite and target.exists():
+            raise OSError(errno.EEXIST, "File already exists", target)
+        if not destdir.exists():
+            destdir.mkdir(parents=True, exist_ok=True)
+
+        response = self.request(url=url, method="GET", stream=True, params=params)
+
+        with target.open("wb") as handle:
+            for chunk in response.iter_content(1024):
+                handle.write(chunk)
+
+        return target
 
     def get_objectified_xml(self, response):
         """
