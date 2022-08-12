@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
+import pathlib
 import re
+import tempfile
 from urllib.parse import unquote_plus, parse_qs
 
 import responses
@@ -9,6 +11,43 @@ from .base import OscTest, CallbackFactory
 
 
 class BasicTest(OscTest):
+    @responses.activate
+    def test_download(self):
+        filename = 'test-file.bin'
+        url = self.osc.url + '/' + filename
+        content = "Lørem îþsum dołor siŧ aµet ..."
+        self.mock_request(
+            method=responses.GET,
+            url=url,
+            body=content.encode()
+        )
+
+        tmpfile1 = pathlib.Path(tempfile.mkstemp()[1])
+        kwargs = {"url": url, "destdir": tmpfile1.parent, "destfile": tmpfile1.name}
+
+        with self.subTest("overwrite=False"):
+            self.assertRaises(OSError, self.osc.download, **kwargs)
+
+        with self.subTest("overwrite=True"):
+            kwargs2 = kwargs.copy()
+            kwargs2["overwrite"] = True
+            tmpfile2 = self.osc.download(**kwargs2)
+            self.assertEqual(tmpfile1, tmpfile2)
+            with tmpfile2.open("r") as handle:
+                self.assertEqual(content, handle.read())
+
+        with self.subTest("No destfile"):
+            kwargs2 = kwargs.copy()
+            del kwargs2["destfile"]
+            tmpfile2 = self.osc.download(**kwargs2)
+            try:
+                self.assertEqual(tmpfile1.parent, tmpfile2.parent)
+                self.assertEqual(tmpfile2.name, filename)
+                with tmpfile2.open("r") as handle:
+                    self.assertEqual(content, handle.read())
+            finally:
+                tmpfile2.unlink()
+
     def test_handle_params(self):
         def _run(data, expected):
             handled = self.osc.handle_params(data)
