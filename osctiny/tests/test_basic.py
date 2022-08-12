@@ -2,7 +2,7 @@
 import pathlib
 import re
 import tempfile
-from urllib.parse import unquote_plus
+from urllib.parse import unquote_plus, parse_qs
 
 import responses
 
@@ -60,23 +60,43 @@ class BasicTest(OscTest):
             ("føø bær", b"f\xc3\xb8\xc3\xb8 b\xc3\xa6r"),
             (
                 {"view": "xml", "withissues": 1},
-                {b"view": b"xml", b"withissues": b"1"}
+                b"view=xml&withissues=1"
             ),
             (
                 {"view": "xml", "withissues": True},
-                {b"view": b"xml", b"withissues": b"1"}
+                b"view=xml&withissues"
             ),
             (
                 {"view": "xml", "withissues": 0},
-                {b"view": b"xml", b"withissues": b"0"}
+                b"view=xml&withissues=0"
             ),
             (
                 {"view": "xml", "withissues": False},
-                {b"view": b"xml", b"withissues": b"0"}
+                b"view=xml"
             ),
             (
                 {"view": "xml", "withissues": None},
-                {b"view": b"xml"}
+                b"view=xml"
+            ),
+            (
+                {"view": "xml", "withissues": None},
+                b"view=xml"
+            ),
+            (
+                {"view": "xml", "deleted": 1},
+                b"view=xml&deleted"
+            ),
+            (
+                {"view": "xml", "deleted": 0},
+                b"view=xml"
+            ),
+            (
+                {"view": "xml", "deleted": False},
+                b"view=xml"
+            ),
+            (
+                {"view": "xml", "deleted": True},
+                b"view=xml&deleted"
             ),
         )
 
@@ -128,3 +148,30 @@ class BasicTest(OscTest):
         for name, filename in data:
             with self.subTest(name):
                 self.osc.request(f"{self.osc.url}file/{filename}")
+
+    @responses.activate
+    def test_request_boolean_params(self):
+        pattern = re.compile(self.osc.url + r'/\?(?P<query>.*)')
+
+        def callback(headers, params, request):
+            match = pattern.match(request.url)
+
+            parsed = parse_qs(match.group("query"), keep_blank_values=True)
+            self.assertEqual(parsed, expected)
+            return 200, headers, ""
+
+        self.mock_request(
+            method=responses.GET,
+            url=pattern,
+            callback=CallbackFactory(callback)
+        )
+
+        for path, expected in (
+                (b"foo", {"foo": [""]}),
+                (b"foo=bar", {"foo": ["bar"]}),
+                (b"foo=foo&bar", {"foo": ["foo"], "bar": [""]}),
+                (b"foo=foo?bar", {"foo": ["foo?bar"]}),
+                (b"foo=foo=bar", {"foo": ["foo=bar"]})
+        ):
+            with self.subTest(path):
+                self.osc.request(self.osc.url, params=path)
