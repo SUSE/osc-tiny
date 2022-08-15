@@ -204,10 +204,10 @@ class Project(ExtensionBase):
         attr_xml = fromstring(TEMPLATE_CREATE_ATTR)
         attr_xml.attribute.set('namespace', match.group("prefix"))
         attr_xml.attribute.set('name', match.group("name"))
-        for v in value:
+        for val in value:
             elem = SubElement(attr_xml.attribute, "value")
             # pylint: disable=protected-access
-            elem._setText(text_type(v))
+            elem._setText(text_type(val))
 
         response = self.osc.request(
             url=url,
