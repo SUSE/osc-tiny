@@ -267,6 +267,7 @@ class TestProject(OscTest):
     @responses.activate
     def test_set_attribute(self):
         def callback(headers, params, request):
+            self.assertEqual(request.body, expected)
             status, body = 200, "<status code='ok'></status>"
             return status, headers, body
 
@@ -278,13 +279,27 @@ class TestProject(OscTest):
             callback=CallbackFactory(callback)
         )
 
-        self.assertTrue(
-            self.osc.projects.set_attribute(
-                project="test:project",
-                attribute="namespace:attr",
-                value="value"
+        with self.subTest("Single value"):
+            expected = b'<attributes><attribute namespace="namespace" name="attr">' \
+                       b'<value>value</value></attribute></attributes>'
+            self.assertTrue(
+                self.osc.projects.set_attribute(
+                    project="test:project",
+                    attribute="namespace:attr",
+                    value="value"
+                )
             )
-        )
+
+        with self.subTest("Two values"):
+            expected = b'<attributes><attribute namespace="namespace" name="attr">' \
+                       b'<value>value1</value><value>value2</value></attribute></attributes>'
+            self.assertTrue(
+                self.osc.projects.set_attribute(
+                    project="test:project",
+                    attribute="namespace:attr",
+                    value=["value1", "value2"]
+                )
+            )
 
     @responses.activate
     def test_delete_attribute(self):

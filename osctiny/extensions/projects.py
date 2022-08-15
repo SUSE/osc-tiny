@@ -8,13 +8,12 @@ from six.moves.urllib.parse import urljoin
 from six import text_type
 
 from lxml.etree import tounicode
-from lxml.objectify import fromstring
+from lxml.objectify import fromstring, SubElement
 
 from ..utils.base import ExtensionBase
 
 
-TEMPLATE_CREATE_ATTR = "<attributes><attribute namespace='' name=''>" \
-                       "<value></value></attribute></attributes>"
+TEMPLATE_CREATE_ATTR = "<attributes><attribute namespace='' name=''></attribute></attributes>"
 TEMPLATE_META = "<project name=''><title></title><description></description>" \
                 "<person userid='' role='bugowner'/>" \
                 "<person userid='' role='maintainer'/>" \
@@ -184,9 +183,12 @@ class Project(ExtensionBase):
 
         :param project: project name
         :param attribute: attribute name (can include prefix separated by colon)
-        :param value: attribute value
+        :param value: attribute value or list of values
         :return: ``True``, if successful. Otherwise API response
         :rtype: bool or lxml.objectify.ObjectifiedElement
+
+        .. versionchanged:: 0.7.0
+            Support attributes with multiple values
         """
         url = urljoin(
             self.osc.url,
@@ -198,11 +200,14 @@ class Project(ExtensionBase):
         if match is None:
             raise ValueError("Invalid attribute format: {}".format(attribute))
 
+        value = value if isinstance(value, (list, tuple, set)) else [value]
         attr_xml = fromstring(TEMPLATE_CREATE_ATTR)
         attr_xml.attribute.set('namespace', match.group("prefix"))
         attr_xml.attribute.set('name', match.group("name"))
-        # pylint: disable=protected-access
-        attr_xml.attribute.value._setText(text_type(value))
+        for v in value:
+            elem = SubElement(attr_xml.attribute, "value")
+            # pylint: disable=protected-access
+            elem._setText(text_type(v))
 
         response = self.osc.request(
             url=url,
