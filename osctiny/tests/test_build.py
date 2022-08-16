@@ -15,7 +15,7 @@ class BuildTest(OscTest):
             status = 500
             body = ""
             parsed = urlparse(request.url)
-            params.update(parse_qs(parsed.query))
+            params.update(parse_qs(parsed.query, keep_blank_values=True))
 
             if not params:
                 status = 200

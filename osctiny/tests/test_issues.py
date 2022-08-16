@@ -105,7 +105,7 @@ class TestIssue(OscTest):
         def callback(headers, params, request):
             parsed = urlparse(request.url)
             query_params = parse_qs(parsed.query, keep_blank_values=True)
-            if "force_update" in query_params:
+            if query_params.get("force_update", ["0"]) == ["1"]:
                 status, body = 200, u"""
                 <issue>
                   <created_at>2020-01-04 14:12:00 UTC</created_at>
@@ -134,8 +134,7 @@ class TestIssue(OscTest):
 
         self.mock_request(
             method=responses.GET,
-            url=re.compile(self.osc.url +
-                           r'/issue_trackers/bnc/issues/1160086/?.*'),
+            url=re.compile(self.osc.url + r'/issue_trackers/bnc/issues/1160086/?.*'),
             callback=CallbackFactory(callback)
         )
 

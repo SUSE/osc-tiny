@@ -58,13 +58,14 @@ class BasicTest(OscTest):
             (1, {}),
             ("hello world", b"hello world"),
             ("føø bær", b"f\xc3\xb8\xc3\xb8 b\xc3\xa6r"),
+            # 'withissues' is not a boolean param in the API
             (
                 {"view": "xml", "withissues": 1},
                 b"view=xml&withissues=1"
             ),
             (
                 {"view": "xml", "withissues": True},
-                b"view=xml&withissues"
+                b"view=xml&withissues=1"
             ),
             (
                 {"view": "xml", "withissues": 0},
@@ -72,22 +73,27 @@ class BasicTest(OscTest):
             ),
             (
                 {"view": "xml", "withissues": False},
-                b"view=xml"
+                b"view=xml&withissues=0"
             ),
             (
                 {"view": "xml", "withissues": None},
                 b"view=xml"
             ),
-            (
-                {"view": "xml", "withissues": None},
-                b"view=xml"
-            ),
+            # 'deleted' is a boolean param in the API
             (
                 {"view": "xml", "deleted": 1},
                 b"view=xml&deleted"
             ),
             (
                 {"view": "xml", "deleted": 0},
+                b"view=xml"
+            ),
+            (
+                {"view": "xml", "deleted": "1"},
+                b"view=xml&deleted"
+            ),
+            (
+                {"view": "xml", "deleted": "0"},
                 b"view=xml"
             ),
             (

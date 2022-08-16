@@ -76,7 +76,8 @@ def callback(headers, params, request):
           <description>Required package for FATE#315181 (virt-v2v)
           </description>
         """
-        if "withhistory" in params or "withfullhistory" in params:
+        if params.get("withhistory", ['0']) == ['1'] \
+                or params.get("withfullhistory", ['0']) == ['1']:
             body += """
                 <history who="foo" when="2014-01-22T17:51:08">
                   <description>Request created</description>
@@ -96,7 +97,7 @@ def callback(headers, params, request):
                   </comment>
                 </history>
             """
-        if "withfullhistory" in params:
+        if params.get("withfullhistory", ['0']) == ['1']:
             body += """
                   <history who="acceptor" when="2014-01-23T19:24:37">
                     <description>Review got accepted</description>
