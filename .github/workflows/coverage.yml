@@ -1,5 +1,5 @@
 name: Post coverage comment
-
+permissions: read-all|write-all
 on:
   workflow_run:
     workflows: ["Tests"]
