@@ -389,22 +389,26 @@ class Osc:
         # The OBS API has a weird expectation regarding boolean parameters and the maintainers have
         # made it clear, that they are not going to clean up the API :(
         # See: https://github.com/openSUSE/open-build-service/issues/9715
+        # Also, there are parameters giving the impression that they are boolean, but actually are
+        # not.
         unexpected_bools = {key for key, value in params.items()
                             if isinstance(value, bool) and key not in BOOLEAN_PARAMS}
         if unexpected_bools:
             warnings.warn(f"Received boolean query params, which are not expected to be: "
                           f"{', '.join(unexpected_bools)}")
+            for key in unexpected_bools:
+                params[key] = '1' if params[key] else '0'
 
         return "&".join(
             quote(str(key))
-            if key in BOOLEAN_PARAMS or value is True
+            if key in BOOLEAN_PARAMS
             else f"{quote(str(key))}={quote(str(value))}"
             for key, value in (
                 (key, value)
                 for key, value in params.items()
-                if not ((key in BOOLEAN_PARAMS or isinstance(value, bool) or value is None)
-                        and value in [False, "0", 0, None])
+                if not (key in BOOLEAN_PARAMS and value in [False, "0", 0, None, ""])
             )
+            if value is not None
         ).encode()
 
     def download(self, url, destdir, destfile=None, overwrite=False, **params):
