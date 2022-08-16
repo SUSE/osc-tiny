@@ -59,7 +59,7 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt responses coverage
       - name: Test
-        run: coverage run --rcfile coverage.rc -m unittest discover
+        run: coverage run --rcfile=.coveragerc -m unittest discover
         env:
           COVERAGE_FILE: ".coverage.${{ matrix.python_version }}"
       - name: Store coverage file
