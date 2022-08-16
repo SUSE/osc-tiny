@@ -62,11 +62,26 @@ jobs:
         run: coverage run --rcfile coverage.rc -m unittest discover
         env:
           COVERAGE_FILE: ".coverage.${{ matrix.python_version }}"
+      - name: Store coverage file
+        uses: actions/upload-artifact@v2
+        with:
+          name: coverage
+          path: .coverage.${{ matrix.python_version }}
+      - uses: actions/checkout@v2
+  coverage:
+    runs-on: ubuntu-latest
+    needs: test
+    steps:
+      - uses: actions/download-artifact@v2
+        id: download
+        with:
+          name: 'coverage'
       - name: Coverage comment
         id: coverage_comment
         uses: ewjoachim/python-coverage-comment-action@v2
         with:
           GITHUB_TOKEN: ${{ github.token }}
+          MERGE_COVERAGE_FILES: true
       - name: Store Pull Request comment to be posted
         uses: actions/upload-artifact@v2
         if: steps.coverage_comment.outputs.COMMENT_FILE_WRITTEN == 'true'
