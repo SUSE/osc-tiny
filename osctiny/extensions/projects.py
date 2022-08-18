@@ -89,6 +89,12 @@ class Project(ExtensionBase):
 
         metafile.set("name", project)
 
+        if metafile.find('title') is None:
+            SubElement(metafile, 'title')
+
+        if metafile.find('description') is None:
+            SubElement(metafile, 'description')
+
         # pylint: disable=protected-access
         if title:
             metafile.title._setText(title)
