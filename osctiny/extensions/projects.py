@@ -15,8 +15,6 @@ from ..utils.base import ExtensionBase
 
 TEMPLATE_CREATE_ATTR = "<attributes><attribute namespace='' name=''></attribute></attributes>"
 TEMPLATE_META = "<project name=''><title></title><description></description>" \
-                "<person userid='' role='bugowner'/>" \
-                "<person userid='' role='maintainer'/>" \
                 "<build><enable/></build><publish><disable/></publish>" \
                 "<debuginfo><enable/></debuginfo></project>"
 
@@ -96,14 +94,22 @@ class Project(ExtensionBase):
             metafile.title._setText(title)
         if description:
             metafile.description._setText(description)
+
         if bugowner:
+            # Create the element if it doesn't exist
             person = metafile.xpath("person[@role='bugowner']")
-            if person:
-                person[0].set("userid", bugowner)
+            if not person:
+                SubElement(metafile, 'person', role='bugowner')
+                person = metafile.xpath("person[@role='bugowner']")
+            person[0].set("userid", bugowner)
+
         if maintainer:
+            # Create the element if it doesn't exist
             person = metafile.xpath("person[@role='maintainer']")
-            if person:
-                person[0].set("userid", maintainer)
+            if not person:
+                SubElement(metafile, 'person', role='maintainer')
+                person = metafile.xpath("person[@role='maintainer']")
+            person[0].set("userid", maintainer)
 
         response = self.osc.request(
             url=urljoin(self.osc.url,
