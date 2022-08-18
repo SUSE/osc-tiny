@@ -117,6 +117,9 @@ class Project(ExtensionBase):
                 person = metafile.xpath("person[@role='maintainer']")
             person[0].set("userid", maintainer)
 
+        metafile.insert(0, metafile.title)
+        metafile.insert(1, metafile.description)
+
         response = self.osc.request(
             url=urljoin(self.osc.url,
                         "/".join((self.base_path, project, "_meta"))),
