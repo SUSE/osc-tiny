@@ -98,7 +98,7 @@ class Project(ExtensionBase):
 
         If no ``metafile`` is provided, a default template is used.
 
-        .. versionadded:: 0.7.0
+        .. versionadded:: 0.7.2
 
         :param project: name of project
         :param metafile: Complete metafile
