@@ -4,6 +4,8 @@ Projects extension
 """
 from __future__ import unicode_literals
 import re
+from warnings import warn
+
 from six.moves.urllib.parse import urljoin
 from six import text_type
 
@@ -70,6 +72,31 @@ class Project(ExtensionBase):
         If no ``metafile`` is provided, a default template is used.
 
         .. versionadded:: 0.1.5
+
+        :param project: name of project
+        :param metafile: Complete metafile
+        :type metafile: str or ElementTree
+        :param title: Title for meta file
+        :param description: Description for meta file
+        :param bugowner: Bugowner for meta file
+        :param maintainer: Maintainer for meta file
+        :return: ``True``, if successful. Otherwise API response
+        :rtype: bool or lxml.objectify.ObjectifiedElement
+        """
+        warn("Deprecated. Use projects.set_meta instead")
+
+        return self.set_meta(project, metafile, title, description, bugowner,
+                      maintainer)
+
+    # pylint: disable=too-many-arguments
+    def set_meta(self, project, metafile=None, title=None, description=None,
+                 bugowner=None, maintainer=None):
+        """
+        Edit project meta data or create a new project
+
+        If no ``metafile`` is provided, a default template is used.
+
+        .. versionadded:: 0.7.0
 
         :param project: name of project
         :param metafile: Complete metafile
@@ -373,4 +400,4 @@ class Project(ExtensionBase):
 
         return response.status_code == 200
 
-    create = put_meta
+    create = set_meta
