@@ -394,8 +394,6 @@ class Osc:
         unexpected_bools = {key for key, value in params.items()
                             if isinstance(value, bool) and key not in BOOLEAN_PARAMS}
         if unexpected_bools:
-            warnings.warn(f"Received boolean query params, which are not expected to be: "
-                          f"{', '.join(unexpected_bools)}")
             for key in unexpected_bools:
                 params[key] = '1' if params[key] else '0'
 
