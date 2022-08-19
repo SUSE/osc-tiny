@@ -73,6 +73,8 @@ class Project(ExtensionBase):
 
         .. versionadded:: 0.1.5
 
+        .. deprecated:: 0.7.2
+           Use :meth:`set_meta` instead
         :param project: name of project
         :param metafile: Complete metafile
         :type metafile: str or ElementTree
