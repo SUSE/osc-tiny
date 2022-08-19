@@ -1,7 +1,7 @@
 import re
 from urllib.parse import urlparse, parse_qs
 
-from lxml.objectify import fromstring
+from lxml.objectify import fromstring, Element
 from requests.exceptions import HTTPError
 import responses
 
@@ -122,9 +122,10 @@ class TestProject(OscTest):
             except Exception:
                 pass
             else:
-                match = re.search("source/(?P<project>[^/]+)/_meta",
-                                  request.url)
-                if match and meta.get("name") == match.group("project"):
+                match = re.search("source/(?P<project>[^/]+)/_meta", request.url)
+                children = meta.getchildren()
+                if match and meta.get("name") == match.group("project") \
+                        and children[0].tag == "title":
                     status = 200
                     body = """<status code='ok'></status>"""
 
@@ -152,6 +153,29 @@ class TestProject(OscTest):
                 method="PUT",
                 data=TEMPLATE_META
             )
+
+        with self.subTest("Valid Metafile"):
+            meta = fromstring(TEMPLATE_META)
+            meta.set("name", "project:foo")
+            meta.title._setText("Hello World")
+            self.assertTrue(self.osc.projects.put_meta(project="project:foo", metafile=meta))
+            sent_meta = fromstring(responses.calls[-1].request.body.decode())
+            self.assertEqual(sent_meta.title.text, "Hello World")
+
+        with self.subTest("Bare Metafile"):
+            meta = Element("project")
+            self.assertTrue(self.osc.projects.put_meta(
+                project="project:foo",
+                metafile=meta,
+                title="test title",
+                description="test description",
+                bugowner="bugowner",
+                maintainer="maintainer"
+            ))
+            sent_meta = fromstring(responses.calls[-1].request.body.decode())
+            self.assertEqual(sent_meta.title.text, "test title")
+            self.assertEqual(sent_meta.description.text, "test description")
+            self.assertEqual(len(sent_meta.xpath("person")), 2)
 
     @responses.activate
     def test_get_files(self):
