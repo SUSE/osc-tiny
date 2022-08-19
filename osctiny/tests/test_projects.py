@@ -113,7 +113,7 @@ class TestProject(OscTest):
             )
 
     @responses.activate
-    def test_put_meta(self):
+    def test_set_meta(self):
         def callback(headers, params, request):
             status = 500
             body = "<status code='error'></status>"
@@ -139,7 +139,7 @@ class TestProject(OscTest):
         )
 
         with self.subTest("Valid request"):
-            self.assertTrue(self.osc.projects.put_meta(
+            self.assertTrue(self.osc.projects.set_meta(
                 project="test",
                 title="foo bar",
                 description="lorem ipsum dolor sit amet ..."
@@ -158,13 +158,13 @@ class TestProject(OscTest):
             meta = fromstring(TEMPLATE_META)
             meta.set("name", "project:foo")
             meta.title._setText("Hello World")
-            self.assertTrue(self.osc.projects.put_meta(project="project:foo", metafile=meta))
+            self.assertTrue(self.osc.projects.set_meta(project="project:foo", metafile=meta))
             sent_meta = fromstring(responses.calls[-1].request.body.decode())
             self.assertEqual(sent_meta.title.text, "Hello World")
 
         with self.subTest("Bare Metafile"):
             meta = Element("project")
-            self.assertTrue(self.osc.projects.put_meta(
+            self.assertTrue(self.osc.projects.set_meta(
                 project="project:foo",
                 metafile=meta,
                 title="test title",
