@@ -89,33 +89,26 @@ class Project(ExtensionBase):
 
         metafile.set("name", project)
 
-        if metafile.find('title') is None:
-            SubElement(metafile, 'title')
+        for required_field, text in (('title', title), ('description', description)):
+            elem = metafile.find(required_field)
+            if elem is None:
+                elem = SubElement(metafile, required_field)
 
-        if metafile.find('description') is None:
-            SubElement(metafile, 'description')
+            if text is not None:
+                # pylint: disable=protected-access
+                elem._setText(text)
 
-        # pylint: disable=protected-access
-        if title:
-            metafile.title._setText(title)
-        if description:
-            metafile.description._setText(description)
+        def add_person(role: str, userid: str) -> None:
+            person = metafile.xpath(f"person[@role='{role}']")
+            if not person:
+                person = [SubElement(metafile, 'person', role=role)]
+            person[0].set("userid", userid)
 
         if bugowner:
-            # Create the element if it doesn't exist
-            person = metafile.xpath("person[@role='bugowner']")
-            if not person:
-                SubElement(metafile, 'person', role='bugowner')
-                person = metafile.xpath("person[@role='bugowner']")
-            person[0].set("userid", bugowner)
+            add_person("bugowner", bugowner)
 
         if maintainer:
-            # Create the element if it doesn't exist
-            person = metafile.xpath("person[@role='maintainer']")
-            if not person:
-                SubElement(metafile, 'person', role='maintainer')
-                person = metafile.xpath("person[@role='maintainer']")
-            person[0].set("userid", maintainer)
+            add_person("maintainer", maintainer)
 
         metafile.insert(0, metafile.title)
         metafile.insert(1, metafile.description)
