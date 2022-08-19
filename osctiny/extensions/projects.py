@@ -15,8 +15,6 @@ from ..utils.base import ExtensionBase
 
 TEMPLATE_CREATE_ATTR = "<attributes><attribute namespace='' name=''></attribute></attributes>"
 TEMPLATE_META = "<project name=''><title></title><description></description>" \
-                "<person userid='' role='bugowner'/>" \
-                "<person userid='' role='maintainer'/>" \
                 "<build><enable/></build><publish><disable/></publish>" \
                 "<debuginfo><enable/></debuginfo></project>"
 
@@ -91,19 +89,29 @@ class Project(ExtensionBase):
 
         metafile.set("name", project)
 
-        # pylint: disable=protected-access
-        if title:
-            metafile.title._setText(title)
-        if description:
-            metafile.description._setText(description)
+        for required_field, text in (('title', title), ('description', description)):
+            elem = metafile.find(required_field)
+            if elem is None:
+                elem = SubElement(metafile, required_field)
+
+            if text is not None:
+                # pylint: disable=protected-access
+                elem._setText(text)
+
+        def add_person(role: str, userid: str) -> None:
+            person = metafile.xpath(f"person[@role='{role}']")
+            if not person:
+                person = [SubElement(metafile, 'person', role=role)]
+            person[0].set("userid", userid)
+
         if bugowner:
-            person = metafile.xpath("person[@role='bugowner']")
-            if person:
-                person[0].set("userid", bugowner)
+            add_person("bugowner", bugowner)
+
         if maintainer:
-            person = metafile.xpath("person[@role='maintainer']")
-            if person:
-                person[0].set("userid", maintainer)
+            add_person("maintainer", maintainer)
+
+        metafile.insert(0, metafile.title)
+        metafile.insert(1, metafile.description)
 
         response = self.osc.request(
             url=urljoin(self.osc.url,
