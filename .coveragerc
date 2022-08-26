@@ -1,5 +1,6 @@
 [run]
 relative_files = true
+source = .
 omit =
     /doc/*
     */tests/*

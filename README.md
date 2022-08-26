@@ -1,7 +1,7 @@
 OSC Tiny
 ========
 
-![Build Status](https://github.com/crazyscientist/osc-tiny/actions/workflows/default.yml/badge.svg?branch=master)]
+![Build Status](https://github.com/crazyscientist/osc-tiny/actions/workflows/default.yml/badge.svg?branch=master)
 ![Publish Status](https://github.com/crazyscientist/osc-tiny/actions/workflows/publish.yml/badge.svg)
 [![PyPI version](https://badge.fury.io/py/osc-tiny.svg)](https://badge.fury.io/py/osc-tiny)
 
