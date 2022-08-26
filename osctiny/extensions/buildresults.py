@@ -3,8 +3,7 @@ Build result extension
 ----------------------
 """
 # pylint: disable=too-few-public-methods
-from __future__ import unicode_literals
-from six.moves.urllib.parse import urljoin
+from urllib.parse import urljoin
 
 from ..utils.base import ExtensionBase
 

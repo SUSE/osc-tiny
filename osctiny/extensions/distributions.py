@@ -2,10 +2,7 @@
 Distributions extension
 -----------------------
 """
-from __future__ import unicode_literals
-
-from six.moves.urllib.parse import urljoin
-from six import text_type
+from urllib.parse import urljoin
 
 from ..utils.base import ExtensionBase
 
@@ -49,7 +46,7 @@ class Distribution(ExtensionBase):
         response = self.osc.request(
             url=urljoin(
                 self.osc.url,
-                "/".join((self.base_path, text_type(distribution_id)))
+                "/".join((self.base_path, str(distribution_id)))
             ),
             method="GET"
         )

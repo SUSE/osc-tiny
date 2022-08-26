@@ -129,7 +129,7 @@ class Osc:
     default_connection_retries = 5
     default_retry_timeout = 5
 
-    def __init__(self, url: str = None, username: typing.Optional[str] = None,
+    def __init__(self, url: typing.Optional[str] = None, username: typing.Optional[str] = None,
                  password: typing.Optional[str] = None, verify: typing.Optional[str] = None,
                  cache: bool = False,
                  ssh_key_file: typing.Optional[typing.Union[Path, str]] = None):
