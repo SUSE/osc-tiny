@@ -2,11 +2,9 @@
 Issues extension
 ----------------
 """
-from __future__ import unicode_literals
 import os
 
-from six.moves.urllib.parse import urljoin
-from six import text_type
+from urllib.parse import urljoin
 
 from ..utils.backports import lru_cache
 from ..utils.base import ExtensionBase
@@ -22,7 +20,7 @@ class Issue(ExtensionBase):
 
     @staticmethod
     def _validate(value):
-        return text_type(value)
+        return str(value)
 
     @lru_cache(maxsize=1)
     def get_trackers(self):

@@ -2,12 +2,9 @@
 Projects extension
 ------------------
 """
-from __future__ import unicode_literals
 import re
+from urllib.parse import urljoin
 from warnings import warn
-
-from six.moves.urllib.parse import urljoin
-from six import text_type
 
 from lxml.etree import tounicode
 from lxml.objectify import fromstring, SubElement
@@ -113,7 +110,7 @@ class Project(ExtensionBase):
         if metafile is None:
             metafile = TEMPLATE_META
 
-        if isinstance(metafile, text_type):
+        if isinstance(metafile, (str, bytes)):
             metafile = fromstring(metafile)
 
         metafile.set("name", project)
@@ -171,7 +168,7 @@ class Project(ExtensionBase):
         """
         kwargs["meta"] = meta
         if rev:
-            kwargs["rev"] = text_type(rev)
+            kwargs["rev"] = str(rev)
         response = self.osc.request(
             url=urljoin(
                 self.osc.url,
@@ -244,7 +241,7 @@ class Project(ExtensionBase):
         for val in value:
             elem = SubElement(attr_xml.attribute, "value")
             # pylint: disable=protected-access
-            elem._setText(text_type(val))
+            elem._setText(str(val))
 
         response = self.osc.request(
             url=url,
