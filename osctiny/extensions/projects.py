@@ -386,7 +386,7 @@ class Project(ExtensionBase):
         .. versionadded:: 0.1.2
 
         :param project: Project name
-        :return: ``True``, if package exists, otherwise ``False``
+        :return: ``True``, if project exists, otherwise ``False``
         """
         response = self.osc.request(
             url=urljoin(
