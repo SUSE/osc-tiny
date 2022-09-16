@@ -341,7 +341,9 @@ class Osc:
                 logger.info("Server replied with status %d", response.status_code)
                 logger.debug("Response headers:\n%s\n---",
                              "\n".join(f"{k}: {v}" for k, v in response.headers.items()))
-                logger.debug("Response content:\n%s\n---", response.text)
+                if not stream:
+                    # The response content must not be accessed when streaming
+                    logger.debug("Response content:\n%s\n---", response.text)
                 if raise_for_status:
                     response.raise_for_status()
                 return response
