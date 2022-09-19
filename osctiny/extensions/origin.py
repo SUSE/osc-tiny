@@ -27,15 +27,9 @@ from warnings import warn
 
 from yaml import load
 
-from ..utils.backports import lru_cache
+from ..utils.backports import lru_cache, cached_property
 from ..utils.base import ExtensionBase
 from ..utils.mapping import LazyOscMappable
-
-try:
-    from functools import cached_property
-except ImportError:
-    # Support for Python3 prior 3.8
-    from cached_property import cached_property
 
 try:
     from yaml import CSafeLoader as SafeLoader

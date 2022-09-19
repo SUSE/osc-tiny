@@ -49,8 +49,9 @@ class BasicTest(OscTest):
                 tmpfile2.unlink()
 
     def test_handle_params(self):
-        def _run(data, expected):
-            handled = self.osc.handle_params(data)
+        def _run(data, expected, url="https://api.example.com/source/PROJECT/PACKAGE",
+                 method="GET"):
+            handled = self.osc.handle_params(url=url, method=method, params=data)
             self.assertEqual(handled, expected)
 
         data = (
@@ -79,7 +80,7 @@ class BasicTest(OscTest):
                 {"view": "xml", "withissues": None},
                 b"view=xml"
             ),
-            # 'deleted' is a boolean param in the API
+            # 'deleted' is a boolean param in the project endpoint
             (
                 {"view": "xml", "deleted": 1},
                 b"view=xml&deleted"
@@ -104,11 +105,33 @@ class BasicTest(OscTest):
                 {"view": "xml", "deleted": True},
                 b"view=xml&deleted"
             ),
+            # 'expand' is no boolean param in the project endpoint
+            (
+                {"expand": True},
+                b"expand=1",
+                "https://api.example.com/source/PROJECT",
+            ),
+            (
+                {"expand": False},
+                b"expand=0",
+                "https://api.example.com/source/PROJECT",
+            ),
+            # 'expand' is a boolean param in the package endpoint
+            (
+                {"expand": False},
+                b"",
+                "https://api.example.com/source/PROJECT/PACKAGE",
+            ),
+            (
+                {"expand": True},
+                b"expand",
+                "https://api.example.com/source/PROJECT/PACKAGE",
+            ),
         )
 
-        for params, expected in data:
-            with self.subTest(params):
-                _run(params, expected)
+        for dataset in data:
+            with self.subTest(dataset[0]):
+                _run(*dataset)
 
     def test_attrib_regexp(self):
         def _run(attr, expected):

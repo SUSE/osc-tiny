@@ -23,27 +23,22 @@ except ImportError:
 
 
 # Query parameters that are considered to be boolean by the build service
-BOOLEAN_PARAMS = (
-    "add_repositories",
-    "deleted",
-    "emptylink",
-    "expand",
-    "extend_package_names",
-    "extend_package_names",
-    "ignoredevel",
-    "keeplink",
-    "lastbuild",
-    "lastworking",
-    "locallink",
-    "meta",
-    "multibuild",
-    "noaccess",
-    "parse",
-    "repairlink",
-    "update_path_elements",
-    "withdownloadurl",
-    "withlinked",
-)
+BOOLEAN_PARAMS = {
+    "^/source/[^/]+/[^/]+/?$": {
+        'GET': ('emptylink', 'expand', 'meta', 'lastworking', 'withlinked', 'deleted', 'parse'),
+        'POST': ('ignoredevel', 'add_repositories', 'noaccess', 'update_path_elements',
+                 'extend_package_names', 'extend_package_names', 'keeplink', 'repairlink')
+    },
+    "^/source/[^/]+/[^/]+/[^/]+$": {
+        'PUT': ('keeplink',)
+    },
+    "^/build/[^/]+/_result$": {
+        'GET': ('lastbuild', 'locallink', 'multibuild')
+    },
+    "search/published/(binary|repoinfo|pattern)/id$": {
+        'GET': ('withdownloadurl',)
+    }
+}
 
 
 def get_config_path() -> Path:

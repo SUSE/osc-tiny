@@ -16,3 +16,11 @@ except ImportError:
             return fun
 
         return wrapper
+
+
+try:
+    # pylint: disable=unused-import
+    from functools import cached_property
+except ImportError:
+    # Support for Python3 prior 3.8
+    from cached_property import cached_property
