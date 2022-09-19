@@ -314,7 +314,8 @@ class Package(ExtensionBase):
 
         .. note:: Command ``diff``
 
-            The ``diff`` command returns plain text instaed of XML!
+            The ``diff`` command returns plain text, instead of XML, by default!
+            To get XML, pass the ``view='xml'`` param.
 
         :param project: name of project
         :param package: name of package
