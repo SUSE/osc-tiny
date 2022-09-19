@@ -23,7 +23,7 @@ from lxml.objectify import fromstring, makeparser
 from requests import Session, Request
 from requests.auth import HTTPBasicAuth
 from requests.cookies import RequestsCookieJar, cookiejar_from_dict
-from requests.exceptions import ConnectionError as _ConnectionError
+from requests.exceptions import ConnectionError
 
 from .extensions.buildresults import Build
 from .extensions.comments import Comment
@@ -330,7 +330,7 @@ class Osc:
                          ).items()))
             try:
                 response = session.send(prepped_req, **settings)
-            except _ConnectionError as error:
+            except ConnectionError as error:
                 warnings.warn("Problem connecting to server: {}".format(error))
                 log_method = logger.error if i < 1 else logger.warning
                 log_method("Request failed: %s", error)
