@@ -36,6 +36,7 @@ from .extensions.bs_requests import Request as BsRequest
 from .extensions.search import Search
 from .extensions.users import Group, Person
 from .utils.auth import HttpSignatureAuth
+from .utils.backports import cached_property
 from .utils.conf import BOOLEAN_PARAMS, get_credentials
 from .utils.errors import OscError
 
@@ -301,8 +302,8 @@ class Osc:
         req = Request(
             method,
             url.replace("#", quote("#")).replace("?", quote("?")),
-            data=self.handle_params(data),
-            params=self.handle_params(params)
+            data=self.handle_params(url=url, method=method, params=data),
+            params=self.handle_params(url=url, method=method, params=params)
         )
         prepped_req = session.prepare_request(req)
         prepped_req.headers['Content-Type'] = "application/octet-stream"
@@ -350,8 +351,29 @@ class Osc:
 
         return None
 
-    @staticmethod
-    def handle_params(params):
+    @cached_property
+    def _boolean_param_map(self) -> typing.Dict[typing.Pattern, typing.Dict[str,
+                                                                            typing.Tuple[str]]]:
+        """
+        Return mapping table to identify boolean parameters for a given API endpoint
+        """
+        return {re.compile(url): data for url, data in BOOLEAN_PARAMS.items()}
+
+    def get_boolean_params(self, url: str, method: str) -> typing.Tuple[str]:
+        """
+        Get the actual boolean parameter for ``url`` and ``method``
+
+        .. versionadded:: 0.7.3
+        """
+        parsed_url = urlparse(url)
+        for pattern, boolean_params_for_url in self._boolean_param_map.items():
+            match = pattern.match(parsed_url.path)
+            if match:
+                return boolean_params_for_url.get(method, ())
+
+        return ()
+
+    def handle_params(self, url, method, params):
         """
         Translate request parameters to API conform format
 
@@ -368,8 +390,16 @@ class Osc:
 
         :param params: Request parameter
         :type params: dict or str or io.BufferedReader
+        :param url: URL to which the parameters will be sent
+        :type url: str
+        :param method: HTTP method to send request
+        :type method: str
         :return: converted data ready to be used in HTTP request
         :rtype: dict or bytes
+
+        .. versionchanged:: 0.7.3
+
+            Added the ``url`` and ``method`` parameters
         """
         if isinstance(params, bytes):
             return params
@@ -393,20 +423,21 @@ class Osc:
         # See: https://github.com/openSUSE/open-build-service/issues/9715
         # Also, there are parameters giving the impression that they are boolean, but actually are
         # not.
+        boolean_params = self.get_boolean_params(url=url, method=method)
         unexpected_bools = {key for key, value in params.items()
-                            if isinstance(value, bool) and key not in BOOLEAN_PARAMS}
+                            if isinstance(value, bool) and key not in boolean_params}
         if unexpected_bools:
             for key in unexpected_bools:
                 params[key] = '1' if params[key] else '0'
 
         return "&".join(
             quote(str(key))
-            if key in BOOLEAN_PARAMS
+            if key in boolean_params
             else f"{quote(str(key))}={quote(str(value))}"
             for key, value in (
                 (key, value)
                 for key, value in params.items()
-                if not (key in BOOLEAN_PARAMS and value in [False, "0", 0, None, ""])
+                if not (key in boolean_params and value in [False, "0", 0, None, ""])
             )
             if value is not None
         ).encode()

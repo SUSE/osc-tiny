@@ -25,7 +25,7 @@ class TestProject(OscTest):
             """
             parsed = urlparse(request.url)
             params.update(parse_qs(parsed.query, keep_blank_values=True))
-            if "deleted" in params:
+            if params["deleted"] == ["1"]:
                 status = 403
                 body = """<status code="no_permission_for_deleted">
                   <summary>only admins can see deleted projects</summary>
