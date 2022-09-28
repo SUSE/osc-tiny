@@ -19,7 +19,27 @@ class Package(ExtensionBase):
     base_path = "/source"
     new_package_meta_templ = "<package><title/><description/></package>"
 
-    def get_list(self, project: str, deleted: bool = False, expand: bool = True):
+    @staticmethod
+    def cleanup_params(**params) -> dict:
+        """
+        Prepare query parameters
+
+        The build service is inconsistent in its validation of parameters. In most cases it does not
+        complain about excess parameters, in some it complains about unexpected ones.
+
+        :param params: Query parameters
+        :return: The original dictionary of query parameters or a subset of it
+
+        .. versionadded::0.7.4
+        """
+        if params.get("view", None) == "info":
+            # The 'info' view is strict about parameter validation
+            return {key: value for key, value in params.items()
+                    if key in ["parse", "arch", "repository", "view"]}
+
+        return params
+
+    def get_list(self, project: str, deleted: bool = False, expand: bool = True, **params):
         """
         Get packages from project
 
@@ -29,17 +49,20 @@ class Package(ExtensionBase):
         .. versionadded:: 0.7.0
             Parameter ``expand``
 
+        .. versionadded:: 0.7.4
+            Parameter ``params``
+
         :param project: name of project
         :param deleted: Show deleted packages instead
         :param expand: Include inherited packages and their project of origin
         :return: Objectified XML element
         :rtype: lxml.objectify.ObjectifiedElement
         """
-        params = {"deleted": deleted, "expand": expand}
+        params.update({"deleted": deleted, "expand": expand})
         response = self.osc.request(
             url=urljoin(self.osc.url, "{}/{}".format(self.base_path, project)),
             method="GET",
-            params=params
+            params=self.cleanup_params(**params)
         )
 
         return self.osc.get_objectified_xml(response)
@@ -142,7 +165,7 @@ class Package(ExtensionBase):
                 "{}/{}/{}".format(self.base_path, project, package)
             ),
             method="GET",
-            params=params
+            params=self.cleanup_params(**params)
         )
 
         return self.osc.get_objectified_xml(response)
