@@ -165,20 +165,23 @@ class Project(ExtensionBase):
         :param kwargs: More keyword arguments for API call
         :return: Objectified XML element
         :rtype: lxml.objectify.ObjectifiedElement
+
+        .. deprecated:: 0.7.4
+
+            Use :py:meth:`osctiny.extensions.packages.Package.get_files` or
+            :py:meth:`osctiny.extensions.packages.Package.get_list` instead.
+
+            The API URL used by this method is (depending on the value of ``directory``) identical
+            to the one used by the above two methods.
         """
         kwargs["meta"] = meta
         if rev:
             kwargs["rev"] = str(rev)
-        response = self.osc.request(
-            url=urljoin(
-                self.osc.url,
-                "{}/{}/{}".format(self.base_path, project, directory)
-            ),
-            method="GET",
-            params=kwargs
-        )
 
-        return self.osc.get_objectified_xml(response)
+        if not directory:
+            return self.osc.packages.get_list(project=project, **kwargs)
+
+        return self.osc.packages.get_files(project=project, package=directory, **kwargs)
 
     def get_attribute(self, project, attribute=None):
         """
