@@ -174,13 +174,13 @@ class Project(ExtensionBase):
             The API URL used by this method is (depending on the value of ``directory``) identical
             to the one used by the above two methods.
         """
-        kwargs["meta"] = meta
         if rev:
             kwargs["rev"] = str(rev)
 
         if not directory:
             return self.osc.packages.get_list(project=project, **kwargs)
 
+        kwargs["meta"] = meta
         return self.osc.packages.get_files(project=project, package=directory, **kwargs)
 
     def get_attribute(self, project, attribute=None):
