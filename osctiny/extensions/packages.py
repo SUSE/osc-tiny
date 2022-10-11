@@ -32,11 +32,15 @@ class Package(ExtensionBase):
 
         .. versionadded::0.7.4
         """
-        if params.get("view", None) == "info":
+        view = params.get("view", "")
+        if view == "info":
             # The 'info' view is strict about parameter validation
             return {key: value for key, value in params.items()
                     if key in ["parse", "arch", "repository", "view"]}
-
+        if "productlist" in view:
+            # The "deleted" parameter seems to have precedence over other acceptable parameters
+            # (e.g. "view")
+            return {key: value for key, value in params.items() if key not in ["deleted"]}
         return params
 
     def get_list(self, project: str, deleted: bool = False, expand: bool = True, **params):
