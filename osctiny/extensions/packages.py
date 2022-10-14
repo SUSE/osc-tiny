@@ -43,7 +43,7 @@ class Package(ExtensionBase):
             return {key: value for key, value in params.items() if key not in ["deleted"]}
         return params
 
-    def get_list(self, project: str, deleted: bool = False, expand: bool = True, **params):
+    def get_list(self, project: str, deleted: bool = False, expand: bool = False, **params):
         """
         Get packages from project
 
@@ -55,6 +55,9 @@ class Package(ExtensionBase):
 
         .. versionadded:: 0.7.4
             Parameter ``params``
+
+        .. versionchanges:: 0.7.6
+            Changed default value of ``expand`` to ``False``
 
         :param project: name of project
         :param deleted: Show deleted packages instead
