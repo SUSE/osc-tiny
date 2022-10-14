@@ -22,6 +22,39 @@ from requests import Response
 from .errors import OscError
 
 
+def get_auth_header_from_orignal_response(r: Response) -> typing.Optional[str]:
+    """
+    Extract the "www-authenticate" header from the private original response attribute of a response
+
+    .. versionadded:: 0.7.6
+    """
+    # pylint: disable=protected-access
+    headers = [header
+               for header in r.raw._original_response.headers.get_all("www-authenticate")
+               if "signature" in header.lower()]
+    if headers:
+        return headers[0]
+
+    return None
+
+
+def get_auth_header_from_response(r: Response) -> typing.Optional[str]:
+    """
+    Extract the "www-authenticate" header from the response
+
+    .. versionadded:: 0.7.6
+    """
+    headers = r.headers.get("www-authenticate")
+    if headers:
+        parts = headers.split(",")
+        start = [p for p in parts if "signature" in p.lower()]
+        if start:
+            start_index = parts.index(start[0])
+            return ",".join(parts[start_index:start_index + 2]).strip()
+
+    return None
+
+
 class HttpSignatureAuth(HTTPDigestAuth):
     """
     Implementation of the "Signature authentication scheme"
@@ -115,22 +148,14 @@ class HttpSignatureAuth(HTTPDigestAuth):
         :return: Header text
         """
         try:
-            # pylint: disable=protected-access
-            headers = [header
-                       for header in r.raw._original_response.headers.get_all("www-authenticate")
-                       if "signature" in header.lower()]
-            if headers:
-                return headers[0]
+            header = get_auth_header_from_orignal_response(r)
         except AttributeError:
-            headers = r.headers.get("www-authenticate")
-            if headers:
-                parts = headers.split(",")
-                start = [p for p in parts if "signature" in p.lower()]
-                if start:
-                    start_index = parts.index(start[0])
-                    return ",".join(parts[start_index:start_index + 2]).strip()
+            header = get_auth_header_from_response(r)
+        else:
+            if header is None:
+                header = get_auth_header_from_response(r)
 
-        return ""
+        return header if header is not None else ""
 
     def _log(self, r: Response) -> None:
         logger = logging.getLogger("osctiny.request")
