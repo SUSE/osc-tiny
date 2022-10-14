@@ -105,17 +105,29 @@ class BasicTest(OscTest):
                 {"view": "xml", "deleted": True},
                 b"view=xml&deleted"
             ),
-            # 'expand' is no boolean param in the project endpoint
+            # 'expand' is a boolean param in the project endpoint
             (
                 {"expand": True},
-                b"expand=1",
+                b"expand",
                 "https://api.example.com/source/PROJECT",
             ),
             (
                 {"expand": False},
-                b"expand=0",
+                b"",
                 "https://api.example.com/source/PROJECT",
             ),
+            # 'deleted' is a boolean param in the project endpoint
+            (
+                {"deleted": True},
+                b"deleted",
+                "https://api.example.com/source/PROJECT",
+            ),
+            (
+                {"deleted": False},
+                b"",
+                "https://api.example.com/source/PROJECT",
+            ),
+
             # 'expand' is a boolean param in the package endpoint
             (
                 {"expand": False},

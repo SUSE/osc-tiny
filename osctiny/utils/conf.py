@@ -29,6 +29,9 @@ BOOLEAN_PARAMS = {
         'POST': ('ignoredevel', 'add_repositories', 'noaccess', 'update_path_elements',
                  'extend_package_names', 'extend_package_names', 'keeplink', 'repairlink')
     },
+    "^/source/[^/]+/?$": {
+        'GET': ('expand', 'deleted'),
+    },
     "^/source/[^/]+/[^/]+/[^/]+$": {
         'PUT': ('keeplink',)
     },
