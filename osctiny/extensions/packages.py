@@ -56,7 +56,7 @@ class Package(ExtensionBase):
         .. versionadded:: 0.7.4
             Parameter ``params``
 
-        .. versionchanges:: 0.7.6
+        .. versionchanged:: 0.7.6
             Changed default value of ``expand`` to ``False``
 
         :param project: name of project
