@@ -373,7 +373,9 @@ class Osc:
 
         return ()
 
-    def handle_params(self, url, method, params):
+    def handle_params(self, url: str, method: str,
+                      params: typing.Union[bytes, str, StringIO, BytesIO, BufferedReader, dict]) \
+            -> bytes:
         """
         Translate request parameters to API conform format
 

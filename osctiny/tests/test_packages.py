@@ -394,7 +394,6 @@ class TestPackage(OscTest):
                                         comment=the_comment)
             self.assertEqual(received_params[-1]["comment"], [the_comment])
 
-
     @responses.activate
     def test_aggregate(self):
         put_called = []
@@ -479,3 +478,28 @@ class TestPackage(OscTest):
                 "test:project2:exists", "test.pkg",
             )
             self.assertEqual(len(put_called), old_len + 1)
+
+    def test_cleanup_params(self):
+        with self.subTest("No view"):
+            params = {"deleted": True, "expand": True}
+            self.assertEqual(params, self.osc.packages.cleanup_params(**params))
+
+        with self.subTest("view=info"):
+            self.assertEqual({"view": "info"},
+                             self.osc.packages.cleanup_params(view="info", deleted=True))
+
+        with self.subTest("view=productlist"):
+            expected = "view=productlist&expand=0"
+            self.assertEqual(expected,
+                             self.osc.packages.cleanup_params(view="productlist", deleted=True))
+            self.assertEqual(expected,
+                             self.osc.packages.cleanup_params(view="productlist", expand=True))
+
+        with self.subTest("view=verboseproductlist"):
+            expected = "view=verboseproductlist&expand=0"
+            self.assertEqual(expected,
+                             self.osc.packages.cleanup_params(view="verboseproductlist",
+                                                              deleted=True))
+            self.assertEqual(expected,
+                             self.osc.packages.cleanup_params(view="verboseproductlist",
+                                                              expand=True))

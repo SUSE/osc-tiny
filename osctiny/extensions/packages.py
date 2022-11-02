@@ -3,6 +3,7 @@ Packages extension
 ------------------
 """
 import os
+import typing
 from urllib.parse import urljoin
 
 from lxml.etree import tounicode, SubElement, Element
@@ -20,7 +21,7 @@ class Package(ExtensionBase):
     new_package_meta_templ = "<package><title/><description/></package>"
 
     @staticmethod
-    def cleanup_params(**params) -> dict:
+    def cleanup_params(**params) -> typing.Union[dict, str]:
         """
         Prepare query parameters
 
@@ -30,7 +31,10 @@ class Package(ExtensionBase):
         :param params: Query parameters
         :return: The original dictionary of query parameters or a subset of it
 
-        .. versionadded::0.7.4
+        .. versionadded:: 0.7.4
+
+        .. versionchanged:: 0.7.7
+            Handle more inconsistencies in the API endpoints
         """
         view = params.get("view", "")
         if view == "info":
@@ -40,7 +44,8 @@ class Package(ExtensionBase):
         if "productlist" in view:
             # The "deleted" parameter seems to have precedence over other acceptable parameters
             # (e.g. "view")
-            return {key: value for key, value in params.items() if key not in ["deleted"]}
+            # Also, in views boolean params are not recognized as such
+            return f"view={view}&expand=0"
         return params
 
     def get_list(self, project: str, deleted: bool = False, expand: bool = False, **params):
