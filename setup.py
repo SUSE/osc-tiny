@@ -26,7 +26,7 @@ with open("README.md") as fh:
 
 setup(
     name='osc-tiny',
-    version='0.7.6',
+    version='0.7.7',
     description='Client API for openSUSE BuildService',
     long_description=long_description,
     long_description_content_type="text/markdown",
@@ -48,5 +48,6 @@ setup(
         "Programming Language :: Python :: 3.8",
         "Programming Language :: Python :: 3.9",
         "Programming Language :: Python :: 3.10",
+        "Programming Language :: Python :: 3.11",
     ]
 )
