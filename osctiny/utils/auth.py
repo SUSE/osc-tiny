@@ -7,9 +7,8 @@ Authentication handlers for 2FA
 import typing
 from base64 import b64decode, b64encode
 import logging
-import os
 from pathlib import Path
-from subprocess import Popen, PIPE
+from subprocess import Popen, PIPE, DEVNULL
 import re
 import sys
 from time import time
@@ -55,6 +54,32 @@ def get_auth_header_from_response(r: Response) -> typing.Optional[str]:
     return None
 
 
+def is_ssh_key_readable(ssh_key_file: Path, password: typing.Optional[str]) -> bool:
+    """
+    Check whether SSH key can be read/unlocked
+
+    :param ssh_key_file: Path to SSH key
+    :param password: Passphrase
+    :return: ``True``, if SSH key is accessible
+
+    .. versionadded:: 0.6.3
+
+    .. versionchanged:: {{ NEXT_RELEASE }}
+
+        * Moved from ``HttpSignatureAuth.is_ssh_agent_available``
+    """
+    cmd = ['ssh-keygen', '-y', '-f', ssh_key_file.as_posix()]
+    if password:
+        cmd += ['-P', password]
+
+    with Popen(cmd, stdin=DEVNULL, stderr=DEVNULL, stdout=DEVNULL) as proc:
+        proc.communicate()
+        if proc.returncode == 0:
+            return True
+
+    return False
+
+
 class HttpSignatureAuth(HTTPDigestAuth):
     """
     Implementation of the "Signature authentication scheme"
@@ -70,17 +95,24 @@ class HttpSignatureAuth(HTTPDigestAuth):
 
         .. _reference implementation for osc: https://github.com/openSUSE/osc/pull/1032
 
+    .. note::
+
+        1. It is recommended to use SSH keys with a passphrase.
+        2. If ``ssh-agent`` is running, the passphrase is not required at initialization of this
+           class.
+        3. If you use an SSH key without passphrase, you don't need to specify it.
+
     :param username: The username
-    :param password: Passphrase for SSH key. This can be omitted, if ``ssh-agent`` is also installed
-    :param ssh_key_file: Path of SSK key
+    :param password: Passphrase for SSH key
+    :param ssh_key_file: Path of SSH key
     """
     def __init__(self, username: str, password: typing.Optional[str], ssh_key_file: Path):
         super().__init__(username=username, password=password)
         if not ssh_key_file.is_file():
             raise FileNotFoundError(f"SSH key at location does not exist: {ssh_key_file}")
-        if not password and not self.is_ssh_agent_available():
-            raise RuntimeError("SSH signing impossible: No password/passphrase provided and no SSH "
-                               "agent running! ")
+        if not is_ssh_key_readable(ssh_key_file=ssh_key_file, password=password):
+            raise RuntimeError("SSH signing impossible: Unable to decrypt key.")
+
         self.ssh_key_file = ssh_key_file
         self.pattern = re.compile(r"(?<=\)) (?=\()")
 
@@ -95,19 +127,6 @@ class HttpSignatureAuth(HTTPDigestAuth):
         """
         parts = self.pattern.split(headers)
         return [part.strip("()") for part in parts]
-
-    @staticmethod
-    def is_ssh_agent_available() -> bool:
-        """
-        Check whether SSH agent is running/available
-
-        :return: ``True``, if agent is running
-
-        .. versionadded:: 0.6.3
-        """
-        relevant_keys = {'SSH_AUTH_SOCK', 'SSH_AGENT_PID'}
-        overlap = os.environ.keys() & relevant_keys
-        return len(overlap) > 0
 
     def ssh_sign(self) -> str:
         """
