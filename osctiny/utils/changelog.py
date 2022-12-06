@@ -118,6 +118,7 @@ class ChangeLog:
         cl.write()
 
     .. py:attribute:: entry_factory
+        :noindex:
 
         A class used to store entry data.
 
