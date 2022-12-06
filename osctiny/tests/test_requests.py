@@ -372,20 +372,15 @@ class TestRequest(OscTest):
             self.assertEqual(len(response.xpath("//request/history")), 5)
 
     @responses.activate
-    def test_cmd(self):
-        with self.subTest("plain diff"):
-            response = self.osc.requests.cmd(30902, "diff")
+    def test_update(self):
+        with self.subTest("cmd=diff, plain"):
+            response = self.osc.requests.update(30902, cmd="diff")
             self.assertTrue(isinstance(response, str))
             self.assertIn("changes files:", response)
             self.assertIn("+++ perl-XML-DOM-XPath.changes", response)
-        with self.subTest("xml diff"):
-            response = self.osc.requests.cmd(30902, "diff", view="xml")
+        with self.subTest("cmd=diff, xml"):
+            response = self.osc.requests.update(30902, cmd="diff", view="xml")
             self.assertTrue(isinstance(response, ObjectifiedElement))
-        with self.subTest("changereviewstate"):
-            self.assertRaises(
-                ValueError,
-                self.osc.requests.cmd, 30902, "changereviewstate"
-            )
 
     @responses.activate
     def test_comment(self):
