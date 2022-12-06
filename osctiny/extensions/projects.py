@@ -85,17 +85,21 @@ class Project(ExtensionBase):
         warn("Deprecated. Use projects.set_meta instead")
 
         return self.set_meta(project, metafile, title, description, bugowner,
-                      maintainer)
+                             maintainer)
 
     # pylint: disable=too-many-arguments
     def set_meta(self, project, metafile=None, title=None, description=None,
-                 bugowner=None, maintainer=None):
+                 bugowner=None, maintainer=None, comment=None):
         """
         Edit project meta data or create a new project
 
         If no ``metafile`` is provided, a default template is used.
 
         .. versionadded:: 0.7.2
+
+        .. versionchanged:: {{NEXT_RELEASE}}
+
+           Added an optional ``comment`` argument to be used as commit message
 
         :param project: name of project
         :param metafile: Complete metafile
@@ -104,6 +108,7 @@ class Project(ExtensionBase):
         :param description: Description for meta file
         :param bugowner: Bugowner for meta file
         :param maintainer: Maintainer for meta file
+        :param comment: Optional comment to use as commit message
         :return: ``True``, if successful. Otherwise API response
         :rtype: bool or lxml.objectify.ObjectifiedElement
         """
@@ -143,7 +148,8 @@ class Project(ExtensionBase):
             url=urljoin(self.osc.url,
                         "/".join((self.base_path, project, "_meta"))),
             method="PUT",
-            data=tounicode(metafile)
+            data=tounicode(metafile),
+            params={"comment": comment}
         )
 
         parsed = self.osc.get_objectified_xml(response)

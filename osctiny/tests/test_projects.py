@@ -177,6 +177,13 @@ class TestProject(OscTest):
             self.assertEqual(sent_meta.description.text, "test description")
             self.assertEqual(len(sent_meta.xpath("person")), 2)
 
+        with self.subTest("Valid Metafile with comment"):
+            meta = fromstring(TEMPLATE_META)
+            meta.set("name", "project:foo")
+            meta.title._setText("Hello World")
+            self.assertTrue(self.osc.projects.set_meta(project="project:foo", metafile=meta, comment="Test"))
+            self.assertEqual(responses.calls[-1].request.params["comment"], "Test")
+
     @responses.activate
     def test_get_files(self):
         def callback(headers, params, request):
