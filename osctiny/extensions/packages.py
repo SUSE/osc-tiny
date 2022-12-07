@@ -115,7 +115,7 @@ class Package(ExtensionBase):
 
     # pylint: disable=too-many-arguments,protected-access
     def set_meta(self, project, package, title=None, description=None,
-                 meta=None):
+                 meta=None, comment=None):
         """
         Set package metadata
 
@@ -130,12 +130,17 @@ class Package(ExtensionBase):
 
         .. versionadded:: 0.1.2
 
+        .. versionchanged:: {{NEXT_RELEASE}}
+
+           Added an optional ``comment`` argument to be used as commit message
+
         :param project: Project name
         :param package: New package name
         :param title: Title for meta
         :param description: Description for meta
         :param meta: New content for meta
         :type meta: str or lxml.objectify.ObjectifiedElement
+        :param comment: Optional comment to use as commit message
         :return:
         """
         if isinstance(meta, (str, bytes)):
@@ -157,6 +162,7 @@ class Package(ExtensionBase):
                 "/".join((self.base_path, project, package, "_meta"))
             ),
             data=tounicode(meta_xml),
+            params={"comment": comment},
             method="PUT"
         )
 

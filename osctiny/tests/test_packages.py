@@ -336,6 +336,23 @@ class TestPackage(OscTest):
                 self.assertEqual(bodies[-1], expected)
 
     @responses.activate
+    def test_set_meta_with_comment(self):
+        def callback(headers, params, request):
+            status, body = 200, ""
+
+            return status, headers, body
+
+        self.mock_request(
+            method=responses.PUT,
+            url=re.compile(self.osc.url + '/source/(?P<project>[^/]+)/'
+                                          '(?P<package>[^/]+)/_meta'),
+            callback=CallbackFactory(callback)
+        )
+        self.osc.packages.set_meta("test:project", "test.package", "test title", "test description",
+                                   comment="test comment")
+        self.assertEqual(responses.calls[-1].request.params["comment"], "test comment")
+
+    @responses.activate
     def test_push_file(self):
         content = """
         ლ(ಠ益ಠ)ლ            ლ(ಠ益ಠ)ლ
