@@ -181,7 +181,8 @@ class TestProject(OscTest):
             meta = fromstring(TEMPLATE_META)
             meta.set("name", "project:foo")
             meta.title._setText("Hello World")
-            self.assertTrue(self.osc.projects.set_meta(project="project:foo", metafile=meta, comment="Test"))
+            self.assertTrue(self.osc.projects.set_meta(project="project:foo", metafile=meta, 
+                                                       comment="Test"))
             self.assertEqual(responses.calls[-1].request.params["comment"], "Test")
 
     @responses.activate
