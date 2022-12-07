@@ -4,6 +4,8 @@ Requests extension
 """
 from urllib.parse import urljoin
 
+from lxml.etree import XMLSyntaxError
+
 from ..utils.base import ExtensionBase
 
 
@@ -63,6 +65,37 @@ class Request(ExtensionBase):
 
         return self.osc.get_objectified_xml(response)
 
+    def update(self, request_id, **kwargs):
+        """
+        Update request or execute command
+
+        .. note::
+
+            In most cases, the API returns an XML response, so this method will try to return an
+            objectified XML element. Otherwise, if parsing fails due to a syntax error, the response
+            body is returned as plain text. In case of all other errors, this method lets the
+            caller handle the exception.
+
+        :param request_id: ID of the request
+        :param kwargs: See Build Service
+                       `API documentation <https://build.opensuse.org/apidocs/index>`_ for accepted
+                       keys and values.
+        :return: Response content
+        :rtype: lxml.objectify.ObjectifiedElement or plain text
+
+        .. versionadded:: {{ NEXT_RELEASE }}
+        """
+        request_id = self._validate_id(request_id)
+        response = self.osc.request(
+            url=urljoin(self.osc.url, self.base_path + request_id),
+            method="POST",
+            params=kwargs
+        )
+        try:
+            return self.osc.get_objectified_xml(response)
+        except XMLSyntaxError:
+            return response.text
+
     def cmd(self, request_id, cmd="diff", **kwargs):
         """
         Get the result of the specified command
@@ -88,30 +121,14 @@ class Request(ExtensionBase):
 
             * Added ``addreview`` to list of allowed commands
             * Added validation for arguments of command ``changereviewstate``
+
+        .. deprecated:: {{ NEXT_RELEASE }}
+
+            * Replaced by :py:meth:`update`
         """
-        allowed_cmds = ['diff', 'changereviewstate', 'addreview']
-        allowed_review_states = ['new', 'accepted', 'declined', 'deleted',
-                                 'revoked', 'superseded']
-        if cmd not in allowed_cmds:
-            raise ValueError("Invalid command: '{}'. Use one of: {}".format(
-                cmd, ", ".join(allowed_cmds)
-            ))
-
-        if cmd == "changereviewstate"\
-                and kwargs.get("newstate", None) not in allowed_review_states:
-            raise ValueError(
-                "Invalid review state: '{}'. Use one of: {}".format(
-                    kwargs.get("newstate", None), allowed_review_states
-                )
-            )
-
         kwargs["cmd"] = cmd
         request_id = self._validate_id(request_id)
-        response = self.osc.request(
-            url=urljoin(self.osc.url, self.base_path + request_id),
-            method="POST",
-            params=kwargs
-        )
+        response = self.update(request_id=request_id, **kwargs)
 
         if kwargs.get("view", "plain") == "xml":
             return self.osc.get_objectified_xml(response)
