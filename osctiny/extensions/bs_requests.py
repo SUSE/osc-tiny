@@ -83,7 +83,7 @@ class Request(ExtensionBase):
         :return: Response content
         :rtype: lxml.objectify.ObjectifiedElement or plain text
 
-        .. versionadded:: {{ NEXT_RELEASE }}
+        .. versionadded:: 0.7.8
         """
         request_id = self._validate_id(request_id)
         response = self.osc.request(
@@ -122,7 +122,7 @@ class Request(ExtensionBase):
             * Added ``addreview`` to list of allowed commands
             * Added validation for arguments of command ``changereviewstate``
 
-        .. deprecated:: {{ NEXT_RELEASE }}
+        .. deprecated:: 0.7.8
 
             * Replaced by :py:meth:`update`
         """

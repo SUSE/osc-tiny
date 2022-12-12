@@ -64,7 +64,7 @@ def is_ssh_key_readable(ssh_key_file: Path, password: typing.Optional[str]) -> b
 
     .. versionadded:: 0.6.3
 
-    .. versionchanged:: {{ NEXT_RELEASE }}
+    .. versionchanged:: 0.7.8
 
         * Moved from ``HttpSignatureAuth.is_ssh_agent_available``
     """
