@@ -130,9 +130,7 @@ class Request(ExtensionBase):
         request_id = self._validate_id(request_id)
         response = self.update(request_id=request_id, **kwargs)
 
-        if kwargs.get("view", "plain") == "xml":
-            return self.osc.get_objectified_xml(response)
-        return response.text
+        return response
 
     def add_comment(self, request_id, comment, parent_id=None):
         """
