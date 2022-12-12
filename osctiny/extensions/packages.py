@@ -130,7 +130,7 @@ class Package(ExtensionBase):
 
         .. versionadded:: 0.1.2
 
-        .. versionchanged:: {{NEXT_RELEASE}}
+        .. versionchanged:: 0.7.8
 
            Added an optional ``comment`` argument to be used as commit message
 
