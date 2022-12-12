@@ -373,14 +373,15 @@ class TestRequest(OscTest):
 
     @responses.activate
     def test_update(self):
-        with self.subTest("cmd=diff, plain"):
-            response = self.osc.requests.update(30902, cmd="diff")
-            self.assertTrue(isinstance(response, str))
-            self.assertIn("changes files:", response)
-            self.assertIn("+++ perl-XML-DOM-XPath.changes", response)
-        with self.subTest("cmd=diff, xml"):
-            response = self.osc.requests.update(30902, cmd="diff", view="xml")
-            self.assertTrue(isinstance(response, ObjectifiedElement))
+        for method in (self.osc.requests.update, self.osc.requests.cmd):
+            with self.subTest(f"{method}, cmd=diff, plain"):
+                response = method(30902, cmd="diff")
+                self.assertTrue(isinstance(response, str))
+                self.assertIn("changes files:", response)
+                self.assertIn("+++ perl-XML-DOM-XPath.changes", response)
+            with self.subTest(f"{method}, cmd=diff, xml"):
+                response = method(30902, cmd="diff", view="xml")
+                self.assertTrue(isinstance(response, ObjectifiedElement))
 
     @responses.activate
     def test_comment(self):
