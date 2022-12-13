@@ -370,6 +370,80 @@ class TestProject(OscTest):
             )
 
     @responses.activate
+    def test_get_config(self):
+        def callback(headers, params, request):
+            status = 200
+            body = "the_config"
+            self.assertTrue("/_config" in request.url)
+            if "Devel:ARM:Factory" not in request.url:
+                status = 404
+                body = """
+                        <status code="unknown_project">
+                          <summary>Devel:ARM:Fbctory</summary>
+                        </status>
+                    """
+            headers['request-id'] = '728d329e-0e86-11e4-a748-0c84dc037c13'
+            return status, headers, body
+
+        self.mock_request(
+            method=responses.GET,
+            url=re.compile(self.osc.url + '/source/.*'),
+            callback=CallbackFactory(callback)
+        )
+
+        with self.subTest("existing project"):
+            response = self.osc.projects.get_config("Devel:ARM:Factory")
+            self.assertEqual(response, "the_config")
+
+        with self.subTest("non-existing project"):
+            self.assertRaises(
+                HTTPError, self.osc.projects.get_config, "Devel:ARM:Fbctory"
+            )
+
+        with self.subTest("existing project with revision"):
+            response = self.osc.projects.get_config("Devel:ARM:Factory", revision=3)
+            self.assertEqual(response, "the_config")
+            self.assertEqual(responses.calls[-1].request.params["rev"], "3")
+
+    @responses.activate
+    def test_set_config(self):
+        def callback(headers, params, request):
+            status = 500
+            body = "<status code='error'></status>"
+            match = re.search("source/(?P<project>[^/]+)/_config", request.url)
+            if match and not "invalid" in request.url:
+                status = 200
+                body = """<status code='ok'></status>"""
+
+            headers['request-id'] = '728d329e-0e86-11e4-a748-0c84dc037c13'
+            return status, headers, body
+
+        self.mock_request(
+            method=responses.PUT,
+            url=re.compile(self.osc.url + '/source/[^/]+/_config'),
+            callback=CallbackFactory(callback)
+        )
+
+        with self.subTest("Valid request"):
+            self.assertTrue(self.osc.projects.set_config(
+                project="test",
+                config="foo bar",
+            ))
+
+        with self.subTest("Invalid request"):
+            self.assertRaises(
+                HTTPError,
+                self.osc.projects.set_config,
+                project="invalid:project",
+                config="test_config"
+            )
+
+        with self.subTest("Valid request with comment"):
+            self.assertTrue(self.osc.projects.set_config(project="project:foo", config="test conf",
+                                                         comment="Test"))
+            self.assertEqual(responses.calls[-1].request.params["comment"], "Test")
+
+    @responses.activate
     def test_delete(self):
         def callback(headers, params, request):
             if "existing" in request.url:
