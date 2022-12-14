@@ -358,6 +358,55 @@ class Project(ExtensionBase):
 
         return self.osc.get_objectified_xml(response)
 
+    def get_config(self, project, revision=None):
+        """
+        Get project configuration
+
+        .. versionadded:: {{NEXT_RELEASE}}
+
+        :param project: name of project
+        :param revision: optional revision of the config to get
+        :return: The project configuration as string
+        :rtype: str
+        """
+        response = self.osc.request(
+            url=urljoin(
+                self.osc.url,
+                "{}/{}/_config".format(self.base_path, project)
+            ),
+            params={"rev":revision},
+            method="GET"
+        )
+
+        return response.text
+
+    def set_config(self, project, config=None, comment=None):
+        """
+        Set project config data
+
+        .. versionadded:: {{NEXT_RELEASE}}
+
+        :param project: name of project
+        :param config: Complete configuration to set
+        :type config: str
+        :param comment: Optional comment to use as commit message
+        :return: ``True``, if successful. Otherwise, API response
+        :rtype: bool or lxml.objectify.ObjectifiedElement
+        """
+        response = self.osc.request(
+            url=urljoin(self.osc.url,
+                        "/".join((self.base_path, project, "_config"))),
+            method="PUT",
+            data=config,
+            params={"comment": comment}
+        )
+
+        parsed = self.osc.get_objectified_xml(response)
+        if response.status_code == 200 and parsed.get("code") == "ok":
+            return True
+
+        return parsed
+
     def delete(self, project, force=False, comment=None):
         """
         Delete project
