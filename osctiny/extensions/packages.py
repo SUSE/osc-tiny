@@ -470,7 +470,7 @@ class Package(ExtensionBase):
 
         return parsed
 
-    def exists(self, project, package, filename=None):
+    def exists(self, project, package, filename=None) -> bool:
         """
         Check whether package or file in package exists
 
@@ -492,6 +492,12 @@ class Package(ExtensionBase):
             method="HEAD",
             raise_for_status=False
         )
+
+        if response.status_code == 404:
+            return False
+
+        # 404 is the only acceptable HTTP error code, otherwise raise an exception
+        response.raise_for_status()
 
         return response.status_code == 200
 
