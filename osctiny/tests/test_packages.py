@@ -3,6 +3,7 @@ from io import StringIO, BytesIO, IOBase
 import re
 from unittest import skip
 
+from requests import HTTPError
 import responses
 
 from .base import OscTest, CallbackFactory
@@ -520,3 +521,30 @@ class TestPackage(OscTest):
             self.assertEqual(expected,
                              self.osc.packages.cleanup_params(view="verboseproductlist",
                                                               expand=True))
+
+    @responses.activate
+    def test_exists(self):
+        data = (
+            # status, expected
+            (200, True),
+            (404, False),
+            (401, None),
+            (500, None)
+        )
+
+        def callback(headers, params, request):
+            return status, headers, ""
+
+        self.mock_request(
+            method=responses.HEAD,
+            url=re.compile(self.osc.url + '/source/.+'),
+            callback=CallbackFactory(callback)
+        )
+
+        for status, expected in data:
+            with self.subTest(status):
+                if expected is not None:
+                    self.assertEqual(expected, self.osc.packages.exists("Some:Project", "package"))
+                else:
+                    self.assertRaises(HTTPError, self.osc.packages.exists, "Some:Project",
+                                      "package")
