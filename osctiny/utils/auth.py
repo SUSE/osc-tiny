@@ -54,7 +54,8 @@ def get_auth_header_from_response(r: Response) -> typing.Optional[str]:
     return None
 
 
-def is_ssh_key_readable(ssh_key_file: Path, password: typing.Optional[str]) -> bool:
+def is_ssh_key_readable(ssh_key_file: Path, password: typing.Optional[str]) \
+        -> typing.Tuple[bool, typing.Optional[str]]:
     """
     Check whether SSH key can be read/unlocked
 
@@ -67,17 +68,21 @@ def is_ssh_key_readable(ssh_key_file: Path, password: typing.Optional[str]) -> b
     .. versionchanged:: 0.7.8
 
         * Moved from ``HttpSignatureAuth.is_ssh_agent_available``
+
+    .. versionchanged:: {{ NEXT_RELEASE }}
+
+        * Return the error message, if key cannot be unlocked
     """
     cmd = ['ssh-keygen', '-y', '-f', ssh_key_file.as_posix()]
     if password:
         cmd += ['-P', password]
 
-    with Popen(cmd, stdin=DEVNULL, stderr=DEVNULL, stdout=DEVNULL) as proc:
-        proc.communicate()
+    with Popen(cmd, stdin=DEVNULL, stderr=PIPE, stdout=DEVNULL) as proc:
+        _, error = proc.communicate()
         if proc.returncode == 0:
-            return True
+            return True, None
 
-    return False
+    return False, error.decode("utf-8") if isinstance(error, bytes) else error
 
 
 class HttpSignatureAuth(HTTPDigestAuth):
@@ -113,8 +118,9 @@ class HttpSignatureAuth(HTTPDigestAuth):
         super().__init__(username=username, password=password)
         if not ssh_key_file.is_file():
             raise FileNotFoundError(f"SSH key at location does not exist: {ssh_key_file}")
-        if not is_ssh_key_readable(ssh_key_file=ssh_key_file, password=password):
-            raise RuntimeError("SSH signing impossible: Unable to decrypt key.")
+        readable, error = is_ssh_key_readable(ssh_key_file=ssh_key_file, password=password)
+        if not readable:
+            raise RuntimeError(f"SSH signing impossible because key cannot be decrypted: {error}.")
 
         self.ssh_key_file = ssh_key_file
         self.pattern = re.compile(r"(?<=\)) (?=\()")
