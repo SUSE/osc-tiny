@@ -88,12 +88,15 @@ class HttpSignatureAuth(HTTPDigestAuth):
 
         This seems to be a variation of the `HTTP Message Signatures`_ specification.
 
-        See also the `reference implementation for osc`_
+        See also the `blog post`_ describing the implementation and the
+        `reference implementation for osc`_.
 
         .. _HTTP Message Signatures:
             https://datatracker.ietf.org/doc/draft-ietf-httpbis-message-signatures/
 
         .. _reference implementation for osc: https://github.com/openSUSE/osc/pull/1032
+
+        .. _blog post: https://www.suse.com/c/multi-factor-authentication-on-suses-build-service/
 
     .. note::
 
