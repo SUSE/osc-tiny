@@ -396,7 +396,7 @@ class TestConfig(TestCase):
 
 @mock.patch("osctiny.utils.auth.time", return_value=123456)
 class TestAuth(TestCase):
-    @mock.patch("osctiny.utils.auth.is_ssh_key_readable", return_value=True)
+    @mock.patch("osctiny.utils.auth.is_ssh_key_readable", return_value=(True, None))
     def setUp(self, *_):
         super().setUp()
         mocked_path = mock.MagicMock(spec=Path)
