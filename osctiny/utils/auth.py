@@ -69,7 +69,7 @@ def is_ssh_key_readable(ssh_key_file: Path, password: typing.Optional[str]) \
 
         * Moved from ``HttpSignatureAuth.is_ssh_agent_available``
 
-    .. versionchanged:: {{ NEXT_RELEASE }}
+    .. versionchanged:: 0.7.10
 
         * Return the error message, if key cannot be unlocked
     """

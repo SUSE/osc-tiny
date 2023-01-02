@@ -362,7 +362,7 @@ class Project(ExtensionBase):
         """
         Get project configuration
 
-        .. versionadded:: {{NEXT_RELEASE}}
+        .. versionadded:: 0.7.10
 
         :param project: name of project
         :param revision: optional revision of the config to get
@@ -384,7 +384,7 @@ class Project(ExtensionBase):
         """
         Set project config data
 
-        .. versionadded:: {{NEXT_RELEASE}}
+        .. versionadded:: 0.7.10
 
         :param project: name of project
         :param config: Complete configuration to set
