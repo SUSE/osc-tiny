@@ -507,18 +507,16 @@ class TestPackage(OscTest):
                              self.osc.packages.cleanup_params(view="info", deleted=True))
 
         with self.subTest("view=productlist"):
-            expected = "view=productlist&expand=0"
-            self.assertEqual(expected,
+            self.assertEqual("view=productlist&expand=0",
                              self.osc.packages.cleanup_params(view="productlist", deleted=True))
-            self.assertEqual(expected,
+            self.assertEqual("view=productlist&expand=1",
                              self.osc.packages.cleanup_params(view="productlist", expand=True))
 
         with self.subTest("view=verboseproductlist"):
-            expected = "view=verboseproductlist&expand=0"
-            self.assertEqual(expected,
+            self.assertEqual("view=productlist&expand=0",
                              self.osc.packages.cleanup_params(view="verboseproductlist",
                                                               deleted=True))
-            self.assertEqual(expected,
+            self.assertEqual("view=productlist&expand=1",
                              self.osc.packages.cleanup_params(view="verboseproductlist",
                                                               expand=True))
 

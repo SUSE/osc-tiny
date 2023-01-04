@@ -43,9 +43,9 @@ class Package(ExtensionBase):
                     if key in ["parse", "arch", "repository", "view"]}
         if "productlist" in view:
             # The "deleted" parameter seems to have precedence over other acceptable parameters
-            # (e.g. "view")
-            # Also, in views boolean params are not recognized as such
-            return f"view={view}&expand=0"
+            # (e.g. "view").
+            # Product list views now honor the `expand` parameter.
+            return f"view={view}&expand={'1' if params.get('expand') else '0'}"
         return params
 
     def get_list(self, project: str, deleted: bool = False, expand: bool = False, **params):
