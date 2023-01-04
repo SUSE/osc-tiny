@@ -513,10 +513,10 @@ class TestPackage(OscTest):
                              self.osc.packages.cleanup_params(view="productlist", expand=True))
 
         with self.subTest("view=verboseproductlist"):
-            self.assertEqual("view=productlist&expand=0",
+            self.assertEqual("view=verboseproductlist&expand=0",
                              self.osc.packages.cleanup_params(view="verboseproductlist",
                                                               deleted=True))
-            self.assertEqual("view=productlist&expand=1",
+            self.assertEqual("view=verboseproductlist&expand=1",
                              self.osc.packages.cleanup_params(view="verboseproductlist",
                                                               expand=True))
 
