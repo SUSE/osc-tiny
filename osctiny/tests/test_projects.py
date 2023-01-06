@@ -185,6 +185,19 @@ class TestProject(OscTest):
                                                        comment="Test"))
             self.assertEqual(responses.calls[-1].request.params["comment"], "Test")
 
+        with self.subTest("Valid Metafile with force=True"):
+            meta = fromstring(TEMPLATE_META)
+            meta.set("name", "project:foo")
+            meta.title._setText("Hello World")
+            self.assertTrue(self.osc.projects.set_meta(project="project:foo", metafile=meta,
+                                                       force=True))
+            self.assertEqual(responses.calls[-1].request.params["force"], "1")
+
+            # just to make sure try and check that omitting the force parameter don't get it set to
+            # True
+            self.assertTrue(self.osc.projects.set_meta(project="project:foo", metafile=meta))
+            self.assertEqual(responses.calls[-1].request.params["force"], "0")
+
     @responses.activate
     def test_get_files(self):
         def callback(headers, params, request):
