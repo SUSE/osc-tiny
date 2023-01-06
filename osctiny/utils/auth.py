@@ -7,6 +7,7 @@ Authentication handlers for 2FA
 import typing
 from base64 import b64decode, b64encode
 import logging
+import os
 from pathlib import Path
 from subprocess import Popen, PIPE, DEVNULL
 import re
@@ -19,6 +20,12 @@ from requests.utils import parse_dict_header
 from requests import Response
 
 from .errors import OscError
+
+
+SSH_ENV = os.environ.copy()
+for env_var in ("SSH_AUTH_SOCK", "SSH_AGENT_PID"):
+    if env_var in SSH_ENV:
+        del SSH_ENV[env_var]
 
 
 def get_auth_header_from_orignal_response(r: Response) -> typing.Optional[str]:
@@ -77,7 +84,8 @@ def is_ssh_key_readable(ssh_key_file: Path, password: typing.Optional[str]) \
     if password:
         cmd += ['-P', password]
 
-    with Popen(cmd, stdin=DEVNULL, stderr=PIPE, stdout=DEVNULL) as proc:
+    with Popen(cmd, stdin=DEVNULL, stderr=PIPE, stdout=DEVNULL,
+               env=SSH_ENV if password else os.environ) as proc:
         _, error = proc.communicate()
         if proc.returncode == 0:
             return True, None
@@ -149,7 +157,8 @@ class HttpSignatureAuth(HTTPDigestAuth):
             cmd += ['-P', self.password]
 
         encoding = sys.getdefaultencoding()
-        with Popen(cmd, stdout=PIPE, stderr=PIPE, stdin=PIPE) as proc:
+        with Popen(cmd, stdout=PIPE, stderr=PIPE, stdin=PIPE,
+                   env=SSH_ENV if self.password else os.environ) as proc:
             signature, error = proc.communicate(data.encode(encoding))
             if proc.returncode:
                 raise OscError(f"ssh-keygen returned {proc.returncode}: {error}")
