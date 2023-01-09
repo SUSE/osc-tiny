@@ -102,7 +102,7 @@ class Project(ExtensionBase):
 
            Added an optional ``comment`` argument to be used as commit message
 
-        .. versionchanged:: {{NEXT_RELEASE}}
+        .. versionchanged:: 0.7.11
 
             Added an optional ``force`` argument to allow changing the meta even when IBS reports
             repository dependency problems
