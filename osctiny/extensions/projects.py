@@ -90,7 +90,7 @@ class Project(ExtensionBase):
 
     # pylint: disable=too-many-arguments
     def set_meta(self, project, metafile=None, title=None, description=None,
-                 bugowner=None, maintainer=None, comment=None):
+                 bugowner=None, maintainer=None, comment=None, force=False):
         """
         Edit project meta data or create a new project
 
@@ -102,6 +102,11 @@ class Project(ExtensionBase):
 
            Added an optional ``comment`` argument to be used as commit message
 
+        .. versionchanged:: {{NEXT_RELEASE}}
+
+            Added an optional ``force`` argument to allow changing the meta even when IBS reports
+            repository dependency problems
+
         :param project: name of project
         :param metafile: Complete metafile
         :type metafile: str or ElementTree
@@ -110,6 +115,7 @@ class Project(ExtensionBase):
         :param bugowner: Bugowner for meta file
         :param maintainer: Maintainer for meta file
         :param comment: Optional comment to use as commit message
+        :param force:  Whether to force a meta change, even if there are repo dependency errors
         :return: ``True``, if successful. Otherwise API response
         :rtype: bool or lxml.objectify.ObjectifiedElement
         """
@@ -150,7 +156,7 @@ class Project(ExtensionBase):
                         "/".join((self.base_path, project, "_meta"))),
             method="PUT",
             data=tounicode(metafile),
-            params={"comment": comment}
+            params={"comment": comment, "force": force}
         )
 
         parsed = self.osc.get_objectified_xml(response)
