@@ -4,12 +4,12 @@ Main API access
 """
 from __future__ import unicode_literals
 
-from base64 import b64encode
 import typing
 import errno
 from io import BufferedReader, BytesIO, StringIO
 import gc
 import logging
+import os
 from pathlib import Path
 import re
 from ssl import get_default_verify_paths
@@ -163,12 +163,13 @@ class Osc:
         self.search = Search(osc_obj=self)
         self.users = Person(osc_obj=self)
 
-        hash_value = b64encode(f'{self.username}@{self.url}@{self.ssh_key}'.encode())
-        self._session_id = f"session_{hash_value}"
-
     def __del__(self):
         # Just in case ;-)
         gc.collect()
+
+    @property
+    def _session_id(self) -> str:
+        return f"osctiny_session_{os.getpid()}_{threading.get_ident()}"
 
     @property
     def _session(self) -> Session:
