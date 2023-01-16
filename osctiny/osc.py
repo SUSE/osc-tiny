@@ -180,7 +180,6 @@ class Osc:
         if not session:
             session = Session()
             session.verify = self.verify or get_default_verify_paths().capath
-
             if self.ssh_key is not None:
                 session.auth = HttpSignatureAuth(username=self.username, password=self.password,
                                                  ssh_key_file=self.ssh_key)
@@ -198,18 +197,13 @@ class Osc:
 
         Possibly wrapped in CacheControl, if installed.
         """
+        if not self.cache or CacheControl is None:
+            return self._session
+
         key = f"cached_{self._session_id}"
         session = getattr(THREAD_LOCAL, key, None)
         if not session:
-            if self.cache:
-                # pylint: disable=broad-except
-                try:
-                    session = CacheControl(self._session)
-                except Exception as error:
-                    session = self._session
-                    warnings.warn("Cannot use the cache: {}".format(error), RuntimeWarning)
-            else:
-                session = self._session
+            session = CacheControl(self._session)
             setattr(THREAD_LOCAL, key, session)
 
         return session
