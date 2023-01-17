@@ -170,7 +170,7 @@ class Osc:
 
     @property
     def _session_id(self) -> str:
-        session_hash = b64encode(f'{self.username}@{self.url}'.encode())
+        session_hash = b64encode(f'{self.username}@{self.url}'.encode()).decode()
         return f"session_{session_hash}_{os.getpid()}_{threading.get_ident()}"
 
     @property
