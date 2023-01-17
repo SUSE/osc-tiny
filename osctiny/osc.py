@@ -4,6 +4,7 @@ Main API access
 """
 from __future__ import unicode_literals
 
+from base64 import b64encode
 import typing
 import errno
 from io import BufferedReader, BytesIO, StringIO
@@ -169,7 +170,8 @@ class Osc:
 
     @property
     def _session_id(self) -> str:
-        return f"osctiny_session_{os.getpid()}_{threading.get_ident()}"
+        session_hash = b64encode(f'{self.username}@{self.url}'.encode())
+        return f"session_{session_hash}_{os.getpid()}_{threading.get_ident()}"
 
     @property
     def _session(self) -> Session:
@@ -180,6 +182,7 @@ class Osc:
         if not session:
             session = Session()
             session.verify = self.verify or get_default_verify_paths().capath
+
             if self.ssh_key is not None:
                 session.auth = HttpSignatureAuth(username=self.username, password=self.password,
                                                  ssh_key_file=self.ssh_key)
