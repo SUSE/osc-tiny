@@ -10,6 +10,7 @@ import errno
 from io import BufferedReader, BytesIO, StringIO
 import gc
 import logging
+import os
 from pathlib import Path
 import re
 from ssl import get_default_verify_paths
@@ -163,12 +164,14 @@ class Osc:
         self.search = Search(osc_obj=self)
         self.users = Person(osc_obj=self)
 
-        hash_value = b64encode(f'{self.username}@{self.url}@{self.ssh_key}'.encode())
-        self._session_id = f"session_{hash_value}"
-
     def __del__(self):
         # Just in case ;-)
         gc.collect()
+
+    @property
+    def _session_id(self) -> str:
+        session_hash = b64encode(f'{self.username}@{self.url}'.encode()).decode()
+        return f"session_{session_hash}_{os.getpid()}_{threading.get_ident()}"
 
     @property
     def _session(self) -> Session:
@@ -197,18 +200,13 @@ class Osc:
 
         Possibly wrapped in CacheControl, if installed.
         """
+        if not self.cache or CacheControl is None:
+            return self._session
+
         key = f"cached_{self._session_id}"
         session = getattr(THREAD_LOCAL, key, None)
         if not session:
-            if self.cache:
-                # pylint: disable=broad-except
-                try:
-                    session = CacheControl(self._session)
-                except Exception as error:
-                    session = self._session
-                    warnings.warn("Cannot use the cache: {}".format(error), RuntimeWarning)
-            else:
-                session = self._session
+            session = CacheControl(self._session)
             setattr(THREAD_LOCAL, key, session)
 
         return session

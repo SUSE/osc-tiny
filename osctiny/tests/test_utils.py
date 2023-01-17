@@ -16,7 +16,8 @@ from pytz import _UTC, timezone
 from requests import Response
 import responses
 
-from ..osc import Osc
+from ..osc import Osc, THREAD_LOCAL
+from ..utils.auth import HttpSignatureAuth
 from ..utils.changelog import ChangeLog, Entry
 from ..utils.conf import get_config_path, get_credentials
 from ..utils.mapping import Mappable
@@ -396,13 +397,30 @@ class TestConfig(TestCase):
 
 @mock.patch("osctiny.utils.auth.time", return_value=123456)
 class TestAuth(TestCase):
+    def _clear_thread_local(self):
+        try:
+            delattr(THREAD_LOCAL, self.osc._session_id)
+
+        except AttributeError:
+            pass
+
     @mock.patch("osctiny.utils.auth.is_ssh_key_readable", return_value=(True, None))
     def setUp(self, *_):
         super().setUp()
         mocked_path = mock.MagicMock(spec=Path)
         mocked_path.configure_mock(**{"is_file.return_value": True})
-        self.osc = Osc("https://api.example.com", "nemo", "password", ssh_key_file=mocked_path)
+
+        self.osc = Osc(url="https://api.example.com",
+                       username="nemo",
+                       password="password",
+                       ssh_key_file=mocked_path)
+
+        self._clear_thread_local()
         self.osc.session.auth.ssh_sign = lambda *args, **kwargs: "Hello World"
+
+    def tearDown(self):
+        super().tearDown()
+        self._clear_thread_local()
 
     def setup_response(self, headers: dict):
         responses.reset()
@@ -426,6 +444,8 @@ class TestAuth(TestCase):
 
     @responses.activate
     def test_handle_401(self, *_):
+        self.assertIsInstance(self.osc.session.auth, HttpSignatureAuth)
+
         with self.subTest("No WWW-Authenticate header"):
             self.setup_response({"Foo": "Bar"})
             response = self.osc.session.get("https://api.example.com/hello-world")
