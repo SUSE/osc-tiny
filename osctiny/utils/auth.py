@@ -22,12 +22,6 @@ from requests import Response
 from .errors import OscError
 
 
-SSH_ENV = os.environ.copy()
-for env_var in ("SSH_AUTH_SOCK", "SSH_AGENT_PID"):
-    if env_var in SSH_ENV:
-        del SSH_ENV[env_var]
-
-
 def get_auth_header_from_orignal_response(r: Response) -> typing.Optional[str]:
     """
     Extract the "www-authenticate" header from the private original response attribute of a response
@@ -61,6 +55,27 @@ def get_auth_header_from_response(r: Response) -> typing.Optional[str]:
     return None
 
 
+def is_ssh_agent_available() -> typing.Tuple[bool, typing.Optional[str]]:
+    """
+    Check whether ``ssh-agent`` is running and accessible.
+
+    :return: A tuple of:
+             - ``True``, if ``ssh-agent`` is available, otherwise ``False``, and
+             - (optionally) an error message, if something went wrong, otherwise ``None``.
+
+    .. versionadded:: {{ NEXT_RELEASE }}
+    """
+    ssh_add_command = ['ssh-add', '-l']
+    with Popen(ssh_add_command, stdin=DEVNULL, stderr=PIPE, stdout=DEVNULL) as ssh_add_process:
+        _, ssh_add_err = ssh_add_process.communicate()
+        # Return code value 1 means the agent is available, but has no identities.
+        # This is not a deal-breaker for us, as the agent itself can ask for the right passphrase.
+        if ssh_add_process.returncode in [0, 1]:
+            return True, None
+
+    return False, ssh_add_err.decode('utf-8') if isinstance(ssh_add_err, bytes) else ssh_add_err
+
+
 def is_ssh_key_readable(ssh_key_file: Path, password: typing.Optional[str]) \
         -> typing.Tuple[bool, typing.Optional[str]]:
     """
@@ -68,7 +83,9 @@ def is_ssh_key_readable(ssh_key_file: Path, password: typing.Optional[str]) \
 
     :param ssh_key_file: Path to SSH key
     :param password: Passphrase
-    :return: ``True``, if SSH key is accessible
+    :return: A tuple of:
+             - ``True``, if SSH key is accessible, otherwise ``False``, and
+             - (optionally) an error message, if something went wrong, otherwise ``None``.
 
     .. versionadded:: 0.6.3
 
@@ -84,13 +101,38 @@ def is_ssh_key_readable(ssh_key_file: Path, password: typing.Optional[str]) \
     if password:
         cmd += ['-P', password]
 
-    with Popen(cmd, stdin=DEVNULL, stderr=PIPE, stdout=DEVNULL,
-               env=SSH_ENV if password else os.environ) as proc:
+    with Popen(cmd, stdin=DEVNULL, stderr=PIPE, stdout=DEVNULL) as proc:
         _, error = proc.communicate()
         if proc.returncode == 0:
             return True, None
 
     return False, error.decode("utf-8") if isinstance(error, bytes) else error
+
+
+def ssh_agent_has_identity_for_key(ssh_key_file: Path):
+    """
+    Check whether the ``ssh-agent`` has the identidy for the given key.
+
+    :param ssh_key_file: Path to SSH key
+    :return: A tuple of:
+             - ``True``, if ``ssh-agent`` has the identity, otherwise ``False``, and
+             - (optionally) an error message, if something went wrong, otherwise ``None``.
+
+    .. versionadded:: {{ NEXT_RELEASE }}
+    """
+    ssh_keygen_command = ['ssh-keygen', '-l', '-f', ssh_key_file.as_posix()]
+    with Popen(ssh_keygen_command, stdin=DEVNULL, stderr=PIPE, stdout=PIPE) as ssh_keygen_process:
+        ssh_keygen_out, ssh_keygen_err = ssh_keygen_process.communicate()
+        if ssh_keygen_process.returncode != 0:
+            return False, ssh_keygen_err.decode('utf-8') if isinstance(ssh_keygen_err, bytes) else ssh_keygen_err
+        ssh_keygen_out = ssh_keygen_out.decode('utf-8') if isinstance(ssh_keygen_out, bytes) else ssh_keygen_out
+    fingerprint = ssh_keygen_out.split(' ')[1]
+    ssh_add_command = ['ssh-add', '-l']
+    with Popen(ssh_add_command, stdin=DEVNULL, stderr=PIPE, stdout=PIPE) as ssh_add_process:
+        ssh_add_out, ssh_add_err = ssh_add_process.communicate()
+        if ssh_add_process.returncode != 0:
+            return False, ssh_add_err.decode('utf-8') if isinstance(ssh_add_err, bytes) else ssh_add_err
+    return fingerprint in ssh_add_out.decode('utf-8') if isinstance(ssh_add_out, bytes) else ssh_add_out, None
 
 
 class HttpSignatureAuth(HTTPDigestAuth):
@@ -121,14 +163,22 @@ class HttpSignatureAuth(HTTPDigestAuth):
     :param username: The username
     :param password: Passphrase for SSH key
     :param ssh_key_file: Path of SSH key
+
+    .. versionchanged:: {{ NEXT_RELEASE }}
+
+        * Prefer ``ssh-agent``; only fall back to direct use of private key when it's unavailable.
     """
     def __init__(self, username: str, password: typing.Optional[str], ssh_key_file: Path):
         super().__init__(username=username, password=password)
         if not ssh_key_file.is_file():
             raise FileNotFoundError(f"SSH key at location does not exist: {ssh_key_file}")
-        readable, error = is_ssh_key_readable(ssh_key_file=ssh_key_file, password=password)
-        if not readable:
-            raise RuntimeError(f"SSH signing impossible because key cannot be decrypted: {error}.")
+        # Check whether there's an `ssh-agent` running and whether it has the key we need.
+        if not (is_ssh_agent_available() and ssh_agent_has_identity_for_key(ssh_key_file)):
+            # Failing that, check whether we can read the key directly.
+            readable, error = is_ssh_key_readable(ssh_key_file=ssh_key_file, password=password)
+            if not readable:
+                raise RuntimeError(f"SSH signing is impossible, because the key at {ssh_key_file} "
+                                   f"cannot be decrypted: {error}.")
 
         self.ssh_key_file = ssh_key_file
         self.pattern = re.compile(r"(?<=\)) (?=\()")
@@ -157,8 +207,7 @@ class HttpSignatureAuth(HTTPDigestAuth):
             cmd += ['-P', self.password]
 
         encoding = sys.getdefaultencoding()
-        with Popen(cmd, stdout=PIPE, stderr=PIPE, stdin=PIPE,
-                   env=SSH_ENV if self.password else os.environ) as proc:
+        with Popen(cmd, stdout=PIPE, stderr=PIPE, stdin=PIPE) as proc:
             signature, error = proc.communicate(data.encode(encoding))
             if proc.returncode:
                 raise OscError(f"ssh-keygen returned {proc.returncode}: {error}")
