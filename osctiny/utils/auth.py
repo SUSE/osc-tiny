@@ -7,7 +7,6 @@ Authentication handlers for 2FA
 import typing
 from base64 import b64decode, b64encode
 import logging
-import os
 from pathlib import Path
 from subprocess import Popen, PIPE, DEVNULL
 import re
