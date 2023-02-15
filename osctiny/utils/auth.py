@@ -22,6 +22,19 @@ from requests import Response
 from .errors import OscError
 
 
+def decoded(object_: typing.Union[bytes, str], encoding: str = 'utf-8') -> str:
+    """
+    Return decoded ``object_``, if decoding is even necessary.
+
+    :param object_: the object to be decoded (either a ``bytes`` or a ``str`` type)
+    :param encoding: the encoding to use when trying to decode the object
+    :return: The object, decoded to a string.
+
+    .. versionadded:: {{ NEXT_RELEASE }}
+    """
+    return object_.decode(encoding) if isinstance(object_, bytes) else object_
+
+
 def get_auth_header_from_orignal_response(r: Response) -> typing.Optional[str]:
     """
     Extract the "www-authenticate" header from the private original response attribute of a response
@@ -73,7 +86,7 @@ def is_ssh_agent_available() -> typing.Tuple[bool, typing.Optional[str]]:
         if ssh_add_process.returncode in [0, 1]:
             return True, None
 
-    return False, ssh_add_err.decode('utf-8') if isinstance(ssh_add_err, bytes) else ssh_add_err
+    return False, decoded(ssh_add_err)
 
 
 def is_ssh_key_readable(ssh_key_file: Path, password: typing.Optional[str]) \
@@ -106,7 +119,7 @@ def is_ssh_key_readable(ssh_key_file: Path, password: typing.Optional[str]) \
         if proc.returncode == 0:
             return True, None
 
-    return False, error.decode("utf-8") if isinstance(error, bytes) else error
+    return False, decoded(error)
 
 
 def ssh_agent_has_identity_for_key(ssh_key_file: Path):
@@ -124,15 +137,15 @@ def ssh_agent_has_identity_for_key(ssh_key_file: Path):
     with Popen(ssh_keygen_command, stdin=DEVNULL, stderr=PIPE, stdout=PIPE) as ssh_keygen_process:
         ssh_keygen_out, ssh_keygen_err = ssh_keygen_process.communicate()
         if ssh_keygen_process.returncode != 0:
-            return False, ssh_keygen_err.decode('utf-8') if isinstance(ssh_keygen_err, bytes) else ssh_keygen_err
-        ssh_keygen_out = ssh_keygen_out.decode('utf-8') if isinstance(ssh_keygen_out, bytes) else ssh_keygen_out
+            return False, decoded(ssh_keygen_err)
+        ssh_keygen_out = decoded(ssh_keygen_out)
     fingerprint = ssh_keygen_out.split(' ')[1]
     ssh_add_command = ['ssh-add', '-l']
     with Popen(ssh_add_command, stdin=DEVNULL, stderr=PIPE, stdout=PIPE) as ssh_add_process:
         ssh_add_out, ssh_add_err = ssh_add_process.communicate()
         if ssh_add_process.returncode != 0:
-            return False, ssh_add_err.decode('utf-8') if isinstance(ssh_add_err, bytes) else ssh_add_err
-    return fingerprint in ssh_add_out.decode('utf-8') if isinstance(ssh_add_out, bytes) else ssh_add_out, None
+            return False, decoded(ssh_add_err)
+    return fingerprint in decoded(ssh_add_out)
 
 
 class HttpSignatureAuth(HTTPDigestAuth):
