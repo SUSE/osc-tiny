@@ -79,7 +79,7 @@ def is_ssh_agent_available() -> typing.Tuple[bool, typing.Optional[str]]:
     """
     ssh_add_command = ['ssh-add', '-l']
     with Popen(ssh_add_command, stdin=DEVNULL, stderr=PIPE, stdout=DEVNULL) as ssh_add_process:
-        _, ssh_add_err = ssh_add_process.communicate()
+        _, ssh_add_err = ssh_add_process.communicate(timeout=10)
         # Return code value 1 means the agent is available, but has no identities.
         # This is not a deal-breaker for us, as the agent itself can ask for the right passphrase.
         if ssh_add_process.returncode in [0, 1]:
@@ -114,7 +114,7 @@ def is_ssh_key_readable(ssh_key_file: Path, password: typing.Optional[str]) \
         cmd += ['-P', password]
 
     with Popen(cmd, stdin=DEVNULL, stderr=PIPE, stdout=DEVNULL) as proc:
-        _, error = proc.communicate()
+        _, error = proc.communicate(timeout=10)
         if proc.returncode == 0:
             return True, None
 
@@ -134,14 +134,14 @@ def ssh_agent_has_identity_for_key(ssh_key_file: Path):
     """
     ssh_keygen_command = ['ssh-keygen', '-l', '-f', ssh_key_file.as_posix()]
     with Popen(ssh_keygen_command, stdin=DEVNULL, stderr=PIPE, stdout=PIPE) as ssh_keygen_process:
-        ssh_keygen_out, ssh_keygen_err = ssh_keygen_process.communicate()
+        ssh_keygen_out, ssh_keygen_err = ssh_keygen_process.communicate(timeout=10)
         if ssh_keygen_process.returncode != 0:
             return False, decoded(ssh_keygen_err)
         ssh_keygen_out = decoded(ssh_keygen_out)
     fingerprint = ssh_keygen_out.split(' ')[1]
     ssh_add_command = ['ssh-add', '-l']
     with Popen(ssh_add_command, stdin=DEVNULL, stderr=PIPE, stdout=PIPE) as ssh_add_process:
-        ssh_add_out, ssh_add_err = ssh_add_process.communicate()
+        ssh_add_out, ssh_add_err = ssh_add_process.communicate(timeout=10)
         if ssh_add_process.returncode != 0:
             return False, decoded(ssh_add_err)
     return fingerprint in decoded(ssh_add_out)
