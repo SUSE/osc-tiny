@@ -7,9 +7,8 @@ Authentication handlers for 2FA
 import typing
 from base64 import b64decode, b64encode
 import logging
-import os
 from pathlib import Path
-from subprocess import Popen, PIPE, DEVNULL
+from subprocess import Popen, PIPE, TimeoutExpired
 import re
 import sys
 from time import time
@@ -20,12 +19,6 @@ from requests.utils import parse_dict_header
 from requests import Response
 
 from .errors import OscError
-
-
-SSH_ENV = os.environ.copy()
-for env_var in ("SSH_AUTH_SOCK", "SSH_AGENT_PID"):
-    if env_var in SSH_ENV:
-        del SSH_ENV[env_var]
 
 
 def get_auth_header_from_orignal_response(r: Response) -> typing.Optional[str]:
@@ -61,10 +54,42 @@ def get_auth_header_from_response(r: Response) -> typing.Optional[str]:
     return None
 
 
+def ssh_sign(message: str, namespace: str, ssh_key_file: Path,
+             password: typing.Optional[str] = None) -> str:
+    """
+    Create an SSH signature for message
+
+    :param message: The message/data to sign
+    :param namespace: The purpose of the signature (see SSH docs for details)
+    :param ssh_key_file: Path to SSH key
+    :param password: Passphrase
+    :return: Signature
+
+    .. versionadded:: {{ NEXT_RELEASE }}
+    """
+    cmd = ['ssh-keygen', '-Y', 'sign', '-f', ssh_key_file.as_posix(), '-q',
+           '-n', namespace]
+    timeout = 10
+    if password:
+        cmd += ['-P', password]
+
+    encoding = sys.getdefaultencoding()
+
+    with Popen(cmd, stdout=PIPE, stderr=PIPE, stdin=PIPE, encoding=encoding) as proc:
+        try:
+            signature, error = proc.communicate(input=message, timeout=timeout)
+            if proc.returncode:
+                raise OscError(f"ssh-keygen returned {proc.returncode}: {error}")
+            return signature
+        except TimeoutExpired as error:
+            proc.kill()
+            raise OscError(f"ssh-keygen did not return within {timeout} second(s)") from error
+
+
 def is_ssh_key_readable(ssh_key_file: Path, password: typing.Optional[str]) \
         -> typing.Tuple[bool, typing.Optional[str]]:
     """
-    Check whether SSH key can be read/unlocked
+    Check whether SSH signing is viable
 
     :param ssh_key_file: Path to SSH key
     :param password: Passphrase
@@ -79,18 +104,21 @@ def is_ssh_key_readable(ssh_key_file: Path, password: typing.Optional[str]) \
     .. versionchanged:: 0.7.10
 
         * Return the error message, if key cannot be unlocked
+
+    .. versionchanged:: {{ NEXT_RELEASE }}
+
+        * Instead of checking whether the key is readable, this function checks whether it can
+          actually be used for signing
     """
-    cmd = ['ssh-keygen', '-y', '-f', ssh_key_file.as_posix()]
-    if password:
-        cmd += ['-P', password]
+    try:
+        ssh_sign(message="Test",
+                 namespace="None",
+                 ssh_key_file=ssh_key_file,
+                 password=password)
+    except OscError as error:
+        return False, str(error)
 
-    with Popen(cmd, stdin=DEVNULL, stderr=PIPE, stdout=DEVNULL,
-               env=SSH_ENV if password else os.environ) as proc:
-        _, error = proc.communicate()
-        if proc.returncode == 0:
-            return True, None
-
-    return False, error.decode("utf-8") if isinstance(error, bytes) else error
+    return True, None
 
 
 class HttpSignatureAuth(HTTPDigestAuth):
@@ -151,23 +179,15 @@ class HttpSignatureAuth(HTTPDigestAuth):
         """
         data = "\n".join(f"({header}): {self._thread_local.chal[header]}"
                          for header in self._thread_local.chal["headers"])
-        cmd = ['ssh-keygen', '-Y', 'sign', '-f', self.ssh_key_file.as_posix(), '-q',
-               '-n', self._thread_local.chal.get('realm', '')]
-        if self.password:
-            cmd += ['-P', self.password]
-
-        encoding = sys.getdefaultencoding()
-        with Popen(cmd, stdout=PIPE, stderr=PIPE, stdin=PIPE,
-                   env=SSH_ENV if self.password else os.environ) as proc:
-            signature, error = proc.communicate(data.encode(encoding))
-            if proc.returncode:
-                raise OscError(f"ssh-keygen returned {proc.returncode}: {error}")
-
-        match = re.match(br"\A-----BEGIN SSH SIGNATURE-----\n(.*)\n-----END SSH SIGNATURE-----",
+        signature = ssh_sign(message=data,
+                             namespace=self._thread_local.chal.get('realm', ''),
+                             ssh_key_file=self.ssh_key_file,
+                             password=self.password)
+        match = re.match(r"\A-----BEGIN SSH SIGNATURE-----\n(.*)\n-----END SSH SIGNATURE-----",
                          signature, re.S)
         if not match:
             raise OscError("Could not generate challenge response")
-        return b64encode(b64decode(match.group(1))).decode(encoding)
+        return b64encode(b64decode(match.group(1))).decode(sys.getdefaultencoding())
 
     def build_digest_header(self, method: str, url: str) -> str:
         """
