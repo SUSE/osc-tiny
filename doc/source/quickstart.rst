@@ -71,7 +71,7 @@ different:
 .. code-block:: python
 
     from pathlib import Path
-    from ostiny import Osc
+    from osctiny import Osc
 
     # Basic Auth with username + password
     osc = Osc(
