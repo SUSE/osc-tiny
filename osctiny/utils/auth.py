@@ -65,7 +65,7 @@ def ssh_sign(message: str, namespace: str, ssh_key_file: Path,
     :param password: Passphrase
     :return: Signature
 
-    .. versionadded:: {{ NEXT_RELEASE }}
+    .. versionadded:: 0.7.12
     """
     cmd = ['ssh-keygen', '-Y', 'sign', '-f', ssh_key_file.as_posix(), '-q',
            '-n', namespace]
@@ -105,7 +105,7 @@ def is_ssh_key_readable(ssh_key_file: Path, password: typing.Optional[str]) \
 
         * Return the error message, if key cannot be unlocked
 
-    .. versionchanged:: {{ NEXT_RELEASE }}
+    .. versionchanged:: 0.7.12
 
         * Instead of checking whether the key is readable, this function checks whether it can
           actually be used for signing
