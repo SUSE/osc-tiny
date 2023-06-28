@@ -68,6 +68,28 @@ class Build(ExtensionBase):
 
         return self.osc.get_objectified_xml(response)
 
+    def get_log(self, project, repo, arch, package):
+        """
+        Get the build log of a package
+
+        :param project: Project name
+        :param repo: Repository name
+        :param arch: Architecture name
+        :param package: Package name
+        :return: The package build log file
+        :rtype: str
+
+        .. versionadded:: {{ NEXT_RELEASE }}
+        """
+
+        response = self.osc.request(
+            method="GET",
+            url=urljoin(self.osc.url, "{}/{}/{}/{}/{}/_log".format(self.base_path,
+                                                             project,repo,arch,package))
+        )
+
+        return response.text
+
     def get_package_list(self, project, repo, arch):
         """
         Get a list of packages for which build results exist
