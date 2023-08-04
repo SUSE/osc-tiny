@@ -441,6 +441,8 @@ class Project(ExtensionBase):
         parsed = self.osc.get_objectified_xml(response)
         if response.status_code == 200 and parsed.get("code") == "ok":
             return True
+        if response.status_code == 404 and force:
+            return True
 
         return parsed
 
