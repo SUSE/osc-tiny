@@ -199,7 +199,7 @@ def get_cookie_jar() -> typing.Optional[LWPCookieJar]:
     .. versionadded:: 0.8.0
     """
     if _conf is not None:
-        path = _conf._identify_osccookiejar()
+        path = _conf._identify_osccookiejar()  # pylint: disable=protected-access
         if os.path.isfile(path):
             return LWPCookieJar(filename=path)
 
