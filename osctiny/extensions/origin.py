@@ -22,12 +22,13 @@ logic than in the original OSC plugin is used:
 """
 # pylint: disable=too-many-ancestors,ungrouped-imports
 from collections import defaultdict
+from functools import lru_cache
 import re
 from warnings import warn
 
 from yaml import load
 
-from ..utils.backports import lru_cache, cached_property
+from ..utils.backports import cached_property
 from ..utils.base import ExtensionBase
 from ..utils.mapping import LazyOscMappable
 
