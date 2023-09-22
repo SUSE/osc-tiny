@@ -79,7 +79,7 @@ class Build(ExtensionBase):
         :return: The package build log file
         :rtype: str
 
-        .. versionadded:: {{ NEXT_RELEASE }}
+        .. versionadded:: 0.8.0
         """
 
         response = self.osc.request(

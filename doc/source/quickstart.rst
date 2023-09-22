@@ -32,18 +32,6 @@ E.g. on Ubuntu you can use:
 
 .. _OpenBuildService: https://openbuildservice.org/
 
-Caching
-^^^^^^^
-
-If you want to use caching, make sure to also install `CacheControl`_. It's a
-purely optional feature so it is not listed in the requirements file. Use:
-
-.. code-block:: bash
-
-    pip install CacheControl
-
-.. _CacheControl: https://cachecontrol.readthedocs.io/en/latest/
-
 Configuration
 ^^^^^^^^^^^^^
 

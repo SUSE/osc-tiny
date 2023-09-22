@@ -26,14 +26,15 @@ with open("README.md") as fh:
 
 setup(
     name='osc-tiny',
-    version='0.7.12',
+    version='0.8.0',
     description='Client API for openSUSE BuildService',
     long_description=long_description,
     long_description_content_type="text/markdown",
     author='Andreas Hasenkopf',
     author_email='ahasenkopf@suse.com',
-    url='http://github.com/crazyscientist/osc-tiny',
-    download_url='http://github.com/crazyscientist/osc-tiny/tarball/master',
+    maintainer='SUSE Maintenance Automation Engineering team',
+    maintainer_email='maintenance-automation-team@suse.de',
+    url='https://github.com/SUSE/osc-tiny',
     packages=find_packages(),
     license='MIT',
     install_requires=get_requires(),
@@ -49,5 +50,6 @@ setup(
         "Programming Language :: Python :: 3.9",
         "Programming Language :: Python :: 3.10",
         "Programming Language :: Python :: 3.11",
+        "Programming Language :: Python :: 3.12",
     ]
 )

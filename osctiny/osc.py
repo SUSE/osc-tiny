@@ -7,6 +7,7 @@ from __future__ import unicode_literals
 from base64 import b64encode
 import typing
 import errno
+from http.cookiejar import CookieJar
 from io import BufferedReader, BytesIO, StringIO
 import gc
 import logging
@@ -38,13 +39,9 @@ from .extensions.search import Search
 from .extensions.users import Group, Person
 from .utils.auth import HttpSignatureAuth
 from .utils.backports import cached_property
-from .utils.conf import BOOLEAN_PARAMS, get_credentials
+from .utils.conf import BOOLEAN_PARAMS, get_credentials, get_cookie_jar
 from .utils.errors import OscError
 
-try:
-    from cachecontrol import CacheControl
-except ImportError:
-    CacheControl = None
 
 THREAD_LOCAL = threading.local()
 
@@ -94,7 +91,6 @@ class Osc:
     :param password: Password; this is either the user password (``ssh_key_file`` is ``None``) or
                      the SSH passphrase, if ``ssh_key_file`` is defined
     :param verify: See `SSL Cert Verification`_ for more details
-    :param cache: Store API responses in a cache
     :param ssh_key_file: Path to SSH private key file
     :raises osctiny.errors.OscError: if no credentials are provided
 
@@ -120,6 +116,9 @@ class Osc:
         Support for 2FA authentication (i.e. added the ``ssh_key_file`` parameter and changed the
         meaning of the ``password`` parameter
 
+    .. versionchanged:: 0.8.0
+        Removed the ``cache`` parameter
+
     .. _SSL Cert Verification:
         http://docs.python-requests.org/en/master/user/advanced/
         #ssl-cert-verification
@@ -133,14 +132,12 @@ class Osc:
 
     def __init__(self, url: typing.Optional[str] = None, username: typing.Optional[str] = None,
                  password: typing.Optional[str] = None, verify: typing.Optional[str] = None,
-                 cache: bool = False,
                  ssh_key_file: typing.Optional[typing.Union[Path, str]] = None):
         # Basic URL and authentication settings
         self.url = url or self.url
         self.username = username or self.username
         self.password = password or self.password
         self.verify = verify
-        self.cache = cache
         self.ssh_key = ssh_key_file
         if self.ssh_key is not None and not isinstance(self.ssh_key, Path):
             self.ssh_key = Path(self.ssh_key)
@@ -174,7 +171,7 @@ class Osc:
         return f"session_{session_hash}_{os.getpid()}_{threading.get_ident()}"
 
     @property
-    def _session(self) -> Session:
+    def session(self) -> Session:
         """
         Session object
         """
@@ -182,6 +179,11 @@ class Osc:
         if not session:
             session = Session()
             session.verify = self.verify or get_default_verify_paths().capath
+
+            cookies = get_cookie_jar()
+            if cookies is not None:
+                cookies.load()
+                session.cookies = cookies
 
             if self.ssh_key is not None:
                 session.auth = HttpSignatureAuth(username=self.username, password=self.password,
@@ -194,39 +196,21 @@ class Osc:
         return session
 
     @property
-    def session(self) -> typing.Union[CacheControl, Session]:
-        """
-        Session object
-
-        Possibly wrapped in CacheControl, if installed.
-        """
-        if not self.cache or CacheControl is None:
-            return self._session
-
-        key = f"cached_{self._session_id}"
-        session = getattr(THREAD_LOCAL, key, None)
-        if not session:
-            session = CacheControl(self._session)
-            setattr(THREAD_LOCAL, key, session)
-
-        return session
-
-    @property
     def cookies(self) -> RequestsCookieJar:
         """
         Access session cookies
         """
-        return self._session.cookies
+        return self.session.cookies
 
     @cookies.setter
-    def cookies(self, value: RequestsCookieJar):
-        if not isinstance(value, (RequestsCookieJar, dict)):
+    def cookies(self, value: typing.Union[CookieJar, dict]):
+        if not isinstance(value, (CookieJar, dict)):
             raise TypeError(f"Expected a cookie jar or dict. Got instead: {type(value)}")
 
-        if isinstance(value, RequestsCookieJar):
-            self._session.cookies = value
+        if isinstance(value, CookieJar):
+            self.session.cookies = value
         else:
-            self._session.cookies = cookiejar_from_dict(value)
+            self.session.cookies = cookiejar_from_dict(value)
 
     @property
     def parser(self):
@@ -246,9 +230,6 @@ class Osc:
         ``data`` is URL-encoded and passed on as GET parameters. If ``data`` is
         a dictionary and contains a key ``comment``, this value is passed on as
         a POST parameter.
-
-        If ``stream`` is True, the server response does not get cached because
-        the returned file might be large or huge.
 
         if ``raise_for_status`` is True, the used ``requests`` framework will
         raise an exception for occured errors.
@@ -292,21 +273,16 @@ class Osc:
         """
         timeout = timeout or self.default_timeout
 
-        if stream:
-            session = self._session
-        else:
-            session = self.session
-
         req = Request(
             method,
             url.replace("#", quote("#")).replace("?", quote("?")),
             data=self.handle_params(url=url, method=method, params=data),
             params=self.handle_params(url=url, method=method, params=params)
         )
-        prepped_req = session.prepare_request(req)
+        prepped_req = self.session.prepare_request(req)
         prepped_req.headers['Content-Type'] = "application/octet-stream"
         prepped_req.headers['Accept'] = "application/xml"
-        settings = session.merge_environment_settings(
+        settings = self.session.merge_environment_settings(
             prepped_req.url, {}, None, None, None
         )
         settings["stream"] = stream
@@ -327,7 +303,7 @@ class Osc:
                              else parse_qs(req.params, keep_blank_values=True)
                          ).items()))
             try:
-                response = session.send(prepped_req, **settings)
+                response = self.session.send(prepped_req, **settings)
             except _ConnectionError as error:
                 warnings.warn("Problem connecting to server: {}".format(error))
                 log_method = logger.error if i < 1 else logger.warning
