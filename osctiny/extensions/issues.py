@@ -2,11 +2,11 @@
 Issues extension
 ----------------
 """
+from functools import lru_cache
 import os
 
 from urllib.parse import urljoin
 
-from ..utils.backports import lru_cache
 from ..utils.base import ExtensionBase
 
 
