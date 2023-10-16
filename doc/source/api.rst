@@ -60,3 +60,6 @@ Utilities
 
 .. automodule:: osctiny.utils.mapping
     :members:
+
+.. automodule:: osctiny.utils.xml
+    :members:

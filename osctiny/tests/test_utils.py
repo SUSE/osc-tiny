@@ -10,10 +10,11 @@ from pathlib import Path
 import sys
 from tempfile import mkstemp
 from types import GeneratorType
+import warnings
 
 from dateutil.parser import parse
 from pytz import _UTC, timezone
-from requests import Response
+from requests import Response, HTTPError
 import responses
 
 from ..osc import Osc, THREAD_LOCAL
@@ -21,6 +22,7 @@ from ..utils.auth import HttpSignatureAuth
 from ..utils.changelog import ChangeLog, Entry
 from ..utils.conf import get_config_path, get_credentials
 from ..utils.mapping import Mappable
+from ..utils.errors import get_http_error_details
 
 sys.path.append(os.path.dirname(__file__))
 
@@ -489,3 +491,65 @@ class TestAuth(TestCase):
                                      "Basic realm=\"Use your developer account\", "})
             response = self.osc.session.get("https://api.example.com/hello-world")
             self.do_assertions(response, True)
+
+
+class TestError(TestCase):
+    url = "http://example.com"
+    @property
+    def osc(self) -> Osc:
+        return Osc(url=self.url, username="nemo", password="password")
+
+    @responses.activate
+    def test_get_http_error_details(self):
+        status = 400
+        summary = "Bla Bla Bla"
+        responses.add(
+            responses.GET,
+            "http://example.com",
+            body=f"""<status code="foo"><summary>{summary}</summary></status>""",
+            status=400
+        )
+
+        response = self.osc.session.get(self.url)
+
+        with self.subTest("Response"):
+            self.assertEqual(response.status_code, status)
+            self.assertEqual(get_http_error_details(response), summary)
+
+        with self.subTest("Exception"):
+            try:
+                response.raise_for_status()
+            except HTTPError as error:
+                self.assertEqual(get_http_error_details(error), summary)
+            else:
+                self.fail("No exception was raised")
+
+    @responses.activate
+    def test_get_http_error_details__bad_response(self):
+        status = 502
+        responses.add(
+            responses.GET,
+            "http://example.com",
+            body=f"""Bad Gateway HTML message""",
+            status=status
+        )
+
+        response = self.osc.session.get(self.url)
+
+        with self.subTest("Response"):
+            self.assertEqual(response.status_code, status)
+            with warnings.catch_warnings(record=True) as emitted_warnings:
+                self.assertIn("Server replied with:", get_http_error_details(response))
+                self.assertEqual(len(emitted_warnings), 1)
+                self.assertIn("Start tag expected", str(emitted_warnings[-1].message))
+
+        with self.subTest("Exception"):
+            try:
+                response.raise_for_status()
+            except HTTPError as error:
+                with warnings.catch_warnings(record=True) as emitted_warnings:
+                    self.assertIn("Server replied with:", get_http_error_details(error))
+                    self.assertEqual(len(emitted_warnings), 1)
+                    self.assertIn("Start tag expected", str(emitted_warnings[-1].message))
+            else:
+                self.fail("No exception was raised")
