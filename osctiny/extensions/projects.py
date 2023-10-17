@@ -45,6 +45,9 @@ class Project(ExtensionBase):
     def get_meta(self, project, rev=None):
         """
         Get project metadata
+        
+        .. versionchanged:: 0.8.0
+            Added the ``rev`` parameter
 
         :param project: name of project
         :param rev: optional revision ID
