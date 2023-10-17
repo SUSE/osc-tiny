@@ -93,6 +93,10 @@ class TestProject(OscTest):
                     </status>
                 """
             headers['request-id'] = '728d329e-0e86-11e4-a748-0c84dc037c13'
+            if "rev" in request.params:
+                revision = request.params["rev"]
+                body = body.replace('<project name="Devel:ARM:Factory">',
+                                    f'<project name="Devel:ARM:Factory:r{revision}">')
             return status, headers, body
 
         self.mock_request(
@@ -111,6 +115,10 @@ class TestProject(OscTest):
             self.assertRaises(
                 HTTPError, self.osc.projects.get_meta, "Devel:ARM:Fbctory"
             )
+        with self.subTest("existing project with revision"):
+            response = self.osc.projects.get_meta("Devel:ARM:Factory", rev=2)
+            self.assertEqual(response.tag, "project")
+            self.assertEqual(response.get("name"), "Devel:ARM:Factory:r2")
 
     @responses.activate
     def test_set_meta(self):

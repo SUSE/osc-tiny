@@ -42,11 +42,16 @@ class Project(ExtensionBase):
 
         return self.osc.get_objectified_xml(response)
 
-    def get_meta(self, project):
+    def get_meta(self, project, rev=None):
         """
         Get project metadata
+        
+        .. versionchanged:: 0.8.0
+            Added the ``rev`` parameter
 
         :param project: name of project
+        :param rev: optional revision ID
+        :type rev: int
         :return: Objectified XML element
         :rtype: lxml.objectify.ObjectifiedElement
         """
@@ -55,7 +60,8 @@ class Project(ExtensionBase):
                 self.osc.url,
                 "{}/{}/_meta".format(self.base_path, project)
             ),
-            method="GET"
+            method="GET",
+            params={"rev": rev} if rev else None
         )
 
         return self.osc.get_objectified_xml(response)
