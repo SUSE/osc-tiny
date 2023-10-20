@@ -58,7 +58,7 @@ class Project(ExtensionBase):
         response = self.osc.request(
             url=urljoin(
                 self.osc.url,
-                "{}/{}/_meta".format(self.base_path, project)
+                "{}/{}/_project/_meta".format(self.base_path, project)
             ),
             method="GET",
             params={"rev": rev} if rev else None
