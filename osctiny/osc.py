@@ -27,6 +27,7 @@ from requests.auth import HTTPBasicAuth
 from requests.cookies import RequestsCookieJar, cookiejar_from_dict
 from requests.exceptions import ConnectionError as _ConnectionError
 
+from .extensions.attributes import Attribute
 from .extensions.buildresults import Build
 from .extensions.comments import Comment
 from .extensions.distributions import Distribution
@@ -85,6 +86,8 @@ class Osc:
           - :py:attr:`distributions`
         * - :py:class:`osctiny.extensions.origin.Origin`
           - :py:attr:`origins`
+        * - :py:class:`osctiny.extensions.attributes.Attribute`
+          - :py:attr:`attributes`
 
     :param url: API URL of a BuildService instance
     :param username: Username
@@ -117,7 +120,8 @@ class Osc:
         meaning of the ``password`` parameter
 
     .. versionchanged:: 0.8.0
-        Removed the ``cache`` parameter
+        * Removed the ``cache`` parameter
+        * Added the ``attributes`` extensions
 
     .. _SSL Cert Verification:
         http://docs.python-requests.org/en/master/user/advanced/
@@ -149,6 +153,7 @@ class Osc:
                 raise OscError from error
 
         # API endpoints
+        self.attributes = Attribute(osc_obj=self)
         self.build = Build(osc_obj=self)
         self.comments = Comment(osc_obj=self)
         self.distributions = Distribution(osc_obj=self)

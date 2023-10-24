@@ -10,6 +10,9 @@ Core
 Extensions
 ----------
 
+.. automodule:: osctiny.extensions.attributes
+    :members:
+
 .. automodule:: osctiny.extensions.buildresults
     :members:
 
