@@ -20,8 +20,6 @@ import threading
 from urllib.parse import quote, parse_qs, urlparse
 import warnings
 
-# pylint: disable=no-name-in-module
-from lxml.objectify import fromstring, makeparser
 from requests import Session, Request
 from requests.auth import HTTPBasicAuth
 from requests.cookies import RequestsCookieJar, cookiejar_from_dict
@@ -41,6 +39,7 @@ from .utils.auth import HttpSignatureAuth
 from .utils.backports import cached_property
 from .utils.conf import BOOLEAN_PARAMS, get_credentials, get_cookie_jar
 from .utils.errors import OscError
+from .utils.xml import get_xml_parser, get_objectified_xml
 
 
 THREAD_LOCAL = threading.local()
@@ -216,11 +215,11 @@ class Osc:
     def parser(self):
         """
         Explicit parser instance
-        """
-        if not hasattr(THREAD_LOCAL, "parser"):
-            THREAD_LOCAL.parser = makeparser(huge_tree=True)
 
-        return THREAD_LOCAL.parser
+        .. versionchanged:: 0.8.0
+            Content moved to :py:fun:`osctiny.utils.xml.get_xml_parser`
+        """
+        return get_xml_parser()
 
     def request(self, url, method="GET", stream=False, data=None, params=None,
                 raise_for_status=True, timeout=None):
@@ -465,25 +464,8 @@ class Osc:
 
             Allow ``response`` to be a string
 
-        :param response: An API response or XML string
-        :rtype response: :py:class:`requests.Response`
-        :return: :py:class:`lxml.objectify.ObjectifiedElement`
+        .. versionchanged:: 0.8.0
+
+            Content moved to :py:fun:`osctiny.utils.xml.get_objectified_xml`
         """
-        if isinstance(response, str):
-            text = response
-        else:
-            text = response.text
-
-        try:
-            return fromstring(text, self.parser)
-        except ValueError:
-            # Just in case OBS returns a Unicode string with encoding
-            # declaration
-            if isinstance(text, str) and \
-                    "encoding=" in text:
-                return fromstring(
-                    re.sub(r'encoding="[^"]+"', "", text)
-                )
-
-            # This might be something else
-            raise
+        return get_objectified_xml(response=response)
