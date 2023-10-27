@@ -507,7 +507,7 @@ class TestError(TestCase):
             responses.GET,
             "http://example.com",
             body=f"""<status code="foo"><summary>{summary}</summary></status>""",
-            status=400
+            status=status
         )
 
         response = self.osc.session.get(self.url)
