@@ -16,7 +16,7 @@ class Attribute(ExtensionBase):
     """
     Access attribute namespaces and definitions
     """
-    base_path = "/attribute/"
+    base_path = "/attribute"
 
     def list_namespaces(self) -> typing.List[str]:
         """
@@ -25,7 +25,7 @@ class Attribute(ExtensionBase):
         :return: List of namespace names
         """
         response = self.osc.request(
-            url=urljoin(self.osc.url, self.base_path),
+            url=urljoin(self.osc.url, f"{self.base_path}/"),
             method="GET"
         )
         content = self.osc.get_objectified_xml(response)
@@ -39,7 +39,7 @@ class Attribute(ExtensionBase):
         :return: Objectified XML element
         """
         response = self.osc.request(
-            url=urljoin(self.osc.url, f"{self.base_path}{namespace}/_meta"),
+            url=urljoin(self.osc.url, f"{self.base_path}/{namespace}/_meta"),
             method="GET"
         )
         return self.osc.get_objectified_xml(response)
@@ -52,7 +52,7 @@ class Attribute(ExtensionBase):
         :return: List of attribute names
         """
         response = self.osc.request(
-            url=urljoin(self.osc.url, self.base_path + namespace),
+            url=urljoin(self.osc.url, f"{self.base_path}/{namespace}"),
             method="GET"
         )
         content = self.osc.get_objectified_xml(response)
@@ -67,7 +67,7 @@ class Attribute(ExtensionBase):
         :return: Objectified XML element
         """
         response = self.osc.request(
-            url=urljoin(self.osc.url, f"{self.base_path}{namespace}/{name}/_meta"),
+            url=urljoin(self.osc.url, f"{self.base_path}/{namespace}/{name}/_meta"),
             method="GET"
         )
         return self.osc.get_objectified_xml(response)
