@@ -17,18 +17,18 @@
 | osctiny/extensions/projects.py      |      115 |       17 |     85% |92-94, 172, 197, 200, 257, 278, 304, 317, 337, 358-371, 420, 451 |
 | osctiny/extensions/search.py        |       13 |        1 |     92% |        56 |
 | osctiny/extensions/users.py         |       18 |        9 |     50% |23-32, 42-47, 65-70 |
-| osctiny/osc.py                      |      184 |       26 |     86% |146, 149-152, 170, 189-190, 207, 211-217, 227, 311-318, 330, 444, 450 |
+| osctiny/osc.py                      |      184 |       25 |     86% |146, 149-152, 189-190, 207, 211-217, 227, 311-318, 330, 444, 450 |
 | osctiny/utils/\_\_init\_\_.py       |        0 |        0 |    100% |           |
 | osctiny/utils/auth.py               |      118 |       36 |     69% |35, 70-86, 113-121, 156, 159, 165, 180-190, 209-210, 220, 234-235, 240, 247 |
 | osctiny/utils/backports.py          |        4 |        2 |     50% |     14-16 |
 | osctiny/utils/base.py               |       35 |        4 |     89% |     59-63 |
 | osctiny/utils/changelog.py          |       95 |        6 |     94% |64, 75, 93, 104, 161, 271 |
-| osctiny/utils/conf.py               |       85 |       28 |     67% |21, 67, 108, 130-150, 179, 182-187, 190, 202-204, 212 |
+| osctiny/utils/conf.py               |       88 |       31 |     65% |21, 67, 108, 130-150, 179, 182-187, 190, 202-209, 217 |
 | osctiny/utils/errors.py             |       19 |        1 |     95% |        24 |
 | osctiny/utils/mapping.py            |       37 |       10 |     73% |29, 32, 35, 38, 44, 47, 56, 59, 72-73 |
 | osctiny/utils/xml.py                |       24 |        3 |     88% |54, 58, 74 |
 | setup.py                            |       15 |       15 |      0% |      3-27 |
-|                           **TOTAL** | **1240** |  **295** | **76%** |           |
+|                           **TOTAL** | **1243** |  **297** | **76%** |           |
 
 
 ## Setup coverage badge
