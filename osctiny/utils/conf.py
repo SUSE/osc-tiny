@@ -16,6 +16,7 @@ from http.cookiejar import LWPCookieJar
 import os
 from pathlib import Path
 
+# pylint: disable=import-error,bare-except,invalid-name
 try:
     from osc import conf as _conf
     from osc.oscerr import ConfigError, ConfigMissingApiurl
