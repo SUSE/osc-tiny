@@ -23,7 +23,7 @@
 | osctiny/utils/backports.py          |        4 |        2 |     50% |     14-16 |
 | osctiny/utils/base.py               |       35 |        4 |     89% |     59-63 |
 | osctiny/utils/changelog.py          |       95 |        6 |     94% |64, 75, 93, 104, 161, 271 |
-| osctiny/utils/conf.py               |       88 |       31 |     65% |21, 67, 108, 130-150, 179, 182-187, 190, 202-209, 217 |
+| osctiny/utils/conf.py               |       88 |       31 |     65% |22, 68, 109, 131-151, 180, 183-188, 191, 203-210, 218 |
 | osctiny/utils/errors.py             |       19 |        1 |     95% |        24 |
 | osctiny/utils/mapping.py            |       37 |       10 |     73% |29, 32, 35, 38, 44, 47, 56, 59, 72-73 |
 | osctiny/utils/xml.py                |       24 |        3 |     88% |54, 58, 74 |

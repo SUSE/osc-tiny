@@ -64,8 +64,8 @@
             <a id="indexLink" class="nav" href="index.html">&Hat; index</a> &nbsp; &nbsp;
             <a id="nextFileLink" class="nav" href="d_6d519e1b94841dd7_mapping_py.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
-            <a class="nav" href="https://coverage.readthedocs.io/en/7.3.2">coverage.py v7.3.2</a>,
-            created at 2023-12-11 15:49 +0000
+            <a class="nav" href="https://coverage.readthedocs.io/en/7.4.4">coverage.py v7.4.4</a>,
+            created at 2024-03-22 10:43 +0000
         </p>
         <aside class="hidden">
             <button type="button" class="button_next_chunk" data-shortcut="j"/>
@@ -108,14 +108,14 @@
     <p class="run"><span class="n"><a id="t26" href="#t26">26</a></span><span class="t">    <span class="key">try</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t27" href="#t27">27</a></span><span class="t">        <span class="nam">xml_obj</span> <span class="op">=</span> <span class="nam">get_objectified_xml</span><span class="op">(</span><span class="nam">response</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t28" href="#t28">28</a></span><span class="t">    <span class="key">except</span> <span class="nam">Exception</span> <span class="key">as</span> <span class="nam">error2</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t29" href="#t29">29</a></span><span class="t">        <span class="nam">warn</span><span class="op">(</span><span class="nam">message</span><span class="op">=</span><span class="str">f"Failed to extract error message due to another error: {error2}"</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t29" href="#t29">29</a></span><span class="t">        <span class="nam">warn</span><span class="op">(</span><span class="nam">message</span><span class="op">=</span><span class="fst">f"</span><span class="fst">Failed to extract error message due to another error: </span><span class="op">{</span><span class="nam">error2</span><span class="op">}</span><span class="fst">"</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t30" href="#t30">30</a></span><span class="t">             <span class="nam">category</span><span class="op">=</span><span class="nam">RuntimeWarning</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t31" href="#t31">31</a></span><span class="t">    <span class="key">else</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t32" href="#t32">32</a></span><span class="t">        <span class="nam">summary</span> <span class="op">=</span> <span class="nam">xml_obj</span><span class="op">.</span><span class="nam">find</span><span class="op">(</span><span class="str">"summary"</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t33" href="#t33">33</a></span><span class="t">        <span class="key">if</span> <span class="nam">summary</span> <span class="key">is</span> <span class="key">not</span> <span class="key">None</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t34" href="#t34">34</a></span><span class="t">            <span class="key">return</span> <span class="nam">summary</span><span class="op">.</span><span class="nam">text</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t35" href="#t35">35</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t36" href="#t36">36</a></span><span class="t">    <span class="key">return</span> <span class="str">f"Server replied with: {response.status_code} {response.reason}"</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t36" href="#t36">36</a></span><span class="t">    <span class="key">return</span> <span class="fst">f"</span><span class="fst">Server replied with: </span><span class="op">{</span><span class="nam">response</span><span class="op">.</span><span class="nam">status_code</span><span class="op">}</span><span class="fst"> </span><span class="op">{</span><span class="nam">response</span><span class="op">.</span><span class="nam">reason</span><span class="op">}</span><span class="fst">"</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t37" href="#t37">37</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t38" href="#t38">38</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t39" href="#t39">39</a></span><span class="t"><span class="key">class</span> <span class="nam">OscError</span><span class="op">(</span><span class="nam">Exception</span><span class="op">)</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
@@ -130,8 +130,8 @@
             <a id="indexLink" class="nav" href="index.html">&Hat; index</a> &nbsp; &nbsp;
             <a id="nextFileLink" class="nav" href="d_6d519e1b94841dd7_mapping_py.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
-            <a class="nav" href="https://coverage.readthedocs.io/en/7.3.2">coverage.py v7.3.2</a>,
-            created at 2023-12-11 15:49 +0000
+            <a class="nav" href="https://coverage.readthedocs.io/en/7.4.4">coverage.py v7.4.4</a>,
+            created at 2024-03-22 10:43 +0000
         </p>
     </div>
 </footer>
