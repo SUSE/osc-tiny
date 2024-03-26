@@ -30,7 +30,7 @@ def get_xml_parser() -> XMLParser:
     return THREAD_LOCAL.parser
 
 
-def get_objectified_xml(response: typing.Union[Response, str]) -> ObjectifiedElement:
+def get_objectified_xml(response: typing.Union[Response, str, bytes]) -> ObjectifiedElement:
     """
     Return API response as an XML object
 
@@ -46,11 +46,15 @@ def get_objectified_xml(response: typing.Union[Response, str]) -> ObjectifiedEle
 
         Carved out from ``Osc`` class
 
+    .. versionchanged:: {{ NEXT_RELEASE }}
+
+        Accepts also bytes
+
     :param response: An API response or XML string
     :rtype response: :py:class:`requests.Response`
     :return: :py:class:`lxml.objectify.ObjectifiedElement`
     """
-    if isinstance(response, str):
+    if isinstance(response, (str, bytes)):
         text = response
     elif isinstance(response, Response):
         text = response.text

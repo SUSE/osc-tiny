@@ -20,6 +20,8 @@ import threading
 from urllib.parse import quote, parse_qs, urlparse
 import warnings
 
+from lxml.etree import tostring
+from lxml.objectify import ObjectifiedElement
 from requests import Session, Request
 from requests.auth import HTTPBasicAuth
 from requests.cookies import RequestsCookieJar, cookiejar_from_dict
@@ -35,7 +37,9 @@ from .extensions.packages import Package
 from .extensions.projects import Project
 from .extensions.bs_requests import Request as BsRequest
 from .extensions.search import Search
+from .extensions.staging import Staging
 from .extensions.users import Group, Person
+from .models import ParamsType
 from .utils.auth import HttpSignatureAuth
 from .utils.backports import cached_property
 from .utils.conf import BOOLEAN_PARAMS, get_credentials, get_cookie_jar
@@ -87,6 +91,8 @@ class Osc:
           - :py:attr:`origins`
         * - :py:class:`osctiny.extensions.attributes.Attribute`
           - :py:attr:`attributes`
+        * - :py:class:`osctiny.extensions.staging.Staging`
+          - :py:attr:`staging`
 
     :param url: API URL of a BuildService instance
     :param username: Username
@@ -120,7 +126,10 @@ class Osc:
 
     .. versionchanged:: 0.8.0
         * Removed the ``cache`` parameter
-        * Added the ``attributes`` extensions
+        * Added the ``attributes`` extension
+
+    .. versionchanged:: {{NEXT_RELEASE}}
+        * Added the ``staging`` extension
 
     .. _SSL Cert Verification:
         http://docs.python-requests.org/en/master/user/advanced/
@@ -163,6 +172,7 @@ class Osc:
         self.projects = Project(osc_obj=self)
         self.requests = BsRequest(osc_obj=self)
         self.search = Search(osc_obj=self)
+        self.staging = Staging(osc_obj=self)
         self.users = Person(osc_obj=self)
 
     def __del__(self):
@@ -222,7 +232,7 @@ class Osc:
         Explicit parser instance
 
         .. versionchanged:: 0.8.0
-            Content moved to :py:fun:`osctiny.utils.xml.get_xml_parser`
+            Content moved to :py:func:`osctiny.utils.xml.get_xml_parser`
         """
         return get_xml_parser()
 
@@ -351,9 +361,8 @@ class Osc:
 
         return ()
 
-    def handle_params(self, url: str, method: str,
-                      params: typing.Union[bytes, str, StringIO, BytesIO, BufferedReader, dict]) \
-            -> bytes:
+    def handle_params(self, url: str, method: str, params: ParamsType) \
+            -> bytes:  # pylint: disable=too-many-return-statements
         """
         Translate request parameters to API conform format
 
@@ -369,7 +378,6 @@ class Osc:
                                             /9715
 
         :param params: Request parameter
-        :type params: dict or str or io.BufferedReader
         :param url: URL to which the parameters will be sent
         :type url: str
         :param method: HTTP method to send request
@@ -380,6 +388,10 @@ class Osc:
         .. versionchanged:: 0.7.3
 
             Added the ``url`` and ``method`` parameters
+
+        .. versionchanged:: {{ NEXT_RELEASE }}
+
+            Instances of ``ObjectifiedElement`` are accepted for argument ``params``
         """
         if isinstance(params, bytes):
             return params
@@ -394,6 +406,9 @@ class Osc:
         if isinstance(params, (BufferedReader, BytesIO)):
             params.seek(0)
             return params
+
+        if isinstance(params, ObjectifiedElement):
+            return tostring(params, encoding="utf-8", xml_declaration=True)
 
         if not isinstance(params, dict):
             return {}
@@ -471,6 +486,6 @@ class Osc:
 
         .. versionchanged:: 0.8.0
 
-            Content moved to :py:fun:`osctiny.utils.xml.get_objectified_xml`
+            Content moved to :py:func:`osctiny.utils.xml.get_objectified_xml`
         """
         return get_objectified_xml(response=response)

@@ -43,6 +43,20 @@ Extensions
 .. automodule:: osctiny.extensions.search
     :members:
 
+.. automodule:: osctiny.extensions.staging
+    :members:
+
+Models
+------
+
+.. automodule:: osctiny.models
+    :members:
+    :undoc-members:
+
+.. automodule:: osctiny.models.staging
+    :members:
+    :undoc-members:
+
 Utilities
 ---------
 
