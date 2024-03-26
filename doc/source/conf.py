@@ -15,18 +15,19 @@
 import os
 import sys
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath('.'))))
+from osctiny import __version__
 
 
 # -- Project information -----------------------------------------------------
 
 project = 'OSC Tiny'
-copyright = '2022, Andreas Hasenkopf'
-author = 'Andreas Hasenkopf'
+copyright = '2024, SUSE'
+author = 'SUSE MAE Team'
 
 # The short X.Y version
-version = '0.6.2'
+version = __version__
 # The full version, including alpha/beta/rc tags
-release = '0.6.2'
+release = __version__
 
 
 # -- General configuration ---------------------------------------------------

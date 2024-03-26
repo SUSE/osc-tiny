@@ -15,7 +15,7 @@ from GitHub using ``pip``:
 
 .. code-block:: bash
 
-    pip install git+https://github.com/crazyscientist/osc-tiny.git
+    pip install git+https://github.com/SUSE/osc-tiny.git
 
 Strong authentication
 ^^^^^^^^^^^^^^^^^^^^^

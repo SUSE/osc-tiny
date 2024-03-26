@@ -111,6 +111,28 @@ class Build(ExtensionBase):
 
         return self.osc.get_objectified_xml(response)
 
+    def get_status_and_build_id(self, project, repo, arch):
+        """
+        Get build status and build ID
+
+        :param project: Project name
+        :param repo: Repository name
+        :param arch: Architecture name
+        :return: Objectified XML element
+        :rtype: lxml.objectify.ObjectifiedElement
+
+        .. versionadded:: {{ NEXT_RELEASE }}
+        """
+        response = self.osc.request(
+            method="GET",
+            url=urljoin(self.osc.url, "{}/{}/{}/{}".format(
+                self.base_path, project, repo, arch
+            )),
+            params={"view": "status"}
+        )
+
+        return self.osc.get_objectified_xml(response)
+
     def get_binary_list(self, project, repo, arch, package, **params):
         """
         Get a list of built RPMs
