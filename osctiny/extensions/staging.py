@@ -17,7 +17,7 @@ from urllib.parse import urljoin
 
 from lxml.objectify import ObjectifiedElement, Element, SubElement
 
-from ..models.staging import ExcludedRequest, CheckReport
+from ..models.staging import E, ExcludedRequest, CheckReport
 from ..utils.base import ExtensionBase
 
 
@@ -69,15 +69,11 @@ class Staging(ExtensionBase):
         :raises HTTPError: if comment was not saved correctly. The raised exception contains the
                            full response object and API response.
         """
-        excluded_requests = Element("excluded_requests")
-        for request in requests:
-            SubElement(excluded_requests, "request", **request.asdict())
-
         response = self.osc.request(
             method="POST",
             url=urljoin(self.osc.url, "{}/{}/excluded_requests".format(self.base_path_staging,
                                                                        project)),
-            data=excluded_requests
+            data=E.excluded_requests(*(request.asxml() for request in requests))
         )
         parsed = self.osc.get_objectified_xml(response)
         if response.status_code == 200 and parsed.get("code") == "ok":
@@ -95,15 +91,11 @@ class Staging(ExtensionBase):
         :raises HTTPError: if comment was not saved correctly. The raised exception contains the
                            full response object and API response.
         """
-        excluded_requests = Element("excluded_requests")
-        for request in requests:
-            SubElement(excluded_requests, "request", **request.asdict())
-
         response = self.osc.request(
             method="DELETE",
             url=urljoin(self.osc.url, "{}/{}/excluded_requests".format(self.base_path_staging,
                                                                        project)),
-            data=excluded_requests
+            data=E.excluded_requests(*(request.asxml() for request in requests))
         )
         parsed = self.osc.get_objectified_xml(response)
         if response.status_code == 200 and parsed.get("code") == "ok":
@@ -295,7 +287,6 @@ class Staging(ExtensionBase):
         :raises HTTPError: if comment was not saved correctly. The raised exception contains the
                            full response object and API response.
         """
-        # pylint: disable=protected-access
         kwargs = {"project": project}
         if repo and arch:
             url_path = "{}/built_repositories/{}/{}/{}/required_checks".format(
@@ -310,15 +301,10 @@ class Staging(ExtensionBase):
         else:
             url_path = "{}/projects/{}/required_checks".format(self.base_path_status, project)
 
-        required_checks = Element("required_checks")
-        for check in checks:
-            elem = SubElement(required_checks, "name")
-            elem._setText(check)
-
         response = self.osc.request(
             method="POST",
             url=urljoin(self.osc.url, url_path),
-            data=required_checks
+            data=E.required_checks(*(E.name(check) for check in checks))
         )
         parsed = self.osc.get_objectified_xml(response)
         if response.status_code == 200 and parsed.get("code") == "ok":
@@ -376,19 +362,6 @@ class Staging(ExtensionBase):
         :raises HTTPError: if comment was not saved correctly. The raised exception contains the
                            full response object and API response.
         """
-        # pylint: disable=protected-access
-        check = Element("check",
-                        name=report.name,
-                        required="true" if report.required else "false")
-        state = SubElement(check, "state")
-        state._setText(report.state.value)
-        if report.short_description:
-            short_desc = SubElement(check, "short_description")
-            short_desc._setText(report.short_description)
-        if report.url:
-            url = SubElement(check, "url")
-            url._setText(report.url)
-
         if arch:
             url_path = "{}/built/{}/{}/{}/reports/{}".format(
                 self.base_path_status, project, repo, arch, build_id
@@ -401,7 +374,7 @@ class Staging(ExtensionBase):
         response = self.osc.request(
             method="POST",
             url=urljoin(self.osc.url, url_path),
-            data=check
+            data=report.asxml()
         )
 
         parsed = self.osc.get_objectified_xml(response)

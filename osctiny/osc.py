@@ -22,7 +22,7 @@ import warnings
 
 from lxml.etree import tostring
 from lxml.objectify import ObjectifiedElement
-from requests import Session, Request
+from requests import Session, Request, Response
 from requests.auth import HTTPBasicAuth
 from requests.cookies import RequestsCookieJar, cookiejar_from_dict
 from requests.exceptions import ConnectionError as _ConnectionError
@@ -236,8 +236,11 @@ class Osc:
         """
         return get_xml_parser()
 
-    def request(self, url, method="GET", stream=False, data=None, params=None,
-                raise_for_status=True, timeout=None):
+    def request(self, url: str, method: str = "GET", stream: bool = False,
+                data: typing.Optional[ParamsType] = None,
+                params: typing.Optional[ParamsType] = None,
+                raise_for_status: bool = True, timeout: typing.Optional[int] = None) \
+            -> typing.Optional[Response]:
         """
         Perform HTTP(S) request
 
@@ -437,7 +440,8 @@ class Osc:
             if value is not None
         ).encode()
 
-    def download(self, url, destdir, destfile=None, overwrite=False, **params):
+    def download(self, url: str, destdir: Path, destfile: typing.Optional[str] = None,
+                 overwrite: bool = False, **params: ParamsType) -> Path:
         """
         Shortcut for a streaming GET request
 
@@ -472,7 +476,7 @@ class Osc:
 
         return target
 
-    def get_objectified_xml(self, response):
+    def get_objectified_xml(self, response: Response) -> ObjectifiedElement:
         """
         Return API response as an XML object
 

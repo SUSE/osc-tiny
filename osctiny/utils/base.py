@@ -4,6 +4,8 @@ Common base classes
 """
 # pylint: disable=too-few-public-methods,
 import os
+import typing
+from pathlib import Path
 
 from lxml.etree import tounicode
 
@@ -12,7 +14,7 @@ class ExtensionBase:
     """
     Base class for extensions of the :py:class:`Ocs` entry point.
     """
-    def __init__(self, osc_obj):
+    def __init__(self, osc_obj: "Osc"):
         self.osc = osc_obj
 
 
@@ -25,7 +27,8 @@ class DataDir:
     osclib_version_string = "1.0"
 
     # pylint: disable=too-many-arguments
-    def __init__(self, osc, path, project, package=None, overwrite=False):
+    def __init__(self, osc: "Osc", path: Path, project: str, package: typing.Optional[str] = None,
+                 overwrite: bool = False):
         self.osc = osc
         self.path = os.path.join(path, self.data_dir)
         self.project = project
@@ -42,7 +45,7 @@ class DataDir:
         if overwrite:
             self.write_dir_contents()
 
-    def write_dir_contents(self):
+    def write_dir_contents(self) -> None:
         """
         Create files with default content in ``.osc`` sub-directory
         """
