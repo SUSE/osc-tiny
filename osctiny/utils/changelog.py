@@ -73,10 +73,10 @@ class Entry:
         self.packager = packager
         self.content = content
 
-    def __bool__(self):
+    def __bool__(self) -> bool:
         return bool(self.timestamp and self.packager and self.content)
 
-    def __len__(self):
+    def __len__(self) -> int:
         return 1 if self.timestamp and self.packager and self.content else 0
 
     def now(self) -> datetime:
@@ -101,11 +101,11 @@ class Entry:
             .astimezone(self.default_tz)\
             .strftime("%a %b %d %H:%M:%S %Z %Y")
 
-    def __str__(self):
+    def __str__(self) -> str:
         return "{sep}\n{self.formatted_timestamp} - {self.packager}\n\n" \
                "{self.content}\n\n".format(sep="-" * 67, self=self)
 
-    def __unicode__(self):
+    def __unicode__(self) -> str:
         return self.__str__()
 
 
