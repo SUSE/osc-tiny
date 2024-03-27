@@ -359,7 +359,7 @@ contextmanager-decorators=contextlib.contextmanager
 # List of members which are set dynamically and missed by pylint inference
 # system, and so shouldn't trigger E1101 when accessed. Python regular
 # expressions are accepted.
-generated-members=
+generated-members=lxml.objectify.ElementMaker
 
 # Tells whether to warn about missing members when the owner of the attribute
 # is inferred to be None.
@@ -513,6 +513,7 @@ function-naming-style=snake_case
 good-names=i,
            j,
            k,
+           _E,
            ex,
            Run,
            r,

@@ -2,10 +2,13 @@
 Requests extension
 ------------------
 """
+import typing
 from urllib.parse import urljoin
 
 from lxml.etree import XMLSyntaxError
+from lxml.objectify import ObjectifiedElement
 
+from ..models import IntOrString, ParamsType
 from ..utils.base import ExtensionBase
 
 
@@ -16,7 +19,7 @@ class Request(ExtensionBase):
     base_path = "/request/"
 
     @staticmethod
-    def _validate_id(request_id):
+    def _validate_id(request_id: IntOrString) -> str:
         request_id = str(request_id)
         if not request_id.isnumeric():
             raise ValueError(
@@ -24,7 +27,7 @@ class Request(ExtensionBase):
             )
         return request_id
 
-    def get_list(self, **params):
+    def get_list(self, **params: ParamsType) -> ObjectifiedElement:
         """
         Get a list or request objects
 
@@ -40,7 +43,8 @@ class Request(ExtensionBase):
 
         return self.osc.get_objectified_xml(response)
 
-    def get(self, request_id, withhistory=False, withfullhistory=False):
+    def get(self, request_id: IntOrString, withhistory: bool = False,
+            withfullhistory: bool = False) -> ObjectifiedElement:
         """
         Get one request object
 
@@ -65,7 +69,8 @@ class Request(ExtensionBase):
 
         return self.osc.get_objectified_xml(response)
 
-    def update(self, request_id, **kwargs):
+    def update(self, request_id: IntOrString, **kwargs: ParamsType) \
+            -> typing.Union[ObjectifiedElement, str]:
         """
         Update request or execute command
 
@@ -96,7 +101,8 @@ class Request(ExtensionBase):
         except XMLSyntaxError:
             return response.text
 
-    def cmd(self, request_id, cmd="diff", **kwargs):
+    def cmd(self, request_id: IntOrString, cmd: str = "diff", **kwargs: ParamsType) \
+            -> typing.Union[ObjectifiedElement, str]:
         """
         Get the result of the specified command
 
@@ -130,7 +136,8 @@ class Request(ExtensionBase):
         request_id = self._validate_id(request_id)
         return self.update(request_id=request_id, **kwargs)
 
-    def add_comment(self, request_id, comment, parent_id=None):
+    def add_comment(self, request_id: IntOrString, comment: str,
+                    parent_id: typing.Optional[str] = None) -> bool:
         """
         Add a comment to a request
 
@@ -152,7 +159,7 @@ class Request(ExtensionBase):
             parent_id=parent_id
         )
 
-    def get_comments(self, request_id):
+    def get_comments(self, request_id: IntOrString) -> ObjectifiedElement:
         """
         Get a list of comments for request
 

@@ -11,6 +11,7 @@ from the openSUSE:Tools ``build`` package. See:
 
 .. versionadded:: 0.1.11
 """
+import typing
 from datetime import datetime
 from io import TextIOBase
 import re
@@ -20,7 +21,10 @@ from dateutil.parser import parse
 from pytz import _UTC
 
 
-def is_aware(timestamp):
+Parsable = typing.Union[TextIOBase, str, bytes]
+
+
+def is_aware(timestamp: datetime) -> bool:
     """
     Check whether timestamp is timezone aware
 
@@ -54,12 +58,13 @@ class Entry:
         All lines until the beginning of the next entry; except empty lines at
         the beginning and end
     """
-    timestamp = None
-    packager = None
+    timestamp: datetime = None
+    packager: str = None
     content = ""
     default_tz = _UTC()
 
-    def __init__(self, timestamp=None, packager=None, content=""):
+    def __init__(self, timestamp: typing.Optional[datetime] = None,
+                 packager: typing.Optional[str] = None, content: str =""):
         if not isinstance(timestamp, datetime) and timestamp is not None:
             raise TypeError("`timestamp` needs to be a datetime object!")
         if timestamp and not is_aware(timestamp):
@@ -68,13 +73,13 @@ class Entry:
         self.packager = packager
         self.content = content
 
-    def __bool__(self):
+    def __bool__(self) -> bool:
         return bool(self.timestamp and self.packager and self.content)
 
-    def __len__(self):
+    def __len__(self) -> int:
         return 1 if self.timestamp and self.packager and self.content else 0
 
-    def now(self):
+    def now(self) -> datetime:
         """
         Return current UTC timestamp
 
@@ -83,7 +88,7 @@ class Entry:
         return datetime.now(tz=self.default_tz)
 
     @property
-    def formatted_timestamp(self):
+    def formatted_timestamp(self) -> str:
         """
         Return properly formatted timestamp
 
@@ -96,11 +101,11 @@ class Entry:
             .astimezone(self.default_tz)\
             .strftime("%a %b %d %H:%M:%S %Z %Y")
 
-    def __str__(self):
+    def __str__(self) -> str:
         return "{sep}\n{self.formatted_timestamp} - {self.packager}\n\n" \
                "{self.content}\n\n".format(sep="-" * 67, self=self)
 
-    def __unicode__(self):
+    def __unicode__(self) -> str:
         return self.__str__()
 
 
@@ -138,7 +143,8 @@ class ChangeLog:
     def __init__(self):
         self.entries = []
 
-    def _parse(self, handle):
+    def _parse(self, handle: Parsable) \
+            -> typing.Generator[Entry, None, None]:
         """
         Actual method for parsing.
 
@@ -208,7 +214,7 @@ class ChangeLog:
             handle.close()
 
     @classmethod
-    def parse(cls, path, generative=True):
+    def parse(cls, path: Parsable, generative: bool = True) -> "ChangeLog":
         """
         Parse a changes file
 
@@ -247,7 +253,7 @@ class ChangeLog:
 
         return new
 
-    def write(self, path):
+    def write(self, path: Parsable) -> None:
         """
         Write entries to file/stream
 

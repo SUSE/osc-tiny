@@ -6,6 +6,11 @@ Models for Staging
 import enum
 import typing
 
+from lxml.objectify import ObjectifiedElement, ElementMaker
+
+
+E = ElementMaker(annotate=False)
+
 
 class ExcludedRequest(typing.NamedTuple):
     id: int
@@ -17,6 +22,9 @@ class ExcludedRequest(typing.NamedTuple):
             d["description"] = self.description
 
         return d
+
+    def asxml(self) -> ObjectifiedElement:
+        return E.request(**self.asdict())
 
 
 class CheckState(enum.Enum):
@@ -32,3 +40,30 @@ class CheckReport(typing.NamedTuple):
     state: CheckState
     short_description: typing.Optional[str] = None
     url: typing.Optional[str] = None
+
+    @property
+    def required_str(self) -> str:
+        return "true" if self.required else "false"
+
+    def _optional_fields(self) -> typing.Generator[typing.Tuple[str, str], None, None]:
+        for key in ('url', 'short_description'):
+            value = getattr(self, key, None)
+            if value:
+                yield key, str(value)
+
+    def asdict(self) -> typing.Dict[str, str]:
+        d = {"name": self.name, "required": self.required_str,
+             "state": self.state.value}
+
+        for key, value in self._optional_fields():
+            d[key] = value
+
+        return d
+
+    def asxml(self) -> ObjectifiedElement:
+        sub_elems = [E.state(self.state.value)]
+        for key, value in self._optional_fields():
+            _E = getattr(E, key)
+            sub_elems.append(_E(value))
+
+        return E.check(*sub_elems, name=self.name, required=self.required_str)
