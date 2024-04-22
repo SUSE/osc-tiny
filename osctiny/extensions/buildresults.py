@@ -121,7 +121,7 @@ class Build(ExtensionBase):
         :return: Objectified XML element
         :rtype: lxml.objectify.ObjectifiedElement
 
-        .. versionadded:: {{ NEXT_RELEASE }}
+        .. versionadded:: 0.9.0
         """
         response = self.osc.request(
             method="GET",

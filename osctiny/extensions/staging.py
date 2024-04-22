@@ -10,7 +10,7 @@ This extension provides access to the staging workflow of OpenBuildService.
 
     https://openbuildservice.org/help/manuals/obs-user-guide/cha.obs.best-practices.webuiusage#staging_how_to
 
-.. versionadded:: {{ NEXT_RELEASE }}
+.. versionadded:: 0.9.0
 """
 import typing
 from urllib.parse import urljoin
