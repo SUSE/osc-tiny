@@ -128,7 +128,7 @@ class Osc:
         * Removed the ``cache`` parameter
         * Added the ``attributes`` extension
 
-    .. versionchanged:: {{NEXT_RELEASE}}
+    .. versionchanged:: 0.9.0
         * Added the ``staging`` extension
 
     .. _SSL Cert Verification:
@@ -392,7 +392,7 @@ class Osc:
 
             Added the ``url`` and ``method`` parameters
 
-        .. versionchanged:: {{ NEXT_RELEASE }}
+        .. versionchanged:: 0.9.0
 
             Instances of ``ObjectifiedElement`` are accepted for argument ``params``
         """

@@ -46,7 +46,7 @@ def get_objectified_xml(response: typing.Union[Response, str, bytes]) -> Objecti
 
         Carved out from ``Osc`` class
 
-    .. versionchanged:: {{ NEXT_RELEASE }}
+    .. versionchanged:: 0.9.0
 
         Accepts also bytes
 
