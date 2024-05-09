@@ -1,5 +1,6 @@
 import re
 
+from lxml import etree
 import responses
 
 from osctiny.models.staging import ExcludedRequest, CheckState, CheckReport
@@ -234,7 +235,7 @@ class StagingTest(OscTest):
             self.assertEqual(elem.short_description.text, report.short_description)
             self.assertEqual(elem.url.text, report.url)
 
-            return 200, {}, "<status code=\"ok\"/>"
+            return 200, {}, etree.tostring(report.asxml()).decode()
 
         responses.add_callback(
             method="POST",
