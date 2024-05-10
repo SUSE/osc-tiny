@@ -16,11 +16,11 @@
 | osctiny/extensions/packages.py      |      133 |       37 |     72% |73-80, 217-227, 256, 302-315, 376, 391, 416-437, 455-471, 550-554, 574, 577, 598, 617 |
 | osctiny/extensions/projects.py      |      115 |       17 |     85% |92-94, 172, 197, 200, 257, 278, 304, 317, 337, 358-371, 420, 451 |
 | osctiny/extensions/search.py        |       13 |        1 |     92% |        56 |
-| osctiny/extensions/staging.py       |       96 |        8 |     92% |82, 104, 167, 211, 237, 313, 370, 384 |
+| osctiny/extensions/staging.py       |       95 |        8 |     92% |82, 104, 167, 211, 237, 313, 370, 383 |
 | osctiny/extensions/users.py         |       18 |        9 |     50% |23-32, 42-47, 65-70 |
 | osctiny/models/\_\_init\_\_.py      |        5 |        0 |    100% |           |
 | osctiny/models/staging.py           |       44 |        4 |     91% |     55-61 |
-| osctiny/osc.py                      |      191 |       26 |     86% |155, 158-161, 180, 199-200, 217, 221-227, 237, 324-331, 343, 463, 469 |
+| osctiny/osc.py                      |      191 |       25 |     87% |155, 158-161, 199-200, 217, 221-227, 237, 324-331, 343, 463, 469 |
 | osctiny/utils/\_\_init\_\_.py       |        0 |        0 |    100% |           |
 | osctiny/utils/auth.py               |      118 |       36 |     69% |35, 70-86, 113-121, 156, 159, 165, 180-190, 209-210, 220, 234-235, 240, 247 |
 | osctiny/utils/backports.py          |        4 |        2 |     50% |     14-16 |
@@ -31,7 +31,7 @@
 | osctiny/utils/mapping.py            |       37 |       10 |     73% |29, 32, 35, 38, 44, 47, 56, 59, 72-73 |
 | osctiny/utils/xml.py                |       24 |        2 |     92% |    62, 78 |
 | setup.py                            |       15 |       15 |      0% |      3-27 |
-|                           **TOTAL** | **1405** |  **311** | **78%** |           |
+|                           **TOTAL** | **1404** |  **310** | **78%** |           |
 
 
 ## Setup coverage badge
