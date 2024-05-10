@@ -377,8 +377,7 @@ class Staging(ExtensionBase):
             data=report.asxml()
         )
 
-        parsed = self.osc.get_objectified_xml(response)
-        if response.status_code == 200 and parsed.get("code") == "ok":
+        if response.status_code == 200:
             return True
 
         return False
