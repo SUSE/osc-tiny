@@ -15,6 +15,7 @@ the `OpenBuildService <https://openbuildservice.org/>`_
    :caption: Contents:
 
    quickstart
+   development
    api
    releasenotes
 
