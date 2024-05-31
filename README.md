@@ -25,13 +25,13 @@
 | osctiny/utils/auth.py               |      118 |       36 |     69% |35, 70-86, 113-121, 156, 159, 165, 180-190, 209-210, 220, 234-235, 240, 247 |
 | osctiny/utils/backports.py          |        4 |        2 |     50% |     14-16 |
 | osctiny/utils/base.py               |       37 |        4 |     89% |     62-66 |
-| osctiny/utils/changelog.py          |       97 |        6 |     94% |69, 80, 98, 109, 167, 277 |
+| osctiny/utils/changelog.py          |       96 |        6 |     94% |69, 80, 98, 109, 167, 277 |
 | osctiny/utils/conf.py               |       88 |       31 |     65% |22, 68, 109, 131-151, 180, 183-188, 191, 203-210, 218 |
 | osctiny/utils/errors.py             |       19 |        1 |     95% |        24 |
 | osctiny/utils/mapping.py            |       37 |       10 |     73% |29, 32, 35, 38, 44, 47, 56, 59, 72-73 |
 | osctiny/utils/xml.py                |       24 |        2 |     92% |    62, 78 |
 | setup.py                            |       15 |       15 |      0% |      3-27 |
-|                           **TOTAL** | **1404** |  **310** | **78%** |           |
+|                           **TOTAL** | **1403** |  **310** | **78%** |           |
 
 
 ## Setup coverage badge
