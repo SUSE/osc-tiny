@@ -1,10 +1,13 @@
 # -*- coding: utf-8 -*-
 import re
+from unittest import mock
 from urllib.parse import urlparse, parse_qs
 
 from lxml.objectify import ObjectifiedElement
+from requests.models import Response
 import responses
 
+from ..models.request import Action, ActionType, Person, Review, Source, Target, By
 from .base import OscTest, CallbackFactory
 
 
@@ -304,6 +307,9 @@ spec files:
           and "changereviewstate" in params.get("cmd", [])):
         status = 403
         body = "Forbidden for url: http://api.example.com/request/30902"
+    elif request.method == "POST" and re.search("/request/?\?", request.url):
+        status = 200
+        body = """<request id="42"/>"""
     else:
         status = 404
         body = """
@@ -341,6 +347,91 @@ class TestRequest(OscTest):
             url=re.compile(self.osc.url + r'/comments/request/\d+.*'),
             callback=CallbackFactory(callback)
         )
+
+    @responses.activate
+    def test_create(self):
+        target = Target(project="Foo:Bar:Factory", package="hello-world")
+        actions = [
+            Action(
+                type=ActionType.SUBMIT,
+                source=Source(project="Foo:Bar", package="hello-world"),
+                target=target
+            ),
+            Action(
+                type=ActionType.DELETE,
+                target=target
+            )
+        ]
+        reviewers = [
+            Review(by=By.USER, name="nemo"),
+            Review(by=By.GROUP, name="superusers")
+        ]
+
+        with self.subTest("HTTP Request, only Actions"):
+            self.assertEqual(42, self.osc.requests.create(actions=actions))
+
+        with self.subTest("HTTP Request, with Reviewers"):
+            self.assertEqual(42, self.osc.requests.create(actions=actions,
+                                                          reviewers=reviewers))
+
+        mock_response = Response()
+        mock_response.status_code = 200
+        mock_response._content = b"""<request id="42"/>"""
+
+        with self.subTest("XML content, only Actions"), \
+                mock.patch.object(self.osc.session, "send",
+                                  return_value=mock_response) as mock_session:
+            self.osc.requests.create(actions=actions)
+            self.assertEqual(
+                mock_session.call_args[0][0].body,
+                b"<?xml version='1.0' encoding='utf-8'?>\n"
+                b'<request>'
+                b'<action type="submit">'
+                b'<target project="Foo:Bar:Factory" package="hello-world"/>'
+                b'<source project="Foo:Bar" package="hello-world"/>'
+                b'</action>'
+                b'<action type="delete">'
+                b'<target project="Foo:Bar:Factory" package="hello-world"/>'
+                b'</action>'
+                b'</request>'
+            )
+
+        with self.subTest("XML content, with Reviewers"), \
+                mock.patch.object(self.osc.session, "send",
+                                  return_value=mock_response) as mock_session:
+            self.osc.requests.create(actions=actions, reviewers=reviewers)
+            self.assertEqual(
+                mock_session.call_args[0][0].body,
+                b"<?xml version='1.0' encoding='utf-8'?>\n"
+                b'<request>'
+                b'<action type="submit">'
+                b'<target project="Foo:Bar:Factory" package="hello-world"/>'
+                b'<source project="Foo:Bar" package="hello-world"/>'
+                b'</action>'
+                b'<action type="delete">'
+                b'<target project="Foo:Bar:Factory" package="hello-world"/>'
+                b'</action>'
+                b'<review by_user="nemo"/>'
+                b'<review by_group="superusers"/>'
+                b'</request>'
+            )
+
+        with self.subTest("XML content, set bugowner"), \
+                mock.patch.object(self.osc.session, "send",
+                                  return_value=mock_response) as mock_session:
+            self.osc.requests.create(actions=[Action(type=ActionType.SET_BUGOWNER,
+                                                     target=Target(project="Foo:Bar", package="p"),
+                                                     person=Person(name="nemo"))])
+            self.assertEqual(
+                mock_session.call_args[0][0].body,
+                b"<?xml version='1.0' encoding='utf-8'?>\n"
+                b'<request>'
+                b'<action type="set_bugowner">'
+                b'<target project="Foo:Bar" package="p"/>'
+                b'<person name="nemo"/>'
+                b'</action>'
+                b'</request>'
+            )
 
     @responses.activate
     def test_get_list(self):

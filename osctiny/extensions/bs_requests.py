@@ -8,7 +8,8 @@ from urllib.parse import urljoin
 from lxml.etree import XMLSyntaxError
 from lxml.objectify import ObjectifiedElement
 
-from ..models import IntOrString, ParamsType
+from ..models import E, IntOrString, ParamsType
+from ..models.request import Action, Review
 from ..utils.base import ExtensionBase
 
 
@@ -26,6 +27,41 @@ class Request(ExtensionBase):
                 "Request ID must be numeric! Got instead: {}".format(request_id)
             )
         return request_id
+
+    # pylint: disable=too-many-arguments
+    def create(self, actions: typing.Iterable[Action],
+               reviewers: typing.Optional[typing.Iterable[Review]] = None,
+               addrevision: bool = False, ignore_delegate: bool = False,
+               ignore_build_state: bool = False) -> int:
+        """
+        Create a request
+
+        :param actions: Actions to be included in request
+        :param reviewers: Reviewers to be assigned
+        :param addrevision: Ask the server to add revisions of the current sources to the request.
+        :param ignore_delegate: Enforce a new package instance in a project which has
+                                ``OBS:DelegateRequestTarget`` set
+        :param ignore_build_state: Skip the build state check
+        :return: Request ID
+
+        .. versionadded:: {{ NEXT_RELEASE }}
+        """
+        request = E.request(*(action.asxml() for action in actions),
+                            *(review.asxml() for review in reviewers or []))
+
+        response = self.osc.request(
+            url=urljoin(self.osc.url, self.base_path),
+            method="POST",
+            data=request,
+            params={
+                "cmd": "create",
+                "addrevision": addrevision,
+                "ignore_delegate": ignore_delegate,
+                "ignore_build_state": ignore_build_state
+            },
+        )
+        data = self.osc.get_objectified_xml(response)
+        return int(data.get("id"))
 
     def get_list(self, **params: ParamsType) -> ObjectifiedElement:
         """
