@@ -53,6 +53,10 @@ Models
     :members:
     :undoc-members:
 
+.. automodule:: osctiny.models.request
+    :members:
+    :undoc-members:
+
 .. automodule:: osctiny.models.staging
     :members:
     :undoc-members:

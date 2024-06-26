@@ -1,15 +1,16 @@
 """
 Models for Staging
 ^^^^^^^^^^^^^^^^^^
+
+.. versionadded:: 0.9.0
 """
 # pylint: disable=missing-class-docstring,missing-function-docstring
 import enum
 import typing
 
-from lxml.objectify import ObjectifiedElement, ElementMaker
+from lxml.objectify import ObjectifiedElement
 
-
-E = ElementMaker(annotate=False)
+from ..models import E
 
 
 class ExcludedRequest(typing.NamedTuple):
