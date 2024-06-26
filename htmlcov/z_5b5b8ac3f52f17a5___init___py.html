@@ -54,18 +54,18 @@
             </div>
         </aside>
         <h2>
-            <span class="text">5 statements &nbsp;</span>
-            <button type="button" class="run button_toggle_run" value="run" data-shortcut="r" title="Toggle lines run">5<span class="text"> run</span></button>
+            <span class="text">6 statements &nbsp;</span>
+            <button type="button" class="run button_toggle_run" value="run" data-shortcut="r" title="Toggle lines run">6<span class="text"> run</span></button>
             <button type="button" class="mis show_mis button_toggle_mis" value="mis" data-shortcut="m" title="Toggle lines missing">0<span class="text"> missing</span></button>
             <button type="button" class="exc show_exc button_toggle_exc" value="exc" data-shortcut="x" title="Toggle lines excluded">0<span class="text"> excluded</span></button>
         </h2>
         <p class="text">
             <a id="prevFileLink" class="nav" href="z_00a412dab52655f2_users_py.html">&#xab; prev</a> &nbsp; &nbsp;
             <a id="indexLink" class="nav" href="index.html">&Hat; index</a> &nbsp; &nbsp;
-            <a id="nextFileLink" class="nav" href="z_5b5b8ac3f52f17a5_staging_py.html">&#xbb; next</a>
+            <a id="nextFileLink" class="nav" href="z_5b5b8ac3f52f17a5_request_py.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
-            <a class="nav" href="https://coverage.readthedocs.io/en/7.5.3">coverage.py v7.5.3</a>,
-            created at 2024-05-31 12:54 +0000
+            <a class="nav" href="https://coverage.readthedocs.io/en/7.5.4">coverage.py v7.5.4</a>,
+            created at 2024-06-26 17:15 +0000
         </p>
         <aside class="hidden">
             <button type="button" class="button_next_chunk" data-shortcut="j"></button>
@@ -87,21 +87,26 @@
     <p class="run"><span class="n"><a id="t5" href="#t5">5</a></span><span class="t"><span class="key">from</span> <span class="nam">io</span> <span class="key">import</span> <span class="nam">BufferedReader</span><span class="op">,</span> <span class="nam">BytesIO</span><span class="op">,</span> <span class="nam">StringIO</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t6" href="#t6">6</a></span><span class="t"><span class="key">import</span> <span class="nam">typing</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t7" href="#t7">7</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t8" href="#t8">8</a></span><span class="t"><span class="key">from</span> <span class="nam">lxml</span><span class="op">.</span><span class="nam">objectify</span> <span class="key">import</span> <span class="nam">ObjectifiedElement</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t8" href="#t8">8</a></span><span class="t"><span class="key">from</span> <span class="nam">lxml</span><span class="op">.</span><span class="nam">objectify</span> <span class="key">import</span> <span class="nam">ElementMaker</span><span class="op">,</span> <span class="nam">ObjectifiedElement</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t9" href="#t9">9</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t10" href="#t10">10</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t11" href="#t11">11</a></span><span class="t"><span class="nam">ParamsType</span> <span class="op">=</span> <span class="nam">typing</span><span class="op">.</span><span class="nam">Union</span><span class="op">[</span><span class="nam">bytes</span><span class="op">,</span> <span class="nam">str</span><span class="op">,</span> <span class="nam">StringIO</span><span class="op">,</span> <span class="nam">BytesIO</span><span class="op">,</span> <span class="nam">BufferedReader</span><span class="op">,</span> <span class="nam">dict</span><span class="op">,</span> <span class="nam">ObjectifiedElement</span><span class="op">]</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t12" href="#t12">12</a></span><span class="t"><span class="nam">IntOrString</span> <span class="op">=</span> <span class="nam">typing</span><span class="op">.</span><span class="nam">Union</span><span class="op">[</span><span class="nam">int</span><span class="op">,</span> <span class="nam">str</span><span class="op">]</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t10" href="#t10">10</a></span><span class="t"><span class="com">#: XML maker without python type annotations</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t11" href="#t11">11</a></span><span class="t"><span class="nam">E</span> <span class="op">=</span> <span class="nam">ElementMaker</span><span class="op">(</span><span class="nam">annotate</span><span class="op">=</span><span class="key">False</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t12" href="#t12">12</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t13" href="#t13">13</a></span><span class="t"><span class="com">#: Acceptable types for HTTP parameters</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t14" href="#t14">14</a></span><span class="t"><span class="nam">ParamsType</span> <span class="op">=</span> <span class="nam">typing</span><span class="op">.</span><span class="nam">Union</span><span class="op">[</span><span class="nam">bytes</span><span class="op">,</span> <span class="nam">str</span><span class="op">,</span> <span class="nam">StringIO</span><span class="op">,</span> <span class="nam">BytesIO</span><span class="op">,</span> <span class="nam">BufferedReader</span><span class="op">,</span> <span class="nam">dict</span><span class="op">,</span> <span class="nam">ObjectifiedElement</span><span class="op">]</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t15" href="#t15">15</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t16" href="#t16">16</a></span><span class="t"><span class="com">#: Int or string with only numbers</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t17" href="#t17">17</a></span><span class="t"><span class="nam">IntOrString</span> <span class="op">=</span> <span class="nam">typing</span><span class="op">.</span><span class="nam">Union</span><span class="op">[</span><span class="nam">int</span><span class="op">,</span> <span class="nam">str</span><span class="op">]</span>&nbsp;</span><span class="r"></span></p>
 </main>
 <footer>
     <div class="content">
         <p>
             <a class="nav" href="z_00a412dab52655f2_users_py.html">&#xab; prev</a> &nbsp; &nbsp;
             <a class="nav" href="index.html">&Hat; index</a> &nbsp; &nbsp;
-            <a class="nav" href="z_5b5b8ac3f52f17a5_staging_py.html">&#xbb; next</a>
+            <a class="nav" href="z_5b5b8ac3f52f17a5_request_py.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
-            <a class="nav" href="https://coverage.readthedocs.io/en/7.5.3">coverage.py v7.5.3</a>,
-            created at 2024-05-31 12:54 +0000
+            <a class="nav" href="https://coverage.readthedocs.io/en/7.5.4">coverage.py v7.5.4</a>,
+            created at 2024-06-26 17:15 +0000
         </p>
     </div>
 </footer>
