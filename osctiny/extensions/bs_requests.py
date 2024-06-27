@@ -44,7 +44,7 @@ class Request(ExtensionBase):
         :param ignore_build_state: Skip the build state check
         :return: Request ID
 
-        .. versionadded:: {{ NEXT_RELEASE }}
+        .. versionadded:: 0.10.0
         """
         request = E.request(*(action.asxml() for action in actions),
                             *(review.asxml() for review in reviewers or []))
