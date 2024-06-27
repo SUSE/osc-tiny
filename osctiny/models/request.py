@@ -2,7 +2,7 @@
 Models for requests
 ^^^^^^^^^^^^^^^^^^^
 
-.. versionadded:: {{ NEXT_RELEASE }}
+.. versionadded:: 0.10.0
 """
 # pylint: disable=missing-function-docstring,no-member
 # Note: The `no-member` rule needs to be disabled due to this bug:
