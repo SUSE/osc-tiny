@@ -48,7 +48,7 @@ class Request(ExtensionBase):
 
         .. versionadded:: 0.10.0
 
-        .. versionchanged:: {{ NEXT_RELEASE }}
+        .. versionchanged:: 0.10.1
             Added the ``description`` parameter.
         """
         sub_elements = [action.asxml() for action in actions]
