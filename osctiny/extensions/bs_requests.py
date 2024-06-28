@@ -31,6 +31,7 @@ class Request(ExtensionBase):
     # pylint: disable=too-many-arguments
     def create(self, actions: typing.Iterable[Action],
                reviewers: typing.Optional[typing.Iterable[Review]] = None,
+               description: typing.Optional[str] = None,
                addrevision: bool = False, ignore_delegate: bool = False,
                ignore_build_state: bool = False) -> int:
         """
@@ -38,6 +39,7 @@ class Request(ExtensionBase):
 
         :param actions: Actions to be included in request
         :param reviewers: Reviewers to be assigned
+        :param description: Description text
         :param addrevision: Ask the server to add revisions of the current sources to the request.
         :param ignore_delegate: Enforce a new package instance in a project which has
                                 ``OBS:DelegateRequestTarget`` set
@@ -45,9 +47,16 @@ class Request(ExtensionBase):
         :return: Request ID
 
         .. versionadded:: 0.10.0
+
+        .. versionchanged:: {{ NEXT_RELEASE }}
+            Added the ``description`` parameter.
         """
-        request = E.request(*(action.asxml() for action in actions),
-                            *(review.asxml() for review in reviewers or []))
+        sub_elements = [action.asxml() for action in actions]
+        if reviewers:
+            sub_elements += [review.asxml() for review in reviewers]
+        if description:
+            sub_elements.append(E.description(description))
+        request = E.request(*sub_elements)
 
         response = self.osc.request(
             url=urljoin(self.osc.url, self.base_path),

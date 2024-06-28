@@ -374,6 +374,9 @@ class TestRequest(OscTest):
             self.assertEqual(42, self.osc.requests.create(actions=actions,
                                                           reviewers=reviewers))
 
+        with self.subTest("HTTP Request, with description"):
+            self.assertEqual(42, self.osc.requests.create(actions=actions, description="Foo"))
+
         mock_response = Response()
         mock_response.status_code = 200
         mock_response._content = b"""<request id="42"/>"""
@@ -432,6 +435,26 @@ class TestRequest(OscTest):
                 b'</action>'
                 b'</request>'
             )
+
+        with self.subTest("XML content, with description"), \
+                mock.patch.object(self.osc.session, "send",
+                                  return_value=mock_response) as mock_session:
+            self.osc.requests.create(actions=actions, description="Foo")
+            self.assertEqual(
+                mock_session.call_args[0][0].body,
+                b"<?xml version='1.0' encoding='utf-8'?>\n"
+                b'<request>'
+                b'<action type="submit">'
+                b'<target project="Foo:Bar:Factory" package="hello-world"/>'
+                b'<source project="Foo:Bar" package="hello-world"/>'
+                b'</action>'
+                b'<action type="delete">'
+                b'<target project="Foo:Bar:Factory" package="hello-world"/>'
+                b'</action>'
+                b'<description>Foo</description>'
+                b'</request>'
+            )
+
 
     @responses.activate
     def test_get_list(self):
