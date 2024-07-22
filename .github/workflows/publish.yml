@@ -34,3 +34,55 @@ jobs:
           password: ${{ secrets.PYPI_API_TOKEN }}
           skip_existing: true
           verbose: true
+
+  release-obs:
+    name: Release on OBS
+    runs-on: ubuntu-latest
+    env:
+      OBS_API: https://api.opensuse.org/
+      PROJECT: openSUSE:Factory
+      PACKAGE: osc-tiny
+    steps:
+      - uses: actions/checkout@master
+      - name: Get latest release tag
+        id: get_latest_release
+        run: echo "LATEST_TAG=${GITHUB_REF#refs/tags/v}" >> $GITHUB_ENV
+      - name: Install osc
+        run: |
+          sudo apt-get update -y
+          sudo apt-get install -y osc
+      - name: Config osc
+        run: |
+          cat <<EOF > $HOME/.oscrc
+          [general]
+          apiurl=$OBS_API
+
+          [$OBS_API]
+          user = ${{ secrets.OSC_USER }}
+          pass = ${{ secrets.OSC_PASS }}
+          EOF
+      - name: checkout package
+        run: osc branchco $PROJECT python-$PACKAGE
+      - name: Fetch tarball from PyPI
+        run: |
+          cd home:*:branches:*/python-$PACKAGE
+          osc rm *.tar.gz
+          FILE_NAME=osc_tiny-${{ env.LATEST_TAG }}.tar.gz
+          FILE_URL=https://files.pythonhosted.org/packages/source/o/osc-tiny
+          while [ ! -f "$FILE_NAME" ]; do
+            echo "File not found. Downloading..."
+            wget "$FILE_URL/$FILE_NAME"
+            if [ ! -f "$FILE_NAME" ]; then
+              echo "Download failed. Waiting for 2 seconds before retrying..."
+              sleep 2
+            fi
+          done
+          osc add $FILE_NAME
+      - name: Update spec and changes files
+        run: |
+          cd home:*:branches:*/python-$PACKAGE
+          sed -i "s/^Version:.*/Version:        ${{ env.LATEST_TAG }}/" *.spec
+          sed -i "s/osc-tiny-%{version}/osc_tiny-%{version}/g" *.spec
+          osc vc -m "Release ${{ env.LATEST_TAG }}"
+          osc commit -m "Release ${{ env.LATEST_TAG }}" --noservice
+          osc submitrequest -m "Release ${{ env.LATEST_TAG }}"
