@@ -65,13 +65,13 @@ jobs:
         run: osc branchco $PROJECT python-$PACKAGE
       - name: Fetch tarball from PyPI
         run: |
-          cd $PROJECT:branches:$PROJECT/python-$PACKAGE
+          cd home:*:branches:*/python-$PACKAGE
           osc rm *.tar.gz
           FILE_NAME=osc_tiny-${{ env.LATEST_TAG }}.tar.gz
-          FILE_URL=https://files.pythonhosted.org/packages/source/o/osc-tiny/$FILE_NAME
+          FILE_URL=https://files.pythonhosted.org/packages/source/o/osc-tiny
           while [ ! -f "$FILE_NAME" ]; do
             echo "File not found. Downloading..."
-            wget "$FILE_URL" -O "$FILE_NAME"
+            wget "$FILE_URL/$FILE_NAME"
             if [ ! -f "$FILE_NAME" ]; then
               echo "Download failed. Waiting for 2 seconds before retrying..."
               sleep 2
@@ -80,9 +80,9 @@ jobs:
           osc add $FILE_NAME
       - name: Update spec and changes files
         run: |
-          cd $PROJECT:branches:$PROJECT/python-$PACKAGE
+          cd home:*:branches:*/python-$PACKAGE
           sed -i "s/^Version:.*/Version:        ${{ env.LATEST_TAG }}/" *.spec
-          sed -i "s/%setup -q -n osc-tiny-%{version}/%setup -q -n osc_tiny-%{version}/" *.spec
-          osc vc -m "Update to version ${{ env.LATEST_TAG }}"
-          osc commit -m "Update to version ${{ env.LATEST_TAG }}" --noservice
-          osc submitrequest -m "Update package to version ${{ env.LATEST_TAG }}"
+          sed -i "s/osc-tiny-%{version}/osc_tiny-%{version}/g" *.spec
+          osc vc -m "Release ${{ env.LATEST_TAG }}"
+          osc commit -m "Release ${{ env.LATEST_TAG }}" --noservice
+          osc submitrequest -m "Release ${{ env.LATEST_TAG }}"
