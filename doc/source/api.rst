@@ -79,6 +79,9 @@ Utilities
 .. automodule:: osctiny.utils.conf
     :members:
 
+.. automodule:: osctiny.utils.cookies
+    :members:
+
 .. automodule:: osctiny.utils.mapping
     :members:
 

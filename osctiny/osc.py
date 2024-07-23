@@ -7,7 +7,7 @@ from __future__ import unicode_literals
 from base64 import b64encode
 import typing
 import errno
-from http.cookiejar import CookieJar
+from http.cookiejar import CookieJar, LWPCookieJar
 from io import BufferedReader, BytesIO, StringIO
 import gc
 import logging
@@ -42,7 +42,8 @@ from .extensions.users import Group, Person
 from .models import ParamsType
 from .utils.auth import HttpSignatureAuth
 from .utils.backports import cached_property
-from .utils.conf import BOOLEAN_PARAMS, get_credentials, get_cookie_jar
+from .utils.conf import BOOLEAN_PARAMS, get_credentials
+from .utils.cookies import CookieManager
 from .utils.errors import OscError
 from .utils.xml import get_xml_parser, get_objectified_xml
 
@@ -193,11 +194,7 @@ class Osc:
         if not session:
             session = Session()
             session.verify = self.verify or get_default_verify_paths().capath
-
-            cookies = get_cookie_jar()
-            if cookies is not None:
-                cookies.load()
-                session.cookies = cookies
+            session.cookies = CookieManager.get_jar()
 
             if self.ssh_key is not None:
                 session.auth = HttpSignatureAuth(username=self.username, password=self.password,
@@ -217,12 +214,14 @@ class Osc:
         return self.session.cookies
 
     @cookies.setter
-    def cookies(self, value: typing.Union[CookieJar, dict]):
-        if not isinstance(value, (CookieJar, dict)):
+    def cookies(self, value: typing.Union[LWPCookieJar, dict, str]):
+        if not isinstance(value, (LWPCookieJar, dict, str)):
             raise TypeError(f"Expected a cookie jar or dict. Got instead: {type(value)}")
 
         if isinstance(value, CookieJar):
             self.session.cookies = value
+        if isinstance(value, str):
+            CookieManager.set_cookie(jar=self.session.cookies, cookie=value)
         else:
             self.session.cookies = cookiejar_from_dict(value)
 

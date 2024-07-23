@@ -12,7 +12,6 @@ import typing
 from base64 import b64decode
 from bz2 import decompress
 from configparser import ConfigParser, NoSectionError
-from http.cookiejar import LWPCookieJar
 import os
 from pathlib import Path
 
@@ -191,30 +190,3 @@ def get_credentials(url: typing.Optional[str] = None) \
         raise ValueError(f"`osc` config provides no password or SSH key for URL {url}")
 
     return username, password if sshkey is None else None, sshkey
-
-
-def get_cookie_jar() -> typing.Optional[LWPCookieJar]:
-    """
-    Get cookies from a persistent osc cookiejar
-
-    .. versionadded:: 0.8.0
-    """
-    if _conf is not None:
-        try:
-            # New OSC config
-            path = _conf.config.cookiejar
-        except AttributeError:
-            # Backward compatibility to old OSC config style
-            path = _conf._identify_osccookiejar()  # pylint: disable=protected-access
-        if os.path.isfile(path):
-            return LWPCookieJar(filename=path)
-
-    path_suffix = Path("osc", "cookiejar")
-    paths = [Path(os.getenv("XDG_STATE_HOME", "/tmp")).joinpath(path_suffix),
-             Path.home().joinpath(".local", "state").joinpath(path_suffix)]
-
-    for path in paths:
-        if path.is_file():
-            return LWPCookieJar(filename=str(path))  # compatibility for Python < 3.8
-
-    return None
