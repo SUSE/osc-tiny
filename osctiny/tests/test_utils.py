@@ -1,7 +1,9 @@
 # -*- coding: utf-8 -*-
+# pylint: disable=protected-access
 import re
 from base64 import b64encode
 from bz2 import compress
+from http.cookiejar import Cookie, LWPCookieJar
 from unittest import TestCase, mock
 from datetime import datetime
 from io import StringIO
@@ -9,6 +11,7 @@ import os
 from pathlib import Path
 import sys
 from tempfile import mkstemp
+import time
 from types import GeneratorType
 import warnings
 
@@ -21,6 +24,7 @@ from ..osc import Osc, THREAD_LOCAL
 from ..utils.auth import HttpSignatureAuth
 from ..utils.changelog import ChangeLog, Entry
 from ..utils.conf import get_config_path, get_credentials
+from ..utils.cookies import CookieManager
 from ..utils.mapping import Mappable
 from ..utils.errors import get_http_error_details
 
@@ -553,3 +557,76 @@ class TestError(TestCase):
                     self.assertIn("Start tag expected", str(emitted_warnings[-1].message))
             else:
                 self.fail("No exception was raised")
+
+
+@mock.patch("osctiny.utils.cookies._conf", new=None)
+class TestCookies(TestCase):
+    @property
+    def mock_lwp_cookie_str(self) -> str:
+        today = datetime.today()
+        return '#LWP-Cookies-2.0\n'\
+               'Set-Cookie3: openSUSE_session=3f0471fef300491289c3fcf845d445bd; '\
+               'path="/"; domain=".suse.de"; path_spec; domain_dot; secure; '\
+               f'expires="{today.year + 1}-07-18 14:35:02Z"; HttpOnly=None; version=0\n'
+
+    def test_get_cookie_path(self, *_):
+        with self.subTest("XDG_STATE_HOME set"), \
+                mock.patch.dict(os.environ, {"XDG_STATE_HOME": "/foo/bar"}):
+            self.assertEqual(Path("/foo/bar/osc/cookiejar"), CookieManager.get_cookie_path())
+
+        with self.subTest("XDG_STATE_HOME not set"), mock.patch.dict(os.environ, {}, clear=True):
+            self.assertEqual(Path("~/.local/state/osc/cookiejar").expanduser(),
+                             CookieManager.get_cookie_path())
+
+    def test_get_jar(self, *_):
+        cookie_path = Path(mkstemp()[1])
+
+        with cookie_path.open("w", encoding="utf-8") as handle:
+            handle.write(self.mock_lwp_cookie_str)
+
+        with self.subTest("Existing jar"), mock.patch.object(CookieManager, "get_cookie_path",
+                                                             return_value=cookie_path):
+            jar = CookieManager.get_jar()
+            self.assertEqual(jar.filename, cookie_path.as_posix())
+            self.assertIn(".suse.de", jar._cookies)
+
+        does_not_exist = Path("/no/such/path")
+        with self.subTest("No jar"), mock.patch.object(CookieManager, "get_cookie_path",
+                                                       return_value=does_not_exist):
+            self.assertFalse(does_not_exist.is_file())
+
+            jar = CookieManager.get_jar()
+            self.assertEqual(jar.filename, does_not_exist.as_posix())
+            self.assertEqual(0, len(jar._cookies))
+
+    def test_save_jar(self, *_):
+        cookie_path = Path(mkstemp()[1])
+        jar = LWPCookieJar(filename=str(cookie_path))
+        jar.set_cookie(cookie=Cookie(version=0, name='openSUSE_session',
+                                     value='3f0471fef300491289c3fcf845d445bd', port=None,
+                                     port_specified=False, domain='.suse.de', domain_specified=True,
+                                     domain_initial_dot=True, path='/', path_specified=True,
+                                     secure=True, expires=int(time.time()) + 3600, discard=False,
+                                     comment=None, comment_url=None, rest={'HttpOnly': 'None'},
+                                     rfc2109=False))
+        CookieManager.save_jar(jar=jar)
+
+        with cookie_path.open("r", encoding="utf-8") as handle:
+            lines = handle.readlines()
+            self.assertEqual(2, len(lines))
+            self.assertIn("openSUSE_session", lines[1])
+
+    def test_set_cookie(self, *_):
+        jar = LWPCookieJar()
+        CookieManager.set_cookie(jar=jar, cookie=self.mock_lwp_cookie_str)
+        self.assertIn(".suse.de", jar._cookies)
+
+    def test_get_cookie(self, *_):
+        cookie_path = Path(mkstemp()[1])
+        cookie_str = self.mock_lwp_cookie_str
+        with cookie_path.open("w", encoding="utf-8") as handle:
+            handle.write(cookie_str)
+
+        jar = LWPCookieJar(filename=str(cookie_path))
+        jar.load()
+        self.assertEqual(cookie_str, CookieManager.get_cookie(jar=jar))
