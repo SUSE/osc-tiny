@@ -4,20 +4,15 @@ Main API access
 """
 from __future__ import unicode_literals
 
-from base64 import b64encode
 import typing
 import errno
 from http.cookiejar import CookieJar, LWPCookieJar
 from io import BufferedReader, BytesIO, StringIO
 import gc
-import logging
-import os
 from pathlib import Path
 import re
-from ssl import get_default_verify_paths
-import time
 import threading
-from urllib.parse import quote, parse_qs, urlparse
+from urllib.parse import quote, urlparse
 import warnings
 
 from lxml.etree import tostring
@@ -45,6 +40,7 @@ from .utils.backports import cached_property
 from .utils.conf import BOOLEAN_PARAMS, get_credentials
 from .utils.cookies import CookieManager
 from .utils.errors import OscError
+from .utils.session import generate_session_id, init_session, RetryPolicy
 from .utils.xml import get_xml_parser, get_objectified_xml
 
 
@@ -132,6 +128,10 @@ class Osc:
     .. versionchanged:: 0.9.0
         * Added the ``staging`` extension
 
+    .. versionchanged:: {{ NEXT_RELEASE }}
+        * Deprecated ``default_connection_retries`` and ``default_retry_timeout``
+        * Introduced :py:class:`osctiny.utils.session.RetryPolicy`
+
     .. _SSL Cert Verification:
         http://docs.python-requests.org/en/master/user/advanced/
         #ssl-cert-verification
@@ -142,6 +142,8 @@ class Osc:
     default_timeout = (60, 300)
     default_connection_retries = 5
     default_retry_timeout = 5
+    retry_policy = RetryPolicy(max_attempts=default_connection_retries,
+                               backoff_max=default_retry_timeout)
 
     def __init__(self, url: typing.Optional[str] = None, username: typing.Optional[str] = None,
                  password: typing.Optional[str] = None, verify: typing.Optional[str] = None,
@@ -181,28 +183,20 @@ class Osc:
         gc.collect()
 
     @property
-    def _session_id(self) -> str:
-        session_hash = b64encode(f'{self.username}@{self.url}'.encode()).decode()
-        return f"session_{session_hash}_{os.getpid()}_{threading.get_ident()}"
-
-    @property
     def session(self) -> Session:
         """
         Session object
         """
-        session = getattr(THREAD_LOCAL, self._session_id, None)
+        session_id = generate_session_id(username=self.username, url=self.url)
+        session = getattr(THREAD_LOCAL, session_id, None)
         if not session:
-            session = Session()
-            session.verify = self.verify or get_default_verify_paths().capath
-            session.cookies = CookieManager.get_jar()
-
             if self.ssh_key is not None:
-                session.auth = HttpSignatureAuth(username=self.username, password=self.password,
-                                                 ssh_key_file=self.ssh_key)
+                auth = HttpSignatureAuth(username=self.username, password=self.password,
+                                         ssh_key_file=self.ssh_key)
             else:
-                session.auth = HTTPBasicAuth(self.username, self.password)
-
-            setattr(THREAD_LOCAL, self._session_id, session)
+                auth = HTTPBasicAuth(self.username, self.password)
+            session = init_session(auth=auth, policy=self.retry_policy, verify=self.verify)
+            setattr(THREAD_LOCAL, session_id, session)
 
         return session
 
@@ -305,39 +299,14 @@ class Osc:
         if timeout:
             settings["timeout"] = timeout
 
-        logger = logging.getLogger("osctiny.request")
-
-        for i in range(self.default_connection_retries, -1, -1):
-            logger.info("Requested URL: %s", prepped_req.url)
-            logger.debug("Sent data:\n%s\n---",
-                         "\n".join(f"{k}: {v}" for k, v in req.data.items())
-                         if isinstance(req.data, dict) else req.data)
-            logger.debug("Sent parameters:\n%s\n---",
-                         "\n".join(f"{k}: {v}" for k, v in (
-                             req.params
-                             if isinstance(req.params, dict)
-                             else parse_qs(req.params, keep_blank_values=True)
-                         ).items()))
-            try:
-                response = self.session.send(prepped_req, **settings)
-            except _ConnectionError as error:
-                warnings.warn("Problem connecting to server: {}".format(error))
-                log_method = logger.error if i < 1 else logger.warning
-                log_method("Request failed: %s", error)
-                if i < 1:
-                    raise
-                logger.debug("Retrying request in %d seconds", self.default_retry_timeout)
-                time.sleep(self.default_retry_timeout)
-            else:
-                logger.info("Server replied with status %d", response.status_code)
-                logger.debug("Response headers:\n%s\n---",
-                             "\n".join(f"{k}: {v}" for k, v in response.headers.items()))
-                if not stream:
-                    # The response content must not be accessed when streaming
-                    logger.debug("Response content:\n%s\n---", response.text)
-                if raise_for_status:
-                    response.raise_for_status()
-                return response
+        try:
+            response = self.session.send(prepped_req, **settings)
+        except _ConnectionError as error:
+            warnings.warn("Problem connecting to server: {}".format(error))
+        else:
+            if raise_for_status:
+                response.raise_for_status()
+            return response
 
         return None
 
