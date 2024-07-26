@@ -85,5 +85,8 @@ Utilities
 .. automodule:: osctiny.utils.mapping
     :members:
 
+.. automodule:: osctiny.utils.session
+    :members:
+
 .. automodule:: osctiny.utils.xml
     :members:

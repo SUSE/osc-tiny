@@ -27,6 +27,7 @@ from ..utils.conf import get_config_path, get_credentials
 from ..utils.cookies import CookieManager
 from ..utils.mapping import Mappable
 from ..utils.errors import get_http_error_details
+from ..utils.session import generate_session_id
 
 sys.path.append(os.path.dirname(__file__))
 
@@ -405,8 +406,7 @@ class TestConfig(TestCase):
 class TestAuth(TestCase):
     def _clear_thread_local(self):
         try:
-            delattr(THREAD_LOCAL, self.osc._session_id)
-
+            delattr(THREAD_LOCAL, generate_session_id(username=self.osc.username, url=self.osc.url))
         except AttributeError:
             pass
 
@@ -499,6 +499,7 @@ class TestAuth(TestCase):
 
 class TestError(TestCase):
     url = "http://example.com"
+
     @property
     def osc(self) -> Osc:
         return Osc(url=self.url, username="nemo", password="password")
@@ -507,9 +508,9 @@ class TestError(TestCase):
     def test_get_http_error_details(self):
         status = 400
         summary = "Bla Bla Bla"
-        responses.add(
+        rsp_mock = responses.add(
             responses.GET,
-            "http://example.com",
+            self.url,
             body=f"""<status code="foo"><summary>{summary}</summary></status>""",
             status=status
         )
@@ -528,12 +529,17 @@ class TestError(TestCase):
             else:
                 self.fail("No exception was raised")
 
+        with self.subTest("Request count"):
+            if rsp_mock is not None:
+                # In the last version of `responses` supporting Python 3.6, `rsp_mock` is None
+                self.assertEqual(1, rsp_mock.call_count)
+
     @responses.activate
     def test_get_http_error_details__bad_response(self):
         status = 502
-        responses.add(
+        rsp_mock = responses.add(
             responses.GET,
-            "http://example.com",
+            self.url,
             body=f"""Bad Gateway HTML message""",
             status=status
         )
@@ -557,6 +563,11 @@ class TestError(TestCase):
                     self.assertIn("Start tag expected", str(emitted_warnings[-1].message))
             else:
                 self.fail("No exception was raised")
+
+        with self.subTest("Request count"):
+            if rsp_mock is not None:
+                # In the last version of `responses` supporting Python 3.6, `rsp_mock` is None
+                self.assertEqual(self.osc.retry_policy.max_attempts + 1, rsp_mock.call_count)
 
 
 @mock.patch("osctiny.utils.cookies._conf", new=None)

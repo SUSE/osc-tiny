@@ -61,8 +61,7 @@ class OscTest(TestCase):
             username="foobar",
             password="helloworld",
         )
-        cls.osc.default_connection_retries = 0
-        cls.osc.default_retry_timeout = 0
+        cls.osc.retry_policy = None
 
     @staticmethod
     def mock_request(**kwargs):
