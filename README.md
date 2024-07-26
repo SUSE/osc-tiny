@@ -21,7 +21,7 @@
 | osctiny/models/\_\_init\_\_.py      |        6 |        0 |    100% |           |
 | osctiny/models/request.py           |       50 |        0 |    100% |           |
 | osctiny/models/staging.py           |       44 |        4 |     91% |     56-62 |
-| osctiny/osc.py                      |      191 |       25 |     87% |156, 159-162, 214, 218-226, 236, 323-330, 342, 462, 468 |
+| osctiny/osc.py                      |      168 |       19 |     89% |158, 161-164, 208, 212-220, 230, 304-305, 311, 431, 437 |
 | osctiny/utils/\_\_init\_\_.py       |        0 |        0 |    100% |           |
 | osctiny/utils/auth.py               |      118 |       36 |     69% |35, 70-86, 113-121, 156, 159, 165, 180-190, 209-210, 220, 234-235, 240, 247 |
 | osctiny/utils/backports.py          |        4 |        2 |     50% |     14-16 |
@@ -31,9 +31,10 @@
 | osctiny/utils/cookies.py            |       37 |        7 |     81% |     25-35 |
 | osctiny/utils/errors.py             |       19 |        1 |     95% |        24 |
 | osctiny/utils/mapping.py            |       37 |       10 |     73% |29, 32, 35, 38, 44, 47, 56, 59, 72-73 |
+| osctiny/utils/session.py            |       37 |        2 |     95% |    55, 64 |
 | osctiny/utils/xml.py                |       24 |        2 |     92% |    62, 78 |
 | setup.py                            |       15 |       15 |      0% |      3-27 |
-|                           **TOTAL** | **1487** |  **310** | **79%** |           |
+|                           **TOTAL** | **1501** |  **306** | **80%** |           |
 
 
 ## Setup coverage badge
