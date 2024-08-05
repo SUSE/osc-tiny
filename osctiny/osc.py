@@ -128,7 +128,7 @@ class Osc:
     .. versionchanged:: 0.9.0
         * Added the ``staging`` extension
 
-    .. versionchanged:: {{ NEXT_RELEASE }}
+    .. versionchanged:: 0.10.2
         * Deprecated ``default_connection_retries`` and ``default_retry_timeout``
         * Introduced :py:class:`osctiny.utils.session.RetryPolicy`
 

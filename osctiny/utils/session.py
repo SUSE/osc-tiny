@@ -2,7 +2,7 @@
 HTTP Session
 ^^^^^^^^^^^^
 
-.. versionadded:: {{ NEXT_RELEASE }}
+.. versionadded:: 0.10.2
 """
 from base64 import b64encode
 import os
