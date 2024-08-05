@@ -2,7 +2,7 @@
 Utilities for cookies
 ^^^^^^^^^^^^^^^^^^^^^
 
-.. versionadded:: {{ NEXT_RELEASE }}
+.. versionadded:: 0.10.2
 """
 from http.cookiejar import LWPCookieJar
 from io import StringIO
@@ -43,7 +43,7 @@ class CookieManager:
         """
         Get cookies from a persistent osc cookiejar, if it exists
 
-        .. versionchanged:: {{ NEXT_RELEASE }}
+        .. versionchanged:: 0.10.2
             Converted from function ``get_cookie_jar``
         """
         path = cls.get_cookie_path()
