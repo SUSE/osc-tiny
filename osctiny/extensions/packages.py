@@ -9,7 +9,7 @@ from urllib.parse import urljoin
 from lxml.etree import tounicode, SubElement, Element
 from lxml.objectify import fromstring
 
-from ..utils.base import ExtensionBase, DataDir
+from ..utils.base import ExtensionBase
 from ..utils.errors import OscError
 
 
@@ -396,9 +396,6 @@ class Package(ExtensionBase):
         """
         Checkout all files and directories of package
 
-        .. note:: Only by using :py:meth:`checkout` the directory structure is
-                  compatible with the ``osc`` command line tool!
-
         :param project: name of project
         :param package: name of package
         :param destdir: target local directory
@@ -412,15 +409,15 @@ class Package(ExtensionBase):
 
         .. versionchanged:: 0.3.3
             Added the parameter ``expand``
+
+        .. versionchanged:: {{ NEXT_RELEASE }}
+            The feature to create an ``osc`` compatible ``.osc/`` directory structure was removed.
         """
         if not os.path.exists(destdir):
             if not os.path.isdir(destdir):
                 os.makedirs(destdir)
             else:
                 raise TypeError("Destination {} is a file!".format(destdir))
-
-        oscdir = DataDir(osc=self.osc, path=destdir, project=project,
-                         package=package)
 
         dirlist = self.get_files(project, package, rev=rev, meta=meta, expand=expand)
         for entry in dirlist.findall("entry"):
@@ -433,10 +430,6 @@ class Package(ExtensionBase):
                 overwrite=True,
                 rev=rev,
                 expand=expand
-            )
-            os.link(
-                os.path.join(destdir, entry.get("name")),
-                os.path.join(oscdir.path, entry.get("name"))
             )
 
     def delete(self, project, package, force=False, comment=None):
