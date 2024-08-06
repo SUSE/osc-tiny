@@ -9,6 +9,7 @@ from datetime import datetime
 from io import StringIO
 import os
 from pathlib import Path
+from ssl import get_default_verify_paths
 import sys
 from tempfile import mkstemp
 import time
@@ -18,6 +19,7 @@ import warnings
 from dateutil.parser import parse
 from pytz import _UTC, timezone
 from requests import Response, HTTPError
+from requests.auth import HTTPBasicAuth
 import responses
 
 from ..osc import Osc, THREAD_LOCAL
@@ -27,7 +29,7 @@ from ..utils.conf import get_config_path, get_credentials
 from ..utils.cookies import CookieManager
 from ..utils.mapping import Mappable
 from ..utils.errors import get_http_error_details
-from ..utils.session import generate_session_id
+from ..utils.session import generate_session_id, init_session
 
 sys.path.append(os.path.dirname(__file__))
 
@@ -641,3 +643,27 @@ class TestCookies(TestCase):
         jar = LWPCookieJar(filename=str(cookie_path))
         jar.load()
         self.assertEqual(cookie_str, CookieManager.get_cookie(jar=jar))
+
+
+class TestSession(TestCase):
+    true_capath = get_default_verify_paths().capath
+
+    def test_verify(self):
+        auth = HTTPBasicAuth(username="nemo", password="secret")
+
+        with self.subTest("No verification"):
+            session = init_session(auth=auth, verify=False)
+            self.assertFalse(session.verify)
+
+        with self.subTest("Specific CA path"):
+            capath = "/tmp/no-such-ca.pem"
+            session = init_session(auth=auth, verify=capath)
+            self.assertEqual(session.verify, capath)
+
+        with self.subTest("None"):
+            session = init_session(auth=auth, verify=None)
+            self.assertEqual(session.verify, self.true_capath)
+
+        with self.subTest("No value provided"):
+            session = init_session(auth=auth)
+            self.assertEqual(session.verify, self.true_capath)

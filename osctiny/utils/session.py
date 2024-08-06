@@ -68,14 +68,14 @@ def generate_retry_policy(policy: RetryPolicy) -> urllib3.Retry:
 
 
 def init_session(auth: AuthBase, policy: typing.Optional[RetryPolicy] = None,
-                 verify: typing.Union[str, bool] = get_default_verify_paths().capath) -> Session:
+                 verify: typing.Union[str, bool, None] = None) -> Session:
     """
     Factory to initialize a session object.
     """
     session = Session()
     session.auth = auth
     session.cookies = CookieManager.get_jar()
-    session.verify = verify
+    session.verify = verify if verify is not None else get_default_verify_paths().capath
 
     if policy:
         retries = generate_retry_policy(policy=policy)
