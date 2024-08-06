@@ -13,7 +13,7 @@
 | osctiny/extensions/distributions.py |       13 |        0 |    100% |           |
 | osctiny/extensions/issues.py        |       26 |        0 |    100% |           |
 | osctiny/extensions/origin.py        |      182 |       78 |     57% |37-39, 55-69, 77, 121-122, 130-146, 175, 177, 181, 189, 249-251, 262-265, 285-286, 288, 417, 442-450, 463-467, 490-520, 530-542 |
-| osctiny/extensions/packages.py      |      133 |       37 |     72% |73-80, 217-227, 256, 302-315, 376, 391, 416-437, 455-471, 550-554, 574, 577, 598, 617 |
+| osctiny/extensions/packages.py      |      131 |       35 |     73% |73-80, 217-227, 256, 302-315, 376, 391, 416-424, 448-464, 543-547, 567, 570, 591, 610 |
 | osctiny/extensions/projects.py      |      115 |       17 |     85% |92-94, 172, 197, 200, 257, 278, 304, 317, 337, 358-371, 420, 451 |
 | osctiny/extensions/search.py        |       13 |        1 |     92% |        56 |
 | osctiny/extensions/staging.py       |       95 |        8 |     92% |82, 104, 167, 211, 237, 313, 370, 383 |
@@ -25,7 +25,7 @@
 | osctiny/utils/\_\_init\_\_.py       |        0 |        0 |    100% |           |
 | osctiny/utils/auth.py               |      118 |       36 |     69% |35, 70-86, 113-121, 156, 159, 165, 180-190, 209-210, 220, 234-235, 240, 247 |
 | osctiny/utils/backports.py          |        4 |        2 |     50% |     14-16 |
-| osctiny/utils/base.py               |       37 |        4 |     89% |     62-66 |
+| osctiny/utils/base.py               |        3 |        0 |    100% |           |
 | osctiny/utils/changelog.py          |       96 |        6 |     94% |69, 80, 98, 109, 167, 277 |
 | osctiny/utils/conf.py               |       73 |       24 |     67% |21, 67, 108, 130-150, 179, 182-187, 190 |
 | osctiny/utils/cookies.py            |       37 |        7 |     81% |     25-35 |
@@ -34,7 +34,7 @@
 | osctiny/utils/session.py            |       37 |        2 |     95% |    55, 64 |
 | osctiny/utils/xml.py                |       24 |        2 |     92% |    62, 78 |
 | setup.py                            |       15 |       15 |      0% |      3-27 |
-|                           **TOTAL** | **1501** |  **306** | **80%** |           |
+|                           **TOTAL** | **1465** |  **300** | **80%** |           |
 
 
 ## Setup coverage badge
