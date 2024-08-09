@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 # pylint: disable=protected-access
-import re
 from base64 import b64encode
 from bz2 import compress
 from http.cookiejar import Cookie, LWPCookieJar
@@ -9,6 +8,7 @@ from datetime import datetime
 from io import StringIO
 import os
 from pathlib import Path
+import re
 from ssl import get_default_verify_paths
 import sys
 from tempfile import mkstemp
@@ -567,8 +567,11 @@ class TestError(TestCase):
                 self.fail("No exception was raised")
 
         with self.subTest("Request count"):
-            if rsp_mock is not None:
-                # In the last version of `responses` supporting Python 3.6, `rsp_mock` is None
+            # In the last version of `responses` officially supporting Python 3.6, `rsp_mock` is
+            # None.
+            # Also, some distros (e.g. openSUSE Leap 15.6) have backported newer versions of
+            # `responses` for Python 3.6.
+            if rsp_mock is not None and sys.version_info >= (3, 7):
                 self.assertEqual(self.osc.retry_policy.max_attempts + 1, rsp_mock.call_count)
 
 
