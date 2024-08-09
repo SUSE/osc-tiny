@@ -571,7 +571,7 @@ class TestError(TestCase):
             # None.
             # Also, some distros (e.g. openSUSE Leap 15.6) have backported newer versions of
             # `responses` for Python 3.6.
-            if rsp_mock is not None and sys.version_info > (3, 6):
+            if rsp_mock is not None and sys.version_info >= (3, 7):
                 self.assertEqual(self.osc.retry_policy.max_attempts + 1, rsp_mock.call_count)
 
 
