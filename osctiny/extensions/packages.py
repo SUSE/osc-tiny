@@ -289,6 +289,38 @@ class Package(ExtensionBase):
             params={"comment": comment}
         )
 
+    def delete_file(self, project, package, filename, force=False, comment=None):
+        """
+        Delete package
+
+        .. versionadded:: {{ NEXT_RELEASE }}
+
+        :param project: Project name
+        :param package: Package name
+        :param filename: Name of file
+        :param force: Delete package even if pending requests exist
+        :param comment: Optional comment
+        :return: ``True``, if successful. Otherwise API response
+        :rtype: bool or lxml.objectify.ObjectifiedElement
+        """
+        params = {'force': force}
+
+        response = self.osc.request(
+            url=urljoin(
+                self.osc.url,
+                "/".join((self.base_path, project, package, filename))
+            ),
+            method="DELETE",
+            params=params,
+            data=comment
+        )
+
+        parsed = self.osc.get_objectified_xml(response)
+        if response.status_code == 200 and parsed.get("code") == "ok":
+            return True
+
+        return parsed
+
     def get_attribute(self, project, package, attribute=None):
         """
         Get one attribute of a package
