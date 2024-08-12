@@ -293,7 +293,7 @@ class Package(ExtensionBase):
         """
         Delete package
 
-        .. versionadded:: {{ NEXT_RELEASE }}
+        .. versionadded:: 0.10.3
 
         :param project: Project name
         :param package: Package name
@@ -442,7 +442,7 @@ class Package(ExtensionBase):
         .. versionchanged:: 0.3.3
             Added the parameter ``expand``
 
-        .. versionchanged:: {{ NEXT_RELEASE }}
+        .. versionchanged:: 0.10.3
             The feature to create an ``osc`` compatible ``.osc/`` directory structure was removed.
         """
         if not os.path.exists(destdir):
