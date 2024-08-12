@@ -3,6 +3,7 @@ OBS auto release helper
 ----------------------
 """
 import argparse
+import glob
 import os
 import tempfile
 import typing
@@ -24,15 +25,14 @@ def get_latest_release() -> typing.Tuple[str, str]:
     releases = response.json()
     return (releases[0]['tag_name'].strip('v'), releases[0]['body'])
 
-def find_file(directory: str, suffix: str) -> str:
+def find_source(directory: str) -> typing.Union[str, None]:
     """
     Find file name in directory
     """
-    for _, _, files in os.walk(directory):
-        for item in files:
-            if item.endswith(suffix):
-                return item
-    return ""
+    file_path = glob.glob(f'{directory}/osc[-_]tiny-*.tar.gz')
+    if file_path:
+        return os.path.basename(file_path[0])
+    return None
 
 def read_file(filename: str) -> str:
     """
@@ -115,11 +115,12 @@ class Obs:
         """
         Replace source file
         """
-        self.osc.packages.delete_file(self.project, self.package,
-                                      find_file(self.destdir, ".tar.gz"))
-        new_file = find_file("./dist", ".tar.gz")
-        with open(f"./dist/{new_file}", 'rb') as file:
-            self.osc.packages.push_file(self.project, self.package, new_file, data=file)
+        old_file = find_source(self.destdir)
+        new_file = find_source("./dist")
+        if old_file and new_file:
+            self.osc.packages.delete_file(self.project, self.package, old_file)
+            with open(f"./dist/{new_file}", 'rb') as file:
+                self.osc.packages.push_file(self.project, self.package, new_file, data=file)
 
     def commit(self) -> None:
         """
