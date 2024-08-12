@@ -132,7 +132,7 @@ class Obs:
             Action(
                 type=ActionType.SUBMIT,
                 source=Source(project=self.project, package=self.package),
-                target=Target(project=self.pproject, package=self.package)
+                target=Target(project="devel:languages:python", package=self.package)
             )
         ]
         self.osc.requests.create(actions=actions)
