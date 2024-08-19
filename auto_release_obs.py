@@ -5,25 +5,16 @@ OBS auto release helper
 import argparse
 import glob
 import os
-import tempfile
+import re
 import typing
 from datetime import datetime
-from pathlib import Path
+
+
 from pytz import _UTC
 import requests
 from osctiny import Osc
 from osctiny.models.request import Action, ActionType, Source, Target
 from osctiny.utils.changelog import Entry
-
-def get_latest_release() -> typing.Tuple[str, str]:
-    """
-    Get latest release name and body
-    """
-    response = requests.get(
-        "https://api.github.com/repos/suse/osc-tiny/releases?per_page=1",
-        timeout=10)
-    releases = response.json()
-    return (releases[0]['tag_name'].strip('v'), releases[0]['body'])
 
 def find_source(directory: str) -> typing.Union[str, None]:
     """
@@ -34,21 +25,13 @@ def find_source(directory: str) -> typing.Union[str, None]:
         return os.path.basename(file_path[0])
     return None
 
-def read_file(filename: str) -> str:
-    """
-    Read file content
-    """
-    with open(filename, 'r') as fh:
-        content = fh.readlines()
-    return content
-
 class Obs:
     """
     OBS instance
     """
-    pproject = "openSUSE:Factory"
+    project = "devel:languages:python"
+    target = "openSUSE:Factory"
     package = "python-osc-tiny"
-    project = None
     release_name = None
     release_body = None
 
@@ -62,41 +45,37 @@ class Obs:
             username=self.username,
             password=kwargs.get("password", ""),
         )
-        self.project = f"home:{self.username}:branches:devel:languages:python"
-        self.destdir = Path(tempfile.mkdtemp())
 
-    def branchco(self):
+    def get_latest_release(self) -> None:
         """
-        Branch from parent project and checkout paclage
+        Get latest release name and body
         """
-        params = {"force": 1,
-                  "noservice": 1,
-                  "autocleanup": 1,
-                  "target_project": self.project}
-        # Branch from parent project
-        self.osc.packages.cmd(self.pproject, self.package, "branch", **params)
-        self.osc.packages.checkout(self.project, self.package, self.destdir)
-        self.release_name, self.release_body = get_latest_release()
+        response = requests.get(
+            "https://api.github.com/repos/suse/osc-tiny/releases?per_page=1",
+            timeout=10)
+        releases = response.json()
+        self.release_name = releases[0]['tag_name'].strip('v')
+        self.release_body = releases[0]['body']
 
     def modify_spec_file(self) -> None:
         """
         Modify spec file
         """
-        lines = read_file(f"{self.destdir}/{self.package}.spec")
-        data = ""
-        for line in lines:
-            if line.startswith("Version:"):
-                data += f"Version:        {self.release_name}\n"
-            else:
-                data += line.replace("osc-tiny-%{version}", "osc_tiny-%{version}")
+        version_pattern = r"\nVersion:\s+[\d\.]+\n"
+        response = self.osc.packages.get_file(self.project, self.package,
+                                              f"{self.package}.spec")
+        response.encoding = 'utf-8'
+        data = response.text.replace("osc-tiny-%{version}", "osc_tiny-%{version}")
+        data = re.sub(version_pattern, f"\nVersion:        {self.release_name}\n", data)
         self.osc.packages.push_file(self.project, self.package, f"{self.package}.spec", data)
 
     def modify_changes_file(self) -> None:
         """
         Modify change log
         """
-        lines = read_file(f"{self.destdir}/{self.package}.changes")
-
+        response = self.osc.packages.get_file(self.project, self.package,
+                                              f"{self.package}.changes")
+        response.encoding = 'utf-8'
         content = f"- Release {self.release_name}\n"
         for line in self.release_body.split("\r\n"):
             content += f"  {line}\n"
@@ -105,9 +84,7 @@ class Obs:
             content=content,
             timestamp=datetime.now(tz=_UTC())
         )
-        data = str(entry)
-        for line in lines:
-            data += line
+        data = str(entry) + response.text
         self.osc.packages.push_file(self.project, self.package,
                                     f"{self.package}.changes", data)
 
@@ -115,7 +92,11 @@ class Obs:
         """
         Replace source file
         """
-        old_file = find_source(self.destdir)
+        source_pattern = re.compile(r"osc[-_]tiny-[\d\.]+.tar.gz")
+        entries = self.osc.packages.get_files(self.project, self.package, expand=True)
+        files = [e.get("name") for e in entries.findall("entry")
+                 if source_pattern.match(e.get("name"))]
+        old_file = files[0] if files else None
         new_file = find_source("./dist")
         if old_file and new_file:
             self.osc.packages.delete_file(self.project, self.package, old_file)
@@ -132,13 +113,13 @@ class Obs:
             Action(
                 type=ActionType.SUBMIT,
                 source=Source(project=self.project, package=self.package),
-                target=Target(project="devel:languages:python", package=self.package)
+                target=Target(project=self.target, package=self.package)
             )
         ]
         self.osc.requests.create(actions=actions)
 
     def __call__(self) -> None:
-        self.branchco()
+        self.get_latest_release()
         self.modify_spec_file()
         self.modify_changes_file()
         self.replace_source_file()
