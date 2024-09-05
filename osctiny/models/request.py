@@ -60,6 +60,7 @@ class Target(typing.NamedTuple):
     project: str
     package: typing.Optional[str] = None
     releaseproject: typing.Optional[str] = None
+    repository: typing.Optional[str] = None
 
     def asxml(self) -> ObjectifiedElement:
         return E.target(**{field: getattr(self, field)
