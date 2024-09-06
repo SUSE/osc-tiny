@@ -58,7 +58,7 @@ class Target(typing.NamedTuple):
     Target for an action
     """
     project: str
-    package: str
+    package: typing.Optional[str] = None
     releaseproject: typing.Optional[str] = None
 
     def asxml(self) -> ObjectifiedElement:

@@ -455,6 +455,26 @@ class TestRequest(OscTest):
                 b'</request>'
             )
 
+        with self.subTest("XML content, target with no package"), mock.patch.object(
+            self.osc.session, "send", return_value=mock_response
+        ) as mock_session:
+            self.osc.requests.create(
+                actions=[
+                    Action(
+                        type=ActionType.RELEASE,
+                        target=Target(project="Foo:Bar"),
+                    )
+                ]
+            )
+            self.assertEqual(
+                mock_session.call_args[0][0].body,
+                b"<?xml version='1.0' encoding='utf-8'?>\n"
+                b"<request>"
+                b'<action type="release">'
+                b'<target project="Foo:Bar"/>'
+                b"</action>"
+                b"</request>",
+            )
 
     @responses.activate
     def test_get_list(self):
