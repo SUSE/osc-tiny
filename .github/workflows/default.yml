@@ -67,9 +67,8 @@ jobs:
       - name: Store coverage file
         uses: actions/upload-artifact@v4
         with:
-          name: coverage
+          name: coverage-${{ matrix.python_version }}
           path: .coverage.${{ matrix.python_version }}
-      - uses: actions/checkout@v2
   coverage:
     runs-on: ubuntu-latest
     needs: test
@@ -78,7 +77,9 @@ jobs:
       - uses: actions/download-artifact@v4
         id: download
         with:
-          name: 'coverage'
+          path: '.'
+          pattern: 'coverage-*'
+          merge-multiple: true
       - name: Coverage comment
         id: coverage_comment
         uses: ewjoachim/python-coverage-comment-action@v3
