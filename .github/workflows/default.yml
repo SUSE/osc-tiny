@@ -9,13 +9,13 @@ jobs:
       matrix:
         python-version: [ 3.6, 3.7 ]
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
       - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v2
+        uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
       - name: Cache pip
-        uses: actions/cache@v2
+        uses: actions/cache@v4
         with:
           # This path is specific to Ubuntu
           path: ~/.cache/pip
@@ -41,13 +41,13 @@ jobs:
           - python_version: "3.11"
           - python_version: "3.12"
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
       - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v2
+        uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
       - name: Cache pip
-        uses: actions/cache@v2
+        uses: actions/cache@v4
         with:
           # This path is specific to Ubuntu
           path: ~/.cache/pip
@@ -65,7 +65,7 @@ jobs:
         env:
           COVERAGE_FILE: ".coverage.${{ matrix.python_version }}"
       - name: Store coverage file
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
           name: coverage
           path: .coverage.${{ matrix.python_version }}
@@ -75,7 +75,7 @@ jobs:
     needs: test
     steps:
       - uses: actions/checkout@v2
-      - uses: actions/download-artifact@v2
+      - uses: actions/download-artifact@v4
         id: download
         with:
           name: 'coverage'
@@ -87,7 +87,7 @@ jobs:
           MERGE_COVERAGE_FILES: true
           VERBOSE: true
       - name: Store Pull Request comment to be posted
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         if: steps.coverage_comment.outputs.COMMENT_FILE_WRITTEN == 'true'
         with:
           # If you use a different name, update COMMENT_ARTIFACT_NAME accordingly
@@ -97,13 +97,13 @@ jobs:
   lint:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
       - name: Set up Python 3.12
-        uses: actions/setup-python@v2
+        uses: actions/setup-python@v5
         with:
           python-version: 3.12
       - name: Cache pip
-        uses: actions/cache@v2
+        uses: actions/cache@v4
         with:
           # This path is specific to Ubuntu
           path: ~/.cache/pip
