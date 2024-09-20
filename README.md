@@ -20,7 +20,7 @@
 | osctiny/extensions/staging.py       |       95 |        8 |     92% |82, 104, 167, 211, 237, 313, 370, 383 |
 | osctiny/extensions/users.py         |       18 |        9 |     50% |23-32, 42-47, 65-70 |
 | osctiny/models/\_\_init\_\_.py      |        6 |        0 |    100% |           |
-| osctiny/models/request.py           |       50 |        0 |    100% |           |
+| osctiny/models/request.py           |       51 |        0 |    100% |           |
 | osctiny/models/staging.py           |       44 |        4 |     91% |     56-62 |
 | osctiny/osc.py                      |      168 |       19 |     89% |158, 161-164, 208, 212-220, 230, 304-305, 311, 431, 437 |
 | osctiny/utils/\_\_init\_\_.py       |        0 |        0 |    100% |           |
@@ -35,7 +35,7 @@
 | osctiny/utils/session.py            |       37 |        2 |     95% |    55, 64 |
 | osctiny/utils/xml.py                |       24 |        2 |     92% |    62, 78 |
 | setup.py                            |       15 |       15 |      0% |      3-27 |
-|                           **TOTAL** | **1545** |  **379** | **75%** |           |
+|                           **TOTAL** | **1546** |  **379** | **75%** |           |
 
 
 ## Setup coverage badge
