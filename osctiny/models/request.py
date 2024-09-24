@@ -46,6 +46,7 @@ class Source(typing.NamedTuple):
     project: str
     package: str
     rev: typing.Optional[str] = None
+    repository: typing.Optional[str] = None
 
     def asxml(self) -> ObjectifiedElement:
         return E.source(**{field: getattr(self, field)
