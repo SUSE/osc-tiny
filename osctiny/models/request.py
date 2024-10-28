@@ -103,4 +103,7 @@ class Review(typing.NamedTuple):
     name: str
 
     def asxml(self) -> ObjectifiedElement:
-        return E.review(**{self.by.value: self.name})
+        # The state attribute is mandatory, despite its value being ignored by
+        # OBS and always reset to "new"
+        # (see https://github.com/openSUSE/open-build-service/issues/17028).
+        return E.review(**{self.by.value: self.name, "state": "new"})
