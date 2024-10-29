@@ -64,8 +64,8 @@
             <a id="indexLink" class="nav" href="index.html">&Hat; index</a> &nbsp; &nbsp;
             <a id="nextFileLink" class="nav" href="z_5b5b8ac3f52f17a5_staging_py.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
-            <a class="nav" href="https://coverage.readthedocs.io/en/7.6.3">coverage.py v7.6.3</a>,
-            created at 2024-10-18 07:25 +0000
+            <a class="nav" href="https://coverage.readthedocs.io/en/7.6.4">coverage.py v7.6.4</a>,
+            created at 2024-10-29 10:23 +0000
         </p>
         <aside class="hidden">
             <button type="button" class="button_next_chunk" data-shortcut="j"></button>
@@ -185,7 +185,10 @@
     <p class="run"><span class="n"><a id="t103" href="#t103">103</a></span><span class="t">    <span class="nam">name</span><span class="op">:</span> <span class="nam">str</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t104" href="#t104">104</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t105" href="#t105">105</a></span><span class="t">    <span class="key">def</span> <span class="nam">asxml</span><span class="op">(</span><span class="nam">self</span><span class="op">)</span> <span class="op">-></span> <span class="nam">ObjectifiedElement</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t106" href="#t106">106</a></span><span class="t">        <span class="key">return</span> <span class="nam">E</span><span class="op">.</span><span class="nam">review</span><span class="op">(</span><span class="op">**</span><span class="op">{</span><span class="nam">self</span><span class="op">.</span><span class="nam">by</span><span class="op">.</span><span class="nam">value</span><span class="op">:</span> <span class="nam">self</span><span class="op">.</span><span class="nam">name</span><span class="op">}</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t106" href="#t106">106</a></span><span class="t">        <span class="com"># The state attribute is mandatory, despite its value being ignored by</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t107" href="#t107">107</a></span><span class="t">        <span class="com"># OBS and always reset to "new"</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t108" href="#t108">108</a></span><span class="t">        <span class="com"># (see https://github.com/openSUSE/open-build-service/issues/17028).</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t109" href="#t109">109</a></span><span class="t">        <span class="key">return</span> <span class="nam">E</span><span class="op">.</span><span class="nam">review</span><span class="op">(</span><span class="op">**</span><span class="op">{</span><span class="nam">self</span><span class="op">.</span><span class="nam">by</span><span class="op">.</span><span class="nam">value</span><span class="op">:</span> <span class="nam">self</span><span class="op">.</span><span class="nam">name</span><span class="op">,</span> <span class="str">"state"</span><span class="op">:</span> <span class="str">"new"</span><span class="op">}</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
 </main>
 <footer>
     <div class="content">
@@ -194,8 +197,8 @@
             <a class="nav" href="index.html">&Hat; index</a> &nbsp; &nbsp;
             <a class="nav" href="z_5b5b8ac3f52f17a5_staging_py.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
-            <a class="nav" href="https://coverage.readthedocs.io/en/7.6.3">coverage.py v7.6.3</a>,
-            created at 2024-10-18 07:25 +0000
+            <a class="nav" href="https://coverage.readthedocs.io/en/7.6.4">coverage.py v7.6.4</a>,
+            created at 2024-10-29 10:23 +0000
         </p>
     </div>
 </footer>
