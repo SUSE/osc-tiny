@@ -414,8 +414,8 @@ class TestRequest(OscTest):
                 b'<action type="delete">'
                 b'<target project="Foo:Bar:Factory" package="hello-world"/>'
                 b'</action>'
-                b'<review by_user="nemo"/>'
-                b'<review by_group="superusers"/>'
+                b'<review by_user="nemo" state="new"/>'
+                b'<review by_group="superusers" state="new"/>'
                 b'</request>'
             )
 
