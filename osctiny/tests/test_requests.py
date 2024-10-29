@@ -477,6 +477,33 @@ class TestRequest(OscTest):
             )
 
         with self.subTest(
+            "XML content, source with optional repository"
+        ), mock.patch.object(
+            self.osc.session, "send", return_value=mock_response
+        ) as mock_session:
+            self.osc.requests.create(
+                actions=[
+                    Action(
+                        type=ActionType.RELEASE,
+                        source=Source(
+                            project="Foo:Bar", package="p", repository="images"
+                        ),
+                        target=Target(project="Baz:Qux"),
+                    )
+                ]
+            )
+            self.assertEqual(
+                mock_session.call_args[0][0].body,
+                b"<?xml version='1.0' encoding='utf-8'?>\n"
+                b"<request>"
+                b'<action type="release">'
+                b'<target project="Baz:Qux"/>'
+                b'<source project="Foo:Bar" package="p" repository="images"/>'
+                b"</action>"
+                b"</request>",
+            )
+
+        with self.subTest(
             "XML content, target with optional repository"
         ), mock.patch.object(
             self.osc.session, "send", return_value=mock_response
