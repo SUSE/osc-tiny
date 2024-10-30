@@ -4,7 +4,7 @@
 
 | Name                                |    Stmts |     Miss |   Cover |   Missing |
 |------------------------------------ | -------: | -------: | ------: | --------: |
-| auto\_release\_obs.py               |       73 |       73 |      0% |     5-134 |
+| auto\_release\_obs.py               |       72 |       72 |      0% |     5-133 |
 | osctiny/\_\_init\_\_.py             |        4 |        0 |    100% |           |
 | osctiny/extensions/\_\_init\_\_.py  |        0 |        0 |    100% |           |
 | osctiny/extensions/attributes.py    |       20 |        0 |    100% |           |
@@ -35,7 +35,7 @@
 | osctiny/utils/session.py            |       37 |        2 |     95% |    55, 64 |
 | osctiny/utils/xml.py                |       24 |        2 |     92% |    62, 78 |
 | setup.py                            |       15 |       15 |      0% |      3-27 |
-|                           **TOTAL** | **1546** |  **379** | **75%** |           |
+|                           **TOTAL** | **1545** |  **378** | **76%** |           |
 
 
 ## Setup coverage badge
