@@ -76,11 +76,10 @@ class Obs:
         response = self.osc.packages.get_file(self.project, self.package,
                                               f"{self.package}.changes")
         response.encoding = 'utf-8'
-        content = f"- Release {self.release_name}\n"
-        for line in self.release_body.split("\r\n"):
-            content += f"  {line}\n"
+        lines = [f"  {line}" for line in self.release_body.strip().split("\r\n") if line]
+        content = f"- Release {self.release_name}\n" + "\n".join(lines)
         entry = Entry(
-            packager=self.username,
+            packager=f"{self.username} <maintenance-automation-team@suse.de>",
             content=content,
             timestamp=datetime.now(tz=_UTC())
         )
