@@ -41,7 +41,8 @@ release = __version__
 # ones.
 extensions = [
     'sphinx.ext.autodoc',
-    'sphinx.ext.viewcode',
+    # Disabling the extension because of https://github.com/sphinx-doc/sphinx/issues/13095
+    # 'sphinx.ext.viewcode',
 ]
 
 # Add any paths that contain templates here, relative to this directory.
@@ -131,8 +132,8 @@ latex_elements = {
 # (source start file, target name, title,
 #  author, documentclass [howto, manual, or own class]).
 latex_documents = [
-    (master_doc, 'OSCTiny.tex', 'OSC Tiny Documentation',
-     'Andreas Hasenkopf', 'manual'),
+    (master_doc, 'OSCTiny.tex', project + ' Documentation',
+     author, 'manual'),
 ]
 
 
@@ -141,7 +142,7 @@ latex_documents = [
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
 man_pages = [
-    (master_doc, 'osctiny', 'OSC Tiny Documentation',
+    (master_doc, 'osctiny', project + ' Documentation',
      [author], 1)
 ]
 
@@ -152,8 +153,8 @@ man_pages = [
 # (source start file, target name, title, author,
 #  dir menu entry, description, category)
 texinfo_documents = [
-    (master_doc, 'OSCTiny', 'OSC Tiny Documentation',
-     author, 'OSCTiny', 'One line description of project.',
+    (master_doc, project, project + ' Documentation',
+     author, project, 'One line description of project.',
      'Miscellaneous'),
 ]
 
