@@ -346,21 +346,25 @@ class Package(ExtensionBase):
 
         return self.osc.get_objectified_xml(response)
 
-    def get_history(self, project, package):
+    def get_history(self, project, package, limit = None):
         """
         Get history of package
 
         :param project: name of project
         :param package: name of package
+        :param limit: Optional number of history entries to return. If
+                      specified, only the last n entries are returned.
         :return: Objectified XML element
         :rtype: lxml.objectify.ObjectifiedElement
         """
+        params = {"limit": limit} if limit else {}
         response = self.osc.request(
             url=urljoin(
                 self.osc.url,
                 "{}/{}/{}/_history".format(self.base_path, project, package)
             ),
-            method="GET"
+            method="GET",
+            params=params,
         )
 
         return self.osc.get_objectified_xml(response)
