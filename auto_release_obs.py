@@ -40,6 +40,7 @@ class Obs:
         Initialize the obs instance
         """
         self.username = kwargs.get("username", "")
+        self.contact = kwargs.get("contact", "")
         self.osc = Osc(
             url="https://api.opensuse.org",
             username=self.username,
@@ -79,7 +80,7 @@ class Obs:
         lines = [f"  {line}" for line in self.release_body.strip().split("\r\n") if line]
         content = f"- Release {self.release_name}\n" + "\n".join(lines)
         entry = Entry(
-            packager=f"{self.username} <maintenance-automation-team@suse.de>",
+            packager=f"{self.username} <{self.contact}>",
             content=content,
             timestamp=datetime.now(tz=_UTC())
         )
@@ -128,6 +129,9 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Auto release package to OBS.')
     parser.add_argument('--username', required=True, help='Username for login')
     parser.add_argument('--password', required=True, help='Password for login')
+    parser.add_argument('--contact', required=True, help='Email address of user')
     args = parser.parse_args()
-    obs = Obs(username=args.username, password=args.password)
+    obs = Obs(username=args.username,
+              password=args.password,
+              contact=args.contact)
     obs()
