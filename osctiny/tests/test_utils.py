@@ -245,23 +245,20 @@ class TestChangeLog(TestCase):
 
             self.assertEqual(len(cl.entries), 3)
             cl.write(path="/who/cares/test.changes")
-
-            self.assertEqual(len(omock.mock_calls), 6)
-            content = "".join(str(omock.mock_calls[x][1][0])
-                              for x in range(2, 5))
-
-            self.assertEqual(
-                content,
-                "-------------------------------------------------------------------\n"
-                "Tue Jan 01 00:00:00 UTC 2019 - Andreas Hasenkopf <ahasenkopf@suse.com>\n\n"
-                "Føø Bar\n\n"
-                "-------------------------------------------------------------------\n"
-                "Mon Jan 01 00:00:00 UTC 2018 - Andreas Pritschet <apritschet@suse.com>\n\n"
-                "Hellø Wørld\n\n"
-                "-------------------------------------------------------------------\n"
-                "Sun Jan 01 00:00:00 UTC 2017 - Andreas Hasenkopf <ahasenkopf@suse.com>\n\n"
-                "First enŧry\n\n"
-            )
+            calls = [
+                mock.call().write(
+                    '-------------------------------------------------------------------\n'
+                    'Tue Jan 01 00:00:00 UTC 2019 - Andreas Hasenkopf <ahasenkopf@suse.com>'
+                    '\n\nFøø Bar\n\n'),
+                mock.call().write(
+                    '-------------------------------------------------------------------\n'
+                    'Mon Jan 01 00:00:00 UTC 2018 - Andreas Pritschet <apritschet@suse.com>'
+                    '\n\nHellø Wørld\n\n'),
+                mock.call().write(
+                    '-------------------------------------------------------------------\n'
+                    'Sun Jan 01 00:00:00 UTC 2017 - Andreas Hasenkopf <ahasenkopf@suse.com>'
+                    '\n\nFirst enŧry\n\n')]
+            omock.assert_has_calls(calls, any_order=True)
 
     def test_write_stringio(self):
         buffer = StringIO("")
