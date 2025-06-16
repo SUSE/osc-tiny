@@ -31,7 +31,7 @@ BOOLEAN_PARAMS = {
                  'extend_package_names', 'extend_package_names', 'keeplink', 'repairlink')
     },
     "^/source/[^/]+/?$": {
-        'GET': ('expand', 'deleted'),
+        'GET': ('expand'),
     },
     "^/source/[^/]+/[^/]+/[^/]+$": {
         'PUT': ('keeplink',)

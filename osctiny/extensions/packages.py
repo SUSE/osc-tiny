@@ -48,7 +48,8 @@ class Package(ExtensionBase):
             return f"view={view}&expand={'1' if params.get('expand') else '0'}"
         return params
 
-    def get_list(self, project: str, deleted: bool = False, expand: bool = False, **params):
+    def get_list(self, project: str, deleted: typing.Optional[bool] = None, expand: bool = False,
+                 **params):
         """
         Get packages from project
 
@@ -64,13 +65,22 @@ class Package(ExtensionBase):
         .. versionchanged:: 0.7.6
             Changed default value of ``expand`` to ``False``
 
+        .. versionchanged:: {{NEXT_RELEASE}}
+            Made the ``deleted`` parameter fully optional. It is no longer a boolean flag but really
+            a boolean parameter, so ``deleted=0`` is actually added to the API call.
+
         :param project: name of project
-        :param deleted: Show deleted packages instead
+        :param deleted: If true, shows deleted packages instead of the current ones. If False is
+                        passed, this causes a bypass in the rails backend of the build service,
+                        returning results from the file backend directly. Default is None.
         :param expand: Include inherited packages and their project of origin
         :return: Objectified XML element
         :rtype: lxml.objectify.ObjectifiedElement
         """
-        params.update({"deleted": deleted, "expand": expand})
+        params.update({"expand": expand})
+        if deleted is not None:
+            params.update({"deleted": deleted})
+
         response = self.osc.request(
             url=urljoin(self.osc.url, "{}/{}".format(self.base_path, project)),
             method="GET",
