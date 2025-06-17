@@ -70,9 +70,9 @@ class Package(ExtensionBase):
             a boolean parameter, so ``deleted=0`` is actually added to the API call.
 
         :param project: name of project
-        :param deleted: If true, shows deleted packages instead of the current ones. If False is
-                        passed, this causes a bypass in the rails backend of the build service,
-                        returning results from the file backend directly. Default is None.
+        :param deleted: If true, also shows deleted packages instead of the present ones.
+                        If False, then `deleted=0` is appended to the query explicitly.
+                        Default is `None`, which implies no parameter addition to the query.
         :param expand: Include inherited packages and their project of origin
         :return: Objectified XML element
         :rtype: lxml.objectify.ObjectifiedElement
