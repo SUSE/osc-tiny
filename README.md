@@ -32,10 +32,10 @@
 | osctiny/utils/cookies.py            |       37 |        7 |     81% |     25-35 |
 | osctiny/utils/errors.py             |       19 |        1 |     95% |        24 |
 | osctiny/utils/mapping.py            |       37 |       10 |     73% |29, 32, 35, 38, 44, 47, 56, 59, 72-73 |
-| osctiny/utils/session.py            |       37 |        2 |     95% |    55, 64 |
+| osctiny/utils/session.py            |       37 |        1 |     97% |        55 |
 | osctiny/utils/xml.py                |       24 |        2 |     92% |    62, 78 |
 | setup.py                            |       15 |       15 |      0% |      3-27 |
-|                           **TOTAL** | **1549** |  **380** | **75%** |           |
+|                           **TOTAL** | **1549** |  **379** | **76%** |           |
 
 
 ## Setup coverage badge
