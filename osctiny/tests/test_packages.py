@@ -87,20 +87,63 @@ class TestPackage(OscTest):
                   <entry name="SUSEConnect.9195"/>
                 </directory>
             """
+            deleted = params.get("deleted", None)
+            if deleted == ["1"]:
+                body = """
+                    <directory count="1">
+                      <entry name="SAPHanaSR.1234"/>
+                    </directory>
+                """
+            elif deleted == ["0"]:
+                body = """
+                    <directory count="16">
+                      <entry name="SAPHanaSR"/>
+                      <entry name="SAPHanaSR:variant" originpackage="SAPHanaSR"/>
+                      <entry name="SAPHanaSR.4926"/>
+                      <entry name="SAPHanaSR.7820"/>
+                      <entry name="SUSEConnect"/>
+                      <entry name="SUSEConnect:test" originpackage="SUSEConnect"/>
+                      <entry name="SUSEConnect.1732"/>
+                      <entry name="SUSEConnect.1892"/>
+                      <entry name="SUSEConnect.2196"/>
+                      <entry name="SUSEConnect.2374"/>
+                      <entry name="SUSEConnect.4293"/>
+                      <entry name="SUSEConnect.4515"/>
+                      <entry name="SUSEConnect.4773"/>
+                      <entry name="SUSEConnect.7260"/>
+                      <entry name="SUSEConnect.8868"/>
+                      <entry name="SUSEConnect.9195"/>
+                    </directory>
+                """
+
             headers['request-id'] = '728d329e-0e86-11e4-a748-0c84dc037c13'
             return status, headers, body
 
         self.mock_request(
             method=responses.GET,
-            url=self.osc.url + '/source/SUSE:SLE-12-SP1:Update/python.8549',
+            url=self.osc.url + '/source/SUSE:SLE-12-SP1:Update',
             callback=CallbackFactory(callback)
         )
 
-        response = self.osc.packages.get_files(
-            "SUSE:SLE-12-SP1:Update", "python.8549"
+        # this is the default case without passing any arguments
+        response = self.osc.packages.get_list(
+            "SUSE:SLE-12-SP1:Update"
         )
         self.assertEqual(response.tag, "directory")
         self.assertEqual(response.countchildren(), 14)
+
+        data = (
+            ("default case", None, 14),
+            ("deleted true", True, 1),
+            ("deleted false", False, 16),
+        )
+        for label, deleted, count in data:
+            with self.subTest(label):
+                response = self.osc.packages.get_list(
+                    "SUSE:SLE-12-SP1:Update", deleted=deleted
+                )
+                self.assertEqual(response.tag, "directory")
+                self.assertEqual(response.countchildren(), count)
 
     @responses.activate
     def test_get_meta(self):

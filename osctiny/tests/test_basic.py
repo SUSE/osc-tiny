@@ -116,15 +116,14 @@ class BasicTest(OscTest):
                 b"",
                 "https://api.example.com/source/PROJECT",
             ),
-            # 'deleted' is a boolean param in the project endpoint
             (
                 {"deleted": True},
-                b"deleted",
+                b"deleted=1",
                 "https://api.example.com/source/PROJECT",
             ),
             (
                 {"deleted": False},
-                b"",
+                b"deleted=0",
                 "https://api.example.com/source/PROJECT",
             ),
 
