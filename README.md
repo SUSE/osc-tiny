@@ -14,7 +14,7 @@
 | osctiny/extensions/distributions.py |       13 |        0 |    100% |           |
 | osctiny/extensions/issues.py        |       26 |        0 |    100% |           |
 | osctiny/extensions/origin.py        |      182 |       78 |     57% |37-39, 55-69, 77, 121-122, 130-146, 175, 177, 181, 189, 249-251, 262-265, 285-286, 288, 417, 442-450, 463-467, 490-520, 530-542 |
-| osctiny/extensions/packages.py      |      139 |       41 |     71% |73-80, 217-227, 256, 306-322, 334-347, 412, 427, 452-460, 484-500, 579-583, 603, 606, 627, 646 |
+| osctiny/extensions/packages.py      |      141 |       38 |     73% |227-237, 266, 316-332, 344-357, 422, 437, 462-470, 494-510, 589-593, 613, 616, 637, 656 |
 | osctiny/extensions/projects.py      |      115 |       17 |     85% |92-94, 172, 197, 200, 257, 278, 304, 317, 337, 358-371, 420, 451 |
 | osctiny/extensions/search.py        |       13 |        1 |     92% |        56 |
 | osctiny/extensions/staging.py       |       95 |        8 |     92% |82, 104, 167, 211, 237, 313, 370, 383 |
@@ -35,7 +35,7 @@
 | osctiny/utils/session.py            |       37 |        1 |     97% |        55 |
 | osctiny/utils/xml.py                |       24 |        2 |     92% |    62, 78 |
 | setup.py                            |       15 |       15 |      0% |      3-27 |
-|                           **TOTAL** | **1549** |  **379** | **76%** |           |
+|                           **TOTAL** | **1551** |  **376** | **76%** |           |
 
 
 ## Setup coverage badge
