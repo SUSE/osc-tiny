@@ -65,7 +65,7 @@ class Package(ExtensionBase):
         .. versionchanged:: 0.7.6
             Changed default value of ``expand`` to ``False``
 
-        .. versionchanged:: {{NEXT_RELEASE}}
+        .. versionchanged:: 0.10.7
             Made the ``deleted`` parameter fully optional. It is no longer a boolean flag but really
             a boolean parameter, so ``deleted=0`` is actually added to the API call.
 
