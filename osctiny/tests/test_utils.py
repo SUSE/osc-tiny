@@ -642,7 +642,14 @@ class TestCookies(TestCase):
 
         jar = LWPCookieJar(filename=str(cookie_path))
         jar.load()
-        self.assertEqual(cookie_str, CookieManager.get_cookie(jar=jar))
+        result = CookieManager.get_cookie(jar=jar)
+
+        # Use regex to handle both quoted and unquoted domain formats
+        # Python 3.13.4+ changed how domains are serialized (no quotes)
+        expected_pattern = re.escape(cookie_str).replace(
+            r'domain="\.suse\.de"', r'domain="?\.suse\.de"?'
+        )
+        self.assertRegex(result, expected_pattern)
 
 
 class TestSession(TestCase):
