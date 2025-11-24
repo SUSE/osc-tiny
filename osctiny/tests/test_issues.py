@@ -14,7 +14,7 @@ class TestIssue(OscTest):
         super(TestIssue, self).setUp()
 
         def callback(headers, params, request):
-            status, body = 200, """
+            status, body = 200, r"""
             <issue-trackers>
               <issue-tracker>
                 <name>boost</name>
@@ -69,7 +69,7 @@ class TestIssue(OscTest):
     def test_get_tracker(self):
         def callback(headers, params, request):
             if re.search("bnc/?$", request.url):
-                status, body = 200, """
+                status, body = 200, r"""
                 <issue-tracker>
                   <name>bnc</name>
                   <kind>bugzilla</kind>

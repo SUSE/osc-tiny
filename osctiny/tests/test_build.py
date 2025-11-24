@@ -96,3 +96,39 @@ class BuildTest(OscTest):
                 HTTPError,
                 self.osc.build.get, project=project, package="xyz123"
             )
+
+    @responses.activate
+    def test_get_published_list(self):
+        project = "openSUSE:Factory"
+        repo = "standard"
+        arch = "x86_64"
+
+        response_body = """
+        <directory>
+          <entry name="acme-webserver-1.2.3-1.1.x86_64.rpm"/>
+          <entry name="acme-webserver-debuginfo-1.2.3-1.1.x86_64.rpm"/>
+          <entry name="acme-webserver-debugsource-1.2.3-1.1.x86_64.rpm"/>
+          <entry name="python-foobar-2.0.1-4.2.x86_64.rpm"/>
+          <entry name="python-foobar-doc-2.0.1-4.2.x86_64.rpm"/>
+          <entry name="libcoolstuff3-0.5.7-2.1.x86_64.rpm"/>
+          <entry name="libcoolstuff-devel-0.5.7-2.1.x86_64.rpm"/>
+        </directory>
+        """
+
+        self.mock_request(
+            method=responses.GET,
+            url=re.compile(f"{self.osc.url}/published/{project}/{repo}/{arch}"),
+            body=response_body,
+        )
+
+        response = self.osc.build.get_published_list(
+            project=project,
+            repo=repo,
+            arch=arch
+        )
+
+        entries = response.findall("entry")
+        self.assertEqual(len(entries), 7)
+        self.assertEqual(entries[0].get("name"), "acme-webserver-1.2.3-1.1.x86_64.rpm")
+        self.assertEqual(entries[3].get("name"), "python-foobar-2.0.1-4.2.x86_64.rpm")
+        self.assertEqual(entries[5].get("name"), "libcoolstuff3-0.5.7-2.1.x86_64.rpm")

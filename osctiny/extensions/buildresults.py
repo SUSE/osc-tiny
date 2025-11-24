@@ -111,6 +111,29 @@ class Build(ExtensionBase):
 
         return self.osc.get_objectified_xml(response)
 
+    def get_published_list(self, project: str, repo: str, arch: str, **params):
+        """
+        Get a list of published binaries in a repository
+
+        Returns the directory listing of published packages for a given
+        project, repository, and architecture combination.
+
+        :param project: Project name
+        :param repo: Repository name
+        :param arch: Architecture name
+        :param params: Additional parameters
+        :return: Objectified XML element containing directory entries
+        :rtype: lxml.objectify.ObjectifiedElement
+
+        """
+        response = self.osc.request(
+            method="GET",
+            url=urljoin(self.osc.url, f"/published/{project}/{repo}/{arch}"),
+            params=params,
+        )
+
+        return self.osc.get_objectified_xml(response)
+
     def get_status_and_build_id(self, project, repo, arch):
         """
         Get build status and build ID
