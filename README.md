@@ -9,7 +9,7 @@
 | osctiny/extensions/\_\_init\_\_.py  |        0 |        0 |    100% |           |
 | osctiny/extensions/attributes.py    |       20 |        0 |    100% |           |
 | osctiny/extensions/bs\_requests.py  |       47 |        1 |     98% |        26 |
-| osctiny/extensions/buildresults.py  |       36 |       19 |     47% |62-69, 85-91, 105-112, 126-134, 150-158, 182-189, 209, 228-239 |
+| osctiny/extensions/buildresults.py  |       39 |       19 |     51% |62-69, 85-91, 105-112, 149-157, 173-181, 205-212, 232, 251-262 |
 | osctiny/extensions/comments.py      |       34 |        4 |     88% |20, 28, 85, 98 |
 | osctiny/extensions/distributions.py |       13 |        0 |    100% |           |
 | osctiny/extensions/issues.py        |       26 |        0 |    100% |           |
@@ -20,8 +20,8 @@
 | osctiny/extensions/staging.py       |       95 |        8 |     92% |82, 104, 167, 211, 237, 313, 370, 383 |
 | osctiny/extensions/users.py         |       18 |        9 |     50% |23-32, 42-47, 65-70 |
 | osctiny/models/\_\_init\_\_.py      |        6 |        0 |    100% |           |
-| osctiny/models/request.py           |       52 |        0 |    100% |           |
-| osctiny/models/staging.py           |       44 |        4 |     91% |     56-62 |
+| osctiny/models/request.py           |       44 |        0 |    100% |           |
+| osctiny/models/staging.py           |       40 |        4 |     90% |     56-62 |
 | osctiny/osc.py                      |      168 |       19 |     89% |158, 161-164, 208, 212-220, 230, 304-305, 311, 431, 437 |
 | osctiny/utils/\_\_init\_\_.py       |        0 |        0 |    100% |           |
 | osctiny/utils/auth.py               |      118 |       36 |     69% |35, 70-86, 113-121, 156, 159, 165, 180-190, 209-210, 220, 234-235, 240, 247 |
@@ -35,7 +35,7 @@
 | osctiny/utils/session.py            |       37 |        1 |     97% |        55 |
 | osctiny/utils/xml.py                |       24 |        2 |     92% |    62, 78 |
 | setup.py                            |       15 |       15 |      0% |      3-27 |
-|                           **TOTAL** | **1551** |  **376** | **76%** |           |
+|                           **TOTAL** | **1542** |  **376** | **76%** |           |
 
 
 ## Setup coverage badge
