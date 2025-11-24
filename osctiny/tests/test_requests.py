@@ -307,7 +307,7 @@ spec files:
           and "changereviewstate" in params.get("cmd", [])):
         status = 403
         body = "Forbidden for url: http://api.example.com/request/30902"
-    elif request.method == "POST" and re.search("/request/?\?", request.url):
+    elif request.method == "POST" and re.search(r"/request/?\?", request.url):
         status = 200
         body = """<request id="42"/>"""
     else:

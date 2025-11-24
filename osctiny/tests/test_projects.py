@@ -269,7 +269,7 @@ class TestProject(OscTest):
             """
             if request.url.endswith("_attribute"):
                 status = 200
-                body = """
+                body = r"""
                 <attributes>
                   <attribute name="IgnoredIssues" namespace="OSRT">
                     <value>last_seen: {}</value>
