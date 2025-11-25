@@ -11,7 +11,7 @@ jobs:
       matrix:
         python-version: [ 3.6, 3.7 ]
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - name: Cache pip
         uses: actions/cache@v4
         with:
@@ -35,7 +35,7 @@ jobs:
       matrix:
         python_version: ["3.8", "3.9", "3.10", "3.11", "3.12", "3.13", "3.14-dev"]
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - name: Set up Python ${{ matrix.python_version }}
         uses: actions/setup-python@v5
         with:
@@ -77,7 +77,7 @@ jobs:
       pull-requests: write
       contents: write
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - uses: actions/download-artifact@v4
         id: download
         with:
@@ -102,7 +102,7 @@ jobs:
   lint:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - name: Set up Python 3.12
         uses: actions/setup-python@v5
         with:
