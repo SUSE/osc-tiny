@@ -35,7 +35,7 @@
 | osctiny/utils/session.py            |       37 |        1 |     97% |        55 |
 | osctiny/utils/xml.py                |       24 |        2 |     92% |    62, 78 |
 | setup.py                            |       15 |       15 |      0% |      3-27 |
-|                           **TOTAL** | **1542** |  **376** | **76%** |           |
+| **TOTAL**                           | **1542** |  **376** | **76%** |           |
 
 
 ## Setup coverage badge
