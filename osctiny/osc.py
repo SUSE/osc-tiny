@@ -35,7 +35,7 @@ from .extensions.search import Search
 from .extensions.staging import Staging
 from .extensions.users import Group, Person
 from .models import ParamsType
-from .utils.auth import HttpSignatureAuth
+from .utils.auth import HttpSignatureAuth, HttpTokenAuth
 from .utils.backports import cached_property
 from .utils.conf import BOOLEAN_PARAMS, get_credentials
 from .utils.cookies import CookieManager
@@ -147,17 +147,20 @@ class Osc:
 
     def __init__(self, url: typing.Optional[str] = None, username: typing.Optional[str] = None,
                  password: typing.Optional[str] = None, verify: typing.Optional[str] = None,
-                 ssh_key_file: typing.Optional[typing.Union[Path, str]] = None):
+                 ssh_key_file: typing.Optional[typing.Union[Path, str]] = None,
+                 token: typing.Optional[str] = None):
         # Basic URL and authentication settings
         self.url = url or self.url
         self.username = username or self.username
         self.password = password or self.password
         self.verify = verify
         self.ssh_key = ssh_key_file
+        self.token = token
+
         if self.ssh_key is not None and not isinstance(self.ssh_key, Path):
             self.ssh_key = Path(self.ssh_key)
 
-        if not self.username and not self.password and not self.ssh_key:
+        if not self.username and not self.password and not self.ssh_key and not self.token:
             try:
                 self.username, self.password, self.ssh_key = get_credentials(self.url)
             except (ValueError, RuntimeError, FileNotFoundError) as error:
@@ -193,6 +196,8 @@ class Osc:
             if self.ssh_key is not None:
                 auth = HttpSignatureAuth(username=self.username, password=self.password,
                                          ssh_key_file=self.ssh_key)
+            elif self.token is not None:
+                auth = HttpTokenAuth(self.username, self.token)
             else:
                 auth = HTTPBasicAuth(self.username, self.password)
             session = init_session(auth=auth, policy=self.retry_policy, verify=self.verify)
