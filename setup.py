@@ -36,6 +36,7 @@ setup(
     maintainer_email='maintenance-automation-team@suse.de',
     url='https://github.com/SUSE/osc-tiny',
     packages=find_packages(),
+    package_data={"osctiny": ["py.typed"]},
     license='MIT',
     install_requires=get_requires(),
     classifiers=[
