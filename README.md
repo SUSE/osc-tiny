@@ -34,8 +34,8 @@
 | osctiny/utils/mapping.py            |       37 |       10 |     73% |29, 32, 35, 38, 44, 47, 56, 59, 72-73 |
 | osctiny/utils/session.py            |       37 |        1 |     97% |        55 |
 | osctiny/utils/xml.py                |       24 |        2 |     92% |    62, 78 |
-| setup.py                            |       15 |       15 |      0% |      3-27 |
-| **TOTAL**                           | **1542** |  **376** | **76%** |           |
+| setup.py                            |       11 |       11 |      0% |      3-22 |
+| **TOTAL**                           | **1538** |  **372** | **76%** |           |
 
 
 ## Setup coverage badge
