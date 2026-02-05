@@ -4,3 +4,4 @@ python-dateutil
 pytz
 pyyaml
 urllib3
+cached-property; python_version < '3.8'
