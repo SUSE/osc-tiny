@@ -22,7 +22,7 @@ with open("README.md") as fh:
 setup(
     name='osc-tiny',
     version='0.11.0',
-    description='Client API for openSUSE BuildService',
+    description='Client API for the Open Build Service',
     long_description=long_description,
     long_description_content_type="text/markdown",
     author='Andreas Hasenkopf',
@@ -31,13 +31,13 @@ setup(
     maintainer_email='maintenance-automation-team@suse.de',
     url='https://github.com/SUSE/osc-tiny',
     packages=find_packages(),
-    license='MIT',
+    package_data={"osctiny": ["py.typed"]},
+    license_expression='MIT',
     install_requires=get_requires(),
     classifiers=[
         "Development Status :: 5 - Production/Stable",
         "Intended Audience :: Developers",
         "Intended Audience :: System Administrators",
-        "License :: OSI Approved :: MIT License",
         "Operating System :: OS Independent",
         "Programming Language :: Python :: 3.6",
         "Programming Language :: Python :: 3.7",
@@ -46,5 +46,7 @@ setup(
         "Programming Language :: Python :: 3.10",
         "Programming Language :: Python :: 3.11",
         "Programming Language :: Python :: 3.12",
+        "Programming Language :: Python :: 3.13",
+        "Programming Language :: Python :: 3.14",
     ]
 )
