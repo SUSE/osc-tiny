@@ -65,7 +65,7 @@
             <a id="nextFileLink" class="nav" href="index.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.13.1">coverage.py v7.13.1</a>,
-            created at 2026-03-03 06:43 +0000
+            created at 2026-03-03 07:12 +0000
         </p>
         <aside class="hidden">
             <button type="button" class="button_next_chunk" data-shortcut="j"></button>
@@ -104,7 +104,7 @@
     <p class="mis show_mis"><span class="n"><a id="t22" href="#t22">22</a></span><span class="t"><span class="nam">setup</span><span class="op">(</span>&nbsp;</span><span class="r"></span></p>
     <p class="mis mis2 show_mis"><span class="n"><a id="t23" href="#t23">23</a></span><span class="t">    <span class="nam">name</span><span class="op">=</span><span class="str">'osc-tiny'</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
     <p class="mis mis2 show_mis"><span class="n"><a id="t24" href="#t24">24</a></span><span class="t">    <span class="nam">version</span><span class="op">=</span><span class="str">'0.11.0'</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
-    <p class="mis mis2 show_mis"><span class="n"><a id="t25" href="#t25">25</a></span><span class="t">    <span class="nam">description</span><span class="op">=</span><span class="str">'Client API for openSUSE BuildService'</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis mis2 show_mis"><span class="n"><a id="t25" href="#t25">25</a></span><span class="t">    <span class="nam">description</span><span class="op">=</span><span class="str">'Client API for the Open Build Service'</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
     <p class="mis mis2 show_mis"><span class="n"><a id="t26" href="#t26">26</a></span><span class="t">    <span class="nam">long_description</span><span class="op">=</span><span class="nam">long_description</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
     <p class="mis mis2 show_mis"><span class="n"><a id="t27" href="#t27">27</a></span><span class="t">    <span class="nam">long_description_content_type</span><span class="op">=</span><span class="str">"text/markdown"</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
     <p class="mis mis2 show_mis"><span class="n"><a id="t28" href="#t28">28</a></span><span class="t">    <span class="nam">author</span><span class="op">=</span><span class="str">'Andreas Hasenkopf'</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
@@ -113,13 +113,13 @@
     <p class="mis mis2 show_mis"><span class="n"><a id="t31" href="#t31">31</a></span><span class="t">    <span class="nam">maintainer_email</span><span class="op">=</span><span class="str">'maintenance-automation-team@suse.de'</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
     <p class="mis mis2 show_mis"><span class="n"><a id="t32" href="#t32">32</a></span><span class="t">    <span class="nam">url</span><span class="op">=</span><span class="str">'https://github.com/SUSE/osc-tiny'</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
     <p class="mis mis2 show_mis"><span class="n"><a id="t33" href="#t33">33</a></span><span class="t">    <span class="nam">packages</span><span class="op">=</span><span class="nam">find_packages</span><span class="op">(</span><span class="op">)</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
-    <p class="mis mis2 show_mis"><span class="n"><a id="t34" href="#t34">34</a></span><span class="t">    <span class="nam">license</span><span class="op">=</span><span class="str">'MIT'</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
-    <p class="mis mis2 show_mis"><span class="n"><a id="t35" href="#t35">35</a></span><span class="t">    <span class="nam">install_requires</span><span class="op">=</span><span class="nam">get_requires</span><span class="op">(</span><span class="op">)</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
-    <p class="mis mis2 show_mis"><span class="n"><a id="t36" href="#t36">36</a></span><span class="t">    <span class="nam">classifiers</span><span class="op">=</span><span class="op">[</span>&nbsp;</span><span class="r"></span></p>
-    <p class="mis mis2 show_mis"><span class="n"><a id="t37" href="#t37">37</a></span><span class="t">        <span class="str">"Development Status :: 5 - Production/Stable"</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
-    <p class="mis mis2 show_mis"><span class="n"><a id="t38" href="#t38">38</a></span><span class="t">        <span class="str">"Intended Audience :: Developers"</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
-    <p class="mis mis2 show_mis"><span class="n"><a id="t39" href="#t39">39</a></span><span class="t">        <span class="str">"Intended Audience :: System Administrators"</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
-    <p class="mis mis2 show_mis"><span class="n"><a id="t40" href="#t40">40</a></span><span class="t">        <span class="str">"License :: OSI Approved :: MIT License"</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis mis2 show_mis"><span class="n"><a id="t34" href="#t34">34</a></span><span class="t">    <span class="nam">package_data</span><span class="op">=</span><span class="op">{</span><span class="str">"osctiny"</span><span class="op">:</span> <span class="op">[</span><span class="str">"py.typed"</span><span class="op">]</span><span class="op">}</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis mis2 show_mis"><span class="n"><a id="t35" href="#t35">35</a></span><span class="t">    <span class="nam">license_expression</span><span class="op">=</span><span class="str">'MIT'</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis mis2 show_mis"><span class="n"><a id="t36" href="#t36">36</a></span><span class="t">    <span class="nam">install_requires</span><span class="op">=</span><span class="nam">get_requires</span><span class="op">(</span><span class="op">)</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis mis2 show_mis"><span class="n"><a id="t37" href="#t37">37</a></span><span class="t">    <span class="nam">classifiers</span><span class="op">=</span><span class="op">[</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis mis2 show_mis"><span class="n"><a id="t38" href="#t38">38</a></span><span class="t">        <span class="str">"Development Status :: 5 - Production/Stable"</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis mis2 show_mis"><span class="n"><a id="t39" href="#t39">39</a></span><span class="t">        <span class="str">"Intended Audience :: Developers"</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis mis2 show_mis"><span class="n"><a id="t40" href="#t40">40</a></span><span class="t">        <span class="str">"Intended Audience :: System Administrators"</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
     <p class="mis mis2 show_mis"><span class="n"><a id="t41" href="#t41">41</a></span><span class="t">        <span class="str">"Operating System :: OS Independent"</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
     <p class="mis mis2 show_mis"><span class="n"><a id="t42" href="#t42">42</a></span><span class="t">        <span class="str">"Programming Language :: Python :: 3.6"</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
     <p class="mis mis2 show_mis"><span class="n"><a id="t43" href="#t43">43</a></span><span class="t">        <span class="str">"Programming Language :: Python :: 3.7"</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
@@ -128,8 +128,10 @@
     <p class="mis mis2 show_mis"><span class="n"><a id="t46" href="#t46">46</a></span><span class="t">        <span class="str">"Programming Language :: Python :: 3.10"</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
     <p class="mis mis2 show_mis"><span class="n"><a id="t47" href="#t47">47</a></span><span class="t">        <span class="str">"Programming Language :: Python :: 3.11"</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
     <p class="mis mis2 show_mis"><span class="n"><a id="t48" href="#t48">48</a></span><span class="t">        <span class="str">"Programming Language :: Python :: 3.12"</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
-    <p class="mis mis2 show_mis"><span class="n"><a id="t49" href="#t49">49</a></span><span class="t">    <span class="op">]</span>&nbsp;</span><span class="r"></span></p>
-    <p class="mis mis2 show_mis"><span class="n"><a id="t50" href="#t50">50</a></span><span class="t"><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis mis2 show_mis"><span class="n"><a id="t49" href="#t49">49</a></span><span class="t">        <span class="str">"Programming Language :: Python :: 3.13"</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis mis2 show_mis"><span class="n"><a id="t50" href="#t50">50</a></span><span class="t">        <span class="str">"Programming Language :: Python :: 3.14"</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis mis2 show_mis"><span class="n"><a id="t51" href="#t51">51</a></span><span class="t">    <span class="op">]</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis mis2 show_mis"><span class="n"><a id="t52" href="#t52">52</a></span><span class="t"><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
 </main>
 <footer>
     <div class="content">
@@ -139,7 +141,7 @@
             <a class="nav" href="index.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.13.1">coverage.py v7.13.1</a>,
-            created at 2026-03-03 06:43 +0000
+            created at 2026-03-03 07:12 +0000
         </p>
     </div>
 </footer>
