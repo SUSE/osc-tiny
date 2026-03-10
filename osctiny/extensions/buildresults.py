@@ -4,6 +4,7 @@ Build result extension
 """
 # pylint: disable=too-few-public-methods
 from urllib.parse import urljoin
+from warnings import warn
 
 from ..utils.base import ExtensionBase
 
@@ -115,8 +116,8 @@ class Build(ExtensionBase):
         """
         Get a list of published binaries in a repository
 
-        Returns the directory listing of published packages for a given
-        project, repository, and architecture combination.
+        .. deprecated:: 0.12.0
+            Use :py:meth:`osctiny.extensions.published.Published.get_binary_list` instead.
 
         :param project: Project name
         :param repo: Repository name
@@ -124,15 +125,14 @@ class Build(ExtensionBase):
         :param params: Additional parameters
         :return: Objectified XML element containing directory entries
         :rtype: lxml.objectify.ObjectifiedElement
-
         """
-        response = self.osc.request(
-            method="GET",
-            url=urljoin(self.osc.url, f"/published/{project}/{repo}/{arch}"),
-            params=params,
+        warn(
+            "Build.get_published_list is deprecated. "
+            "Use osc.published.get_binary_list instead.",
+            DeprecationWarning,
+            stacklevel=2,
         )
-
-        return self.osc.get_objectified_xml(response)
+        return self.osc.published.get_binary_list(project, repo, arch, **params)
 
     def get_status_and_build_id(self, project, repo, arch):
         """

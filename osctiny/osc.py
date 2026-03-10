@@ -30,6 +30,7 @@ from .extensions.issues import Issue
 from .extensions.origin import Origin
 from .extensions.packages import Package
 from .extensions.projects import Project
+from .extensions.published import Published
 from .extensions.bs_requests import Request as BsRequest
 from .extensions.search import Search
 from .extensions.staging import Staging
@@ -173,6 +174,7 @@ class Osc:
         self.origins = Origin(osc_obj=self)
         self.packages = Package(osc_obj=self)
         self.projects = Project(osc_obj=self)
+        self.published = Published(osc_obj=self)
         self.requests = BsRequest(osc_obj=self)
         self.search = Search(osc_obj=self)
         self.staging = Staging(osc_obj=self)
