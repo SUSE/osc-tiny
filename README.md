@@ -9,24 +9,25 @@
 | osctiny/extensions/\_\_init\_\_.py  |        0 |        0 |    100% |           |
 | osctiny/extensions/attributes.py    |       20 |        0 |    100% |           |
 | osctiny/extensions/bs\_requests.py  |       47 |        1 |     98% |        26 |
-| osctiny/extensions/buildresults.py  |       39 |       19 |     51% |62-69, 85-91, 105-112, 149-157, 173-181, 205-212, 232, 251-262 |
+| osctiny/extensions/buildresults.py  |       40 |       19 |     52% |63-70, 86-92, 106-113, 149-157, 173-181, 205-212, 232, 251-262 |
 | osctiny/extensions/comments.py      |       34 |        4 |     88% |20, 28, 85, 98 |
 | osctiny/extensions/distributions.py |       13 |        0 |    100% |           |
 | osctiny/extensions/issues.py        |       26 |        0 |    100% |           |
 | osctiny/extensions/origin.py        |      182 |       78 |     57% |37-39, 55-69, 77, 121-122, 130-146, 175, 177, 181, 189, 249-251, 262-265, 285-286, 288, 417, 442-450, 463-467, 490-520, 530-542 |
 | osctiny/extensions/packages.py      |      141 |       38 |     73% |227-237, 266, 316-332, 344-357, 422, 437, 462-470, 494-510, 589-593, 613, 616, 637, 656 |
 | osctiny/extensions/projects.py      |      115 |       17 |     85% |92-94, 172, 197, 200, 257, 278, 304, 317, 337, 358-371, 420, 451 |
+| osctiny/extensions/published.py     |       10 |        0 |    100% |           |
 | osctiny/extensions/search.py        |       13 |        1 |     92% |        56 |
 | osctiny/extensions/staging.py       |       95 |        8 |     92% |82, 104, 167, 211, 237, 313, 370, 383 |
 | osctiny/extensions/users.py         |       18 |        9 |     50% |23-32, 42-47, 65-70 |
 | osctiny/models/\_\_init\_\_.py      |        6 |        0 |    100% |           |
 | osctiny/models/request.py           |       44 |        0 |    100% |           |
 | osctiny/models/staging.py           |       40 |        4 |     90% |     56-62 |
-| osctiny/osc.py                      |      168 |       19 |     89% |158, 161-164, 208, 212-220, 230, 304-305, 311, 431, 437 |
+| osctiny/osc.py                      |      170 |       19 |     89% |159, 162-165, 210, 214-222, 232, 306-307, 313, 433, 439 |
 | osctiny/utils/\_\_init\_\_.py       |        0 |        0 |    100% |           |
 | osctiny/utils/auth.py               |      118 |       36 |     69% |35, 70-86, 113-121, 156, 159, 165, 180-190, 209-210, 220, 234-235, 240, 247 |
 | osctiny/utils/backports.py          |        4 |        2 |     50% |     14-16 |
-| osctiny/utils/base.py               |        3 |        0 |    100% |           |
+| osctiny/utils/base.py               |        4 |        0 |    100% |           |
 | osctiny/utils/changelog.py          |       96 |        6 |     94% |69, 80, 98, 109, 167, 277 |
 | osctiny/utils/conf.py               |       73 |       24 |     67% |21, 67, 108, 130-150, 179, 182-187, 190 |
 | osctiny/utils/cookies.py            |       37 |        7 |     81% |     25-35 |
@@ -35,7 +36,7 @@
 | osctiny/utils/session.py            |       37 |        1 |     97% |        55 |
 | osctiny/utils/xml.py                |       24 |        2 |     92% |    62, 78 |
 | setup.py                            |       11 |       11 |      0% |      3-22 |
-| **TOTAL**                           | **1538** |  **372** | **76%** |           |
+| **TOTAL**                           | **1552** |  **372** | **76%** |           |
 
 
 ## Setup coverage badge
