@@ -13,7 +13,7 @@ import re
 import sys
 from time import time
 
-from requests.auth import HTTPDigestAuth
+from requests.auth import AuthBase, HTTPDigestAuth
 from requests.cookies import extract_cookies_to_jar
 from requests.utils import parse_dict_header
 from requests import Response
@@ -274,4 +274,21 @@ class HttpSignatureAuth(HTTPDigestAuth):
             return _r
 
         self._thread_local.num_401_calls = 1
+        return r
+
+
+class HttpTokenAuth(AuthBase):
+    """Attaches HTTP Token Authentication to the given Request object."""
+
+    def __init__(self, token):
+        self.token = token
+
+    def __eq__(self, other):
+        return self.token == getattr(other, "token", None)
+
+    def __ne__(self, other):
+        return not self == other
+
+    def __call__(self, r):
+        r.headers["Authorization"] = f"Token {self.token}"
         return r
